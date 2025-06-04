@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding 與軟體工程初探課程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+    /* 全螢幕置中樣式 */
+    .slides-container.fullscreen-centered {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      background: #fff;
+      box-sizing: border-box;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    .slides-container > .slide {
+      display: none;
+    }
+    .slides-container > .slide.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+    .slide-scale-root {
+      width: 1280px;
+      height: 720px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+      transition: transform 0.2s cubic-bezier(.4,2,.6,1), box-shadow 0.2s;
+      box-sizing: border-box;
+      /* 響應式縮放：非全螢幕時自動縮小 */
+      max-width: 100vw;
+      max-height: 80vh;
+      min-width: 280px;
+      min-height: 180px;
+    }
+    @media (max-width: 1280px) {
+      .slide-scale-root {
+        width: 100vw;
+        height: calc(100vw * 0.5625); /* 16:9 */
+        min-width: 0;
+        min-height: 0;
+      }
+    }
+    @media (max-width: 900px) {
+      .slide-scale-root {
+        height: 60vw;
+      }
+    }
+    /* 主要標題、內文、按鈕、Quiz、圖片等 RWD 字級與間距 */
+    .slide-title, h3.slide-title {
+      font-size: clamp(1.25rem, 2vw + 1rem, 2.25rem);
+      line-height: 1.2;
+    }
+    .slide-content-wrapper, .slide-scale-root {
+      font-size: clamp(0.9rem, 1vw + 0.8rem, 1.2rem);
+      line-height: 1.6;
+      padding: clamp(0.5rem, 2vw, 2rem);
+    }
+    .quiz-btn {
+      font-size: clamp(0.9rem, 1vw + 0.7rem, 1.1rem);
+      padding: clamp(0.3rem, 1vw, 0.7rem) clamp(0.8rem, 2vw, 1.5rem);
+    }
+    .slide-scale-root img,
+    .slide-scale-root pre,
+    .slide-scale-root code {
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+      font-size: inherit;
+    }
+    /* 導覽列 RWD */
+    nav ul {
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+    @media (min-width: 640px) {
+      nav ul {
+        gap: 1rem;
+      }
+    }
+    .slides-container.fullscreen-centered .slide-scale-root {
+      /* 進入全螢幕時由 JS 動態設 transform:scale(...) */
+      will-change: transform;
+      margin: 0 auto;
+      box-shadow: 0 0 0 0 transparent;
+    }
+    .slides-container.fullscreen-centered .slide-content-wrapper {
+      /* 讓內容維持原始比例，不要有寬高限制，避免干擾 scale */
+      display: block;
+      width: auto;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .slides-container.fullscreen-centered > * {
+      max-width: 100%;
+      max-height: 100%;
+      box-sizing: border-box;
+    }
+    .slides-container.fullscreen-centered img,
+    .slides-container.fullscreen-centered pre,
+    .slides-container.fullscreen-centered code {
+      max-height: 100%;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      box-sizing: border-box;
+    }
+    .slides-container.fullscreen-centered > * {
+      max-width: 100%;
+      max-height: 100%;
+      box-sizing: border-box;
+    }
+    .slides-container.fullscreen-centered img,
+    .slides-container.fullscreen-centered pre,
+    .slides-container.fullscreen-centered code {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      box-sizing: border-box;
+    }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Navigation Bar Styles */
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            color: white;
+        }
+        .nav-link.active-nav-link {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Week Content Styles */
+        .week-content {
+            display: none; /* Default hide all week content */
+        }
+        .week-content.active-week {
+            display: block;
+        }
+
+        /* Slide Styles (for All Weeks) */
+        .slide {
+            display: none; /* Default hide all slides */
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+            margin-bottom: 1.5rem;
+            min-height: 450px; 
+        }
+        .slide.active {
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+        }
+        .navigation-controls button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .navigation-controls button:hover {
+            background-color: #2563eb;
+        }
+        .navigation-controls button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* General Custom Styles */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+        }
+        .content-box {
+            background-color: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        .activity-box {
+            background-color: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        .code-snippet {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prompt-example {
+            background-color: #eff6ff;
+            border: 1px dashed #60a5fa;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-top: 0.5rem;
+        }
+        .highlight {
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .discussion-box {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        .slide-title { 
+            font-size: 1.5rem; 
+            color: #1e3a8a; 
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #93c5fd; 
+            width: 100%; 
+        }
+        .week-top-title { 
+            background-color: #3b82f6; 
+            color: white;
+            padding: 1rem; 
+            border-radius: 0.5rem 0.5rem 0 0; 
+            text-align: center;
+            font-size: 1.5rem; 
+        }
+        .slides-container { 
+             background-color: #f3f4f6; 
+             padding: 0.5rem; 
+             border-radius: 0 0 0.5rem 0.5rem; 
+             box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.05);
+        }
+        .slide-content-wrapper { 
+            width: 100%;
+            overflow-y: auto; 
+            flex-grow: 1;
+        }
+        .header-logo-container { 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.75rem; 
+        }
+        .header-logo {
+            height: 40px; 
+            margin-right: 0.75rem; 
+        }
+        .header-logo-text {
+            font-size: 1.25rem; 
+            font-weight: 600; 
+            color: #1e40af; 
+        }
+        .slide-internal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem; 
+            opacity: 0.8; 
+        }
+        .slide-internal-logo {
+            height: 24px; 
+            margin-right: 0.5rem; 
+        }
+        .slide-internal-text {
+            font-size: 0.75rem; 
+            color: #6b7280; 
+        }
+        /* Accordion Styles (shared) */
+        .accordion-header { 
+            cursor: pointer;
+            user-select: none;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb; 
+        }
+        .accordion-header:hover {
+            background-color: #f3f4f6; 
+        }
+        .accordion-header .arrow-icon {
+            transform: rotate(0deg);
+            transition: transform 0.3s ease-out;
+        }
+        .accordion-header.open .arrow-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out; 
+            background-color: #f9fafb; 
+            padding: 0 1rem; 
+        }
+        .accordion-content.open {
+            max-height: 2000px; 
+            transition: max-height 0.5s ease-in, padding 0.3s ease-in; 
+            padding: 1rem; 
+        }
+        .fullscreen-nav-btns {
+  display: block !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+  background: none !important;
+}
+.fullscreen-nav-btns button {
+  position: absolute !important;
+  top: 50% !important;
+
+  transform: translateY(-50%) !important;
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 50% !important;
+  pointer-events: auto !important;
+}
+.fullscreen-prev-btn {
+  left: 24px !important;
+  right: auto !important;
+}
+.fullscreen-next-btn {
+  right: 24px !important;
+  left: auto !important;
+}
+
+        html, body, .slides-container, .slides-container.fullscreen-centered {
+        overflow: visible !important;
+        }
+
+/* === 內嵌 fix-fullscreen-nav-btns.css，徹底覆蓋所有定位與樣式 === */
+.fullscreen-nav-btns {
+  position: fixed !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  display: block !important;
+  background: none !important;
+}
+.fullscreen-nav-btns {
+  justify-content: unset !important;
+  align-items: unset !important;
+  flex-direction: unset !important;
+  gap: unset !important;
+}
+.fullscreen-nav-btns button {
+  position: absolute !important;
+  top: 50% !important;
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.85) !important;
+  border: 2.5px solid #2563eb !important;
+  color: #2563eb !important;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 2rem !important;
+  outline: none !important;
+  opacity: 0.97 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.18s !important;
+  touch-action: manipulation !important;
+  will-change: transform, box-shadow !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.fullscreen-prev-btn {
+  left: 24px !important;
+  right: auto !important;
+}
+.fullscreen-next-btn {
+  right: 24px !important;
+  left: auto !important;
+}
+.fullscreen-nav-btns button:active {
+  background: #2563eb !important;
+  color: #fff !important;
+  box-shadow: 0 6px 24px 0 rgba(37,99,235,0.18) !important;
+  transform: translateY(-50%) scale(0.93) !important;
+}
+.fullscreen-nav-btns button:hover {
+  background: #eff6ff !important;
+  box-shadow: 0 12px 32px 0 rgba(37,99,235,0.22) !important;
+  transform: translateY(-50%) scale(1.12) !important;
+}
+.fullscreen-nav-btns svg {
+  display: block !important;
+  width: 36px !important;
+  height: 36px !important;
+  pointer-events: none !important;
+}
+/* === fix-fullscreen-nav-btns.css 內嵌結束 === */
+
+    html, body {
+      width: 100vw !important;
+      height: 100vh !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      position: static !important;
+      transform: none !important;
+      filter: none !important;
+      overflow: visible !important;
+    }
+    .fullscreen-nav-btns {
+      z-index: 2147483647 !important;
+    }
+    .slides-container,
+    .slides-container.fullscreen-centered,
+    .slide-scale-root {
+      position: static !important;
+      z-index: auto !important;
+      transform: none !important;
+      filter: none !important;
+      will-change: auto !important;
+      opacity: 1 !important;
+    }
+    /* === 強制覆蓋所有 flex、錯誤定位 === */
+    .fullscreen-nav-btns {
+      display: block !important;
+      position: fixed !important;
+
+      top: 0 !important;
+
+      bottom: auto !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      pointer-events: none !important;
+      background: none !important;
+      z-index: 2147483647 !important;
+      justify-content: unset !important;
+      align-items: unset !important;
+      flex-direction: unset !important;
+      gap: unset !important;
+    }
+    .fullscreen-nav-btns button {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 50% !important;
+  pointer-events: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+    .fullscreen-prev-btn {
+      left: 24px !important;
+      right: auto !important;
+    }
+    .fullscreen-next-btn {
+      right: 24px !important;
+      left: auto !important;
+    }
+    </style>
+<script>
+function fixFullscreenNavBtnDisplay() {
+  // 父層移除 flex 相關 class
+  document.querySelectorAll('.fullscreen-nav-btns').forEach(nav => {
+    nav.classList.remove('flex', 'justify-center', 'items-center', 'flex-col', 'flex-row');
+    nav.removeAttribute('style');
+  });
+  // 強制按鈕定位
+  document.querySelectorAll('.fullscreen-next-btn').forEach(btn => {
+    btn.removeAttribute('style');
+    btn.style.right = '24px';
+    btn.style.left = 'auto';
+  });
+  document.querySelectorAll('.fullscreen-prev-btn').forEach(btn => {
+    btn.removeAttribute('style');
+    btn.style.left = '24px';
+    btn.style.right = 'auto';
+  });
+}
+
+
+document.addEventListener('fullscreenchange', fixFullscreenNavBtnDisplay);
+document.addEventListener('webkitfullscreenchange', fixFullscreenNavBtnDisplay);
+// 初次進入頁面也執行一次
+window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
+</script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6 md:p-10">
+
+        <header class="text-center mb-6">
+            <div class="header-logo-container">
+                <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="header-logo">
+                <span class="header-logo-text">得能教育 Telearn</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-600">Vibe Coding 與軟體工程初探課程</h1>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-blue-600 text-white p-3 mb-8 rounded-md shadow-md">
+            <ul class="flex space-x-2 sm:space-x-4 justify-center">
+                <li><a href="#" class="nav-link active-nav-link" data-week="1">第一週</a></li>
+                <li><a href="#" class="nav-link" data-week="2">第二週</a></li>
+                <li><a href="#" class="nav-link pointer-events-none cursor-not-allowed opacity-60" tabindex="-1" aria-disabled="true">第三週</a></li>
+                <li><a href="#" class="nav-link pointer-events-none cursor-not-allowed opacity-60" tabindex="-1" aria-disabled="true">第四週</a></li>
+            </ul>
+        </nav>
+
+        <!-- Collapsible Course Overview -->
+        <section class="mb-8 rounded-lg overflow-hidden border border-blue-300 shadow">
+            <div class="accordion-header bg-blue-100 text-blue-800" onclick="toggleAccordion(this)">
+                <h2 class="text-2xl font-semibold">課程總覽</h2>
+                <span class="arrow-icon text-2xl text-blue-700">&#9660;</span>
+            </div>
+            <div class="accordion-content content-box !border-l-4 !border-blue-500 !rounded-t-none !border-t-0 !mt-0 !mb-0" style="max-height:0;overflow:visible!important;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1);box-sizing:border-box;">
+
+                <p class="mb-2">哈囉，同學們！歡迎來到「Vibe Coding 與軟體工程初探課程」！</p>
+                <p class="mb-2">在這四週的課程中，我們將一起：</p>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                    <li><span class="highlight">探索主流 AI 語言模型：</span>認識 ChatGPT、Google Gemini、Anthropic Claude，並學習如何與它們有效互動。</li>
+                    <li><span class="highlight">運用 ChatGPT 概念深化 Python：</span>前兩週我們將以 ChatGPT 的互動模式為藍本，強化 Python 技能。</li>
+                    <li><span class="highlight">精通 Cursor AI 輔助開發：</span>後兩週我們將深入 Cursor，用它來完成一個精彩的期末專案。</li>
+                    <li><span class="highlight">成為小小軟體工程師：</span>學習怎麼寫出漂亮、好懂、不容易出錯的程式碼。</li>
+                    <li><span class="highlight">跟 AI 精準溝通：</span>學習撰寫有效的 Prompt，讓 AI 成為你強大的學習與開發夥伴。</li>
+                </ul>
+                <p class="mt-4">準備好了嗎？讓我們一起開始這趟全新的 AI 程式設計之旅吧！</p>
+            </div>
+        </section>
+
+
+        <!-- Week 1 Content Area -->
+        <div id="week1Content" class="week-content active-week">
+            <div class="week-top-title">
+                <h2 class="text-2xl font-semibold">第一週：AI 語言模型概覽與 ChatGPT 互動基礎</h2>
+            </div>
+            <div id="week1SlidesContainer" class="slides-container">
+
+                <!-- Slide 1: 本週學習目標 (新) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">本週學習目標</h3>
+                        <div class="content-box">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>快速複習 Python 的重要觀念。</li>
+                                <li>認識主流 AI 大型語言模型：ChatGPT (OpenAI)、Gemini (Google)、Claude (Anthropic) 的基本特色與應用。</li>
+                                <li>學習如何像與 ChatGPT 互動一樣，有效地向 AI 提問以輔助 Python 學習。</li>
+                                <li>掌握 Prompt 工程初步：如何撰寫清晰、具體的指令讓 AI 更懂你的需求。</li>
+                                <li>初步建立程式碼風格與可讀性的觀念。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2: Python 暖身操 (不變) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                         <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(一) Python 核心回顧</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2">1. Python 暖身操</h4>
+                            <p class="mb-1">我們已經學過 Python 的基本功了，對吧？讓我們快速回憶一下：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">變數 (Variables)：</span>儲存資料的小盒子 (例如：<code class="code-snippet inline-block !p-1 !m-0">my_name = "小明"</code>, <code class="code-snippet inline-block !p-1 !m-0">age = 13</code>)。</li>
+                                <li><span class="font-semibold">資料型態 (Data Types)：</span>不同種類的資料 (例如：文字 <code class="code-snippet inline-block !p-1 !m-0">str</code>, 數字 <code class="code-snippet inline-block !p-1 !m-0">int</code>, <code class="code-snippet inline-block !p-1 !m-0">float</code>, 布林值 <code class="code-snippet inline-block !p-1 !m-0">bool</code>)。</li>
+                                <li><span class="font-semibold">運算子 (Operators)：</span>做運算的符號 (例如：加減乘除 <code class="code-snippet inline-block !p-1 !m-0">+ - * /</code>, 比較大小 <code class="code-snippet inline-block !p-1 !m-0">&gt; &lt; ==</code>)。</li>
+                                <li><span class="font-semibold">控制流程 (Control Flow)：</span>讓程式決定下一步怎麼走 (例如：<code class="code-snippet inline-block !p-1 !m-0">if...elif...else</code> 條件判斷, <code class="code-snippet inline-block !p-1 !m-0">for</code> 和 <code class="code-snippet inline-block !p-1 !m-0">while</code> 迴圈)。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide: 變數小測驗 -->
+                <div class="slide quiz-slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">小測驗：變數 (Variables)</h3>
+<p class="mb-2">下列哪一行 Python 程式碼可以正確「建立一個名為 student_score 的變數，並設定值為 100」？</p>
+<div class="quiz-options list-decimal ml-6 space-y-1">
+    <button type="button" class="quiz-btn">student-score = 100</button>
+    <button type="button" class="quiz-btn">100 = student_score</button>
+    <button type="button" class="quiz-btn">student_score == 100</button>
+    <button type="button" class="quiz-btn" data-correct="true">student_score = 100</span></button>
+</div>
+<div class="quiz-feedback mt-2 h-6"></div>
+                    </div>
+                </div>
+                <!-- Slide: 資料型態小測驗 -->
+                <div class="slide quiz-slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">小測驗：資料型態 (Data Types)</h3>
+<p class="mb-2">執行下列哪一行程式後，變數 x 的型態會是布林值 (Boolean)？</p>
+<div class="quiz-options list-decimal ml-6 space-y-1">
+    <button type="button" class="quiz-btn">x = "True"</button>
+    <button type="button" class="quiz-btn">x = 1</button>
+    <button type="button" class="quiz-btn" data-correct="true">x = 3 &gt; 5</button>
+    <button type="button" class="quiz-btn">x = "False"</button>
+</div>
+<div class="quiz-feedback mt-2 h-6"></div>
+                    </div>
+                </div>
+                <!-- Slide: 運算子小測驗 -->
+                <div class="slide quiz-slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">小測驗：運算子 (Operators)</h3>
+<p class="mb-2">下列哪一個運算子可以用來「判斷兩個變數是否相等」？</p>
+<div class="quiz-options list-decimal ml-6 space-y-1">
+    <button type="button" class="quiz-btn">=</button>
+    <button type="button" class="quiz-btn">!=</button>
+    <button type="button" class="quiz-btn" data-correct="true">==</button>
+    <button type="button" class="quiz-btn">:=</button>
+</div>
+<div class="quiz-feedback mt-2 h-6"></div>
+                    </div>
+                </div>
+                <!-- Slide: 控制流程小測驗 -->
+                <div class="slide quiz-slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">小測驗：控制流程 (Control Flow)</h3>
+<p class="mb-2">如果你想讓程式「根據不同條件分別執行不同區塊」，應該用哪一個語法？</p>
+<div class="quiz-options list-decimal ml-6 space-y-1">
+    <button type="button" class="quiz-btn">for</button>
+    <button type="button" class="quiz-btn" data-correct="true">if...elif...else</button>
+    <button type="button" class="quiz-btn">def</button>
+    <button type="button" class="quiz-btn">break</button>
+</div>
+<div class="quiz-feedback mt-2 h-6"></div>
+                    </div>
+                </div>
+                <!-- Slide 3: (二) AI 語言模型大觀園 (Intro) -->
+                <div class="slide">
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(二) AI 語言模型大觀園</h3>
+                        <p class="mb-3 text-lg text-center">歡迎來到 AI 語言模型的世界！這些聰明的 AI 能理解和生成文字，甚至程式碼！</p>
+                        <p class="text-center text-gray-600">這週我們將認識幾位赫赫有名的 AI 大師：</p>
+                        <ul class="list-disc list-inside mt-4 space-y-2 text-center text-blue-700 font-semibold">
+                            <li>ChatGPT (來自 OpenAI)</li>
+                            <li>Gemini (來自 Google)</li>
+                            <li>Claude (來自 Anthropic)</li>
+                        </ul>
+                        <p class="text-center text-gray-600 mt-2">以及我們之後專案會用到的 Cursor (一個整合了 AI 功能的程式編輯器)。</p>
+                    </div>
+                </div>
+                <!-- Slide 4: 介紹 ChatGPT -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(二) AI 語言模型大觀園</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2">1. ChatGPT (OpenAI)</h4>
+                            <img src="img/chatgpt.png" alt="ChatGPT Logo" class="my-2 rounded-md shadow-sm mx-auto h-12">
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm mb-2">
+                                <li><span class="font-semibold">特色：</span>非常擅長對話、回答問題、撰寫文章、生成程式碼片段、除錯建議等。</li>
+                                <li><span class="font-semibold">強項：</span>自然語言理解與生成能力強，知識範圍廣泛（但要注意知識截止日期）。</li>
+                                <li><span class="font-semibold">互動方式：</span>主要透過聊天介面進行問答。</li>
+                                <li><span class="font-semibold">應用：</span>學習輔助、內容創作、程式碼初步生成與解釋。</li>
+                            </ul>
+                            <p class="text-xs text-gray-500 mt-2">我們前兩週會主要以 ChatGPT 的互動模式為範例，學習如何與 AI 協作。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 5: 介紹 Gemini -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(二) AI 語言模型大觀園</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2">2. Gemini (Google)</h4>
+                             <img src="img/gemini.png" alt="Gemini Logo" class="my-2 rounded-md shadow-sm mx-auto h-12">
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm mb-2">
+                                <li><span class="font-semibold">特色：</span>Google 開發的多模態 AI 模型，能理解和處理文字、圖片、聲音、影片和程式碼。</li>
+                                <li><span class="font-semibold">強項：</span>與 Google 生態系統整合緊密，具有強大的搜尋與資訊整合能力，多模態理解是其亮點。</li>
+                                <li><span class="font-semibold">互動方式：</span>可透過 Bard (現在是 Gemini App) 聊天介面、API 等方式互動。</li>
+                                <li><span class="font-semibold">應用：</span>複雜問題解答、跨模態內容生成、程式碼輔助、研究分析。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 6: 介紹 Claude -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(二) AI 語言模型大觀園</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2">3. Claude (Anthropic)</h4>
+                            <img src="img/claude.png" alt="Claude Logo" class="my-2 rounded-md shadow-sm mx-auto h-12">
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm mb-2">
+                                <li><span class="font-semibold">特色：</span>由 Anthropic 公司開發，特別強調 AI 的安全性、可靠性和可解釋性。</li>
+                                <li><span class="font-semibold">強項：</span>在處理長文本、遵循複雜指令、生成較為「無害」的內容方面表現突出。擁有較大的上下文視窗 (Context Window)。</li>
+                                <li><span class="font-semibold">互動方式：</span>主要透過聊天介面和 API。</li>
+                                <li><span class="font-semibold">應用：</span>長文件摘要與問答、創意寫作、需要高度遵循指令的任務、企業級應用。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 7: 簡介 Cursor (為後續課程鋪路) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(二) AI 語言模型大觀園</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2">以及我們之後的專案好夥伴：Cursor</h4>
+                             <img src="img/cursor.png" alt="Cursor Logo" class="my-2 rounded-md shadow-sm mx-auto h-12">
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm mb-2">
+                                <li><span class="font-semibold">定位：</span>一個「AI 優先」的程式編輯器，深度整合了 AI 輔助功能。</li>
+                                <li><span class="font-semibold">特色：</span>可以直接在編輯器中與 AI 對話、生成程式碼、修改現有程式碼、解釋程式碼、除錯等。</li>
+                                <li><span class="font-semibold">為什麼我們後面要用它做專案？</span> Cursor 將 AI 的能力直接融入到我們寫程式的每一個環節，可以大大提升開發效率和學習體驗。</li>
+                            </ul>
+                            <p class="text-xs text-gray-500 mt-2">我們會在第三週詳細學習如何使用 Cursor！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 8: (三) Prompt 工程初步 (Intro) - 與之前內容相似，但強調通用性 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(三) 精準提問 AI：Prompt 工程初步</h3>
+                        <p class="mb-3 text-lg">無論你使用 ChatGPT、Gemini、Claude 還是 Cursor 裡的 AI，要讓它們真正幫上忙，我們得學會怎麼「好好跟它們說話」。</p>
+                        <p class="text-center text-2xl font-bold my-4 text-blue-600">我們給 AI 的指令或問題，就叫做 <span class="highlight">Prompt</span>。</p>
+                    </div>
+                </div>
+                <!-- Slide 9: 為什麼 Prompt 很重要？ (不變) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(三) 精準提問 AI：Prompt 工程初步</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">為什麼 Prompt 很重要？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-2 text-sm">
+                                <li>AI 不是萬能的，它需要我們清楚地告訴它「你想做什麼」。</li>
+                                <li>你給的 Prompt 越清楚、越具體，AI 給你的答案或程式碼就會越符合你的期望。</li>
+                                <li class="font-semibold text-red-600 text-lg">口訣：垃圾進，垃圾出 (Garbage In, Garbage Out)！</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 10: 如何寫出好的 Prompt？ (不變) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(三) 精準提問 AI：Prompt 工程初步</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">如何寫出好的 Prompt？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-2 text-sm">
+                                <li><span class="font-semibold">提供足夠的上下文 (Context)：</span>告訴 AI 你正在處理什麼問題，相關的程式碼片段是什麼。</li>
+                                <li><span class="font-semibold">明確指出你的目標 (Goal)：</span>你希望 AI 幫你完成什麼？是產生程式碼、解釋、還是除錯？</li>
+                                <li><span class="font-semibold">給予範例 (Examples)：</span>如果可以，給 AI 一些輸入和輸出的範例，它會更容易理解你的需求。</li>
+                                <li><span class="font-semibold">逐步引導 (Iterative Prompting)：</span>不要想一次就得到完美的答案。可以先給一個簡單的 Prompt，然後根據 AI 的回應，再逐步修正或補充你的 Prompt。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 11: 活動時間：Prompt 大挑戰！(原 Slide 16, 移除 Gemini 功能) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(三) 精準提問 AI：Prompt 工程初步</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動時間：Prompt 大挑戰！</h4>
+                            <ol class="list-decimal list-inside space-y-1 text-sm">
+                                <li><span class="font-semibold">情境：</span>假設你想寫一個 Python 函式，它可以判斷一個數字是不是偶數。</li>
+                                <li>試著用<span class="font-semibold">至少兩種不同</span>的 Prompt，想像你要問 ChatGPT (或其他聊天 AI)，請它幫你寫這個函式。
+                                    <div class="prompt-example">
+                                        <p class="text-xs font-semibold">Prompt 範例1 (比較模糊)：</p>
+                                        <p class="text-xs">「寫個判斷偶數的 Python。」</p>
+                                    </div>
+                                    <div class="prompt-example">
+                                        <p class="text-xs font-semibold">Prompt 範例2 (比較清楚)：</p>
+                                        <p class="text-xs">「請幫我寫一個 Python 函式，名稱叫做 `is_even`。這個函式接受一個整數作為參數，如果該整數是偶數，函式應該回傳 `True`，否則回傳 `False`。」</p>
+                                    </div>
+                                </li>
+                                <li>思考一下，這兩種 Prompt 可能會得到什麼不同的回應？</li>
+                                <li>和同學討論一下，怎麼樣的 Prompt 才能讓 AI 更「懂你」？</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 12: (四) 軟體工程概念：程式碼風格與可讀性 (Intro) (原 Slide 17) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(四) 軟體工程概念：程式碼風格與可讀性</h3>
+                        <p class="mb-3 text-lg">寫程式不只是讓電腦看得懂，更重要的是<span class="highlight">讓人</span> (包括未來的你、你的同學、還有 AI) 也能看得懂！</p>
+                    </div>
+                </div>
+                <!-- Slide 13: 為什麼可讀性很重要？ (原 Slide 18) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(四) 軟體工程概念：程式碼風格與可讀性</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">為什麼可讀性很重要？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-2 text-sm">
+                                <li>容易理解、容易修改、容易除錯。</li>
+                                <li>方便團隊合作。</li>
+                                <li>AI 也更能理解你的程式碼，提供更精準的協助。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 14: 如何提升程式碼可讀性？ (原 Slide 19) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">(四) 軟體工程概念：程式碼風格與可讀性</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">如何提升程式碼可讀性？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">有意義的命名：</span>變數名稱、函式名稱要能清楚表達它們的用途。
+                                    <ul class="list-disc list-inside ml-6 text-xs">
+                                        <li>壞例子：<code class="code-snippet inline-block !p-1 !m-0">x = 10</code>, <code class="code-snippet inline-block !p-1 !m-0">a = "小明"</code>, <code class="code-snippet inline-block !p-1 !m-0">func1()</code></li>
+                                        <li>好例子：<code class="code-snippet inline-block !p-1 !m-0">item_count = 10</code>, <code class="code-snippet inline-block !p-1 !m-0">student_name = "小明"</code>, <code class="code-snippet inline-block !p-1 !m-0">calculate_average_score()</code></li>
+                                        <li>(小提示：可以參考 Python 的 PEP 8 風格指南)</li>
+                                    </ul>
+                                </li>
+                                <li><span class="font-semibold">適當的註解：</span>對於比較複雜的邏輯，加上簡短的說明。</li>
+                                <li><span class="font-semibold">一致的排版：</span>保持縮排、空格的一致性。</li>
+                                <li><span class="font-semibold">函式不要太長：</span>一個函式最好只做一件事情。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 15: 本週重點回顧 (原 Slide 20) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">本週重點回顧</h3>
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                <li>我們認識了 ChatGPT、Gemini、Claude 等主流 AI 語言模型。</li>
+                                <li>學習了如何像與 ChatGPT 互動一樣，有效地向 AI 提問。</li>
+                                <li>掌握了 Prompt 工程的初步技巧，讓 AI 更能理解我們的需求。</li>
+                                <li>了解了程式碼風格與可讀性的重要性。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 16: 下週預告 (原 Slide 21) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">下週預告</h3>
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <p class="text-gray-700 text-lg">我們將繼續以 ChatGPT 的互動模式為參考，深入探索 Python 的進階資料結構，學習如何處理程式中的錯誤，並思考如何運用 AI 輔助除錯！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation for Week 1 Slides -->
+            <button class="fullscreen-btn mt-4 mb-2 mx-auto block bg-white/80 hover:bg-blue-100 border border-blue-300 rounded px-3 py-1 flex items-center gap-2 shadow transition" aria-label="全螢幕播放" onclick="toggleFullscreen(this)">
+              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none"><path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="hidden sm:inline">全螢幕</span>
+            </button>
+            <div class="navigation-controls mt-6 flex justify-between items-center p-4 bg-gray-100 rounded-b-lg shadow">
+                <button id="prevSlideBtn_w1">上一頁</button>
+                <span id="slideIndicator_w1" class="text-sm text-gray-600"></span>
+                <button id="nextSlideBtn_w1">下一頁</button>
+            </div>
+        </div>
+
+        <!-- Week 2 Content Area -->
+        <div id="week2Content" class="week-content">
+            <div class="week-top-title">
+                <h2 class="text-2xl font-semibold">第二週：運用 ChatGPT 概念深化 Python 技能</h2>
+            </div>
+            <div id="week2SlidesContainer" class="slides-container">
+
+                 <!-- Slide 1 for Week 2: 本週學習目標 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">本週學習目標</h3>
+                        <div class="content-box">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>複習並深入應用 Python 的列表 (List)、字典 (Dictionary)、元組 (Tuple)、集合 (Set)。</li>
+                                <li>學習如何構思 Prompt，向類似 ChatGPT 的 AI 提問，以高效操作這些資料結構。</li>
+                                <li>理解 Python 的錯誤與異常處理 (<code class="code-snippet inline-block !p-1 !m-0">try-except-finally</code>)，並思考如何請 AI 協助。</li>
+                                <li>掌握運用 AI 輔助進行進階除錯的策略與提問技巧。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2 for Week 2: 2.1 Python 資料結構進階應用 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階應用 (ChatGPT 輔助視角)</h3>
+                        <p class="text-gray-700 p-4 text-lg">Python 提供了多種強大的內建資料結構。這週，我們將思考如何透過向 ChatGPT 這樣的 AI 提問，來幫助我們更深入地理解和應用它們！</p>
+                        <img src="./img/dict.png" alt="Python 資料結構與AI提問" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 3 for Week 2: List Comprehensions -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">列表推導式 (List Comprehensions)</h4>
+                            <p class="text-sm mb-1">一種簡潔的方式來建立列表。例如，快速產生一個包含平方數的列表：</p>
+                            <pre class="code-snippet"><code>squares = [x**2 for x in range(10)]
+# squares 會是 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]</code></pre>
+                            <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你想用列表推導式從一個字串中選出所有母音，你會怎麼問 ChatGPT (或類似 AI) 來獲得提示或程式碼？</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 4 for Week 2: Dictionary Comprehensions -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">字典推導式 (Dictionary Comprehensions)</h4>
+                            <p class="text-sm mb-1">類似地，用簡潔的方式建立字典：</p>
+                            <pre class="code-snippet"><code>square_dict = {x: x**2 for x in range(5)}
+# square_dict 會是 {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}</code></pre>
+                            <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你想將兩個列表 (一個包含鍵，一個包含值) 合併成一個字典，你會如何向 AI 提問以獲得使用字典推導式的方案？</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 5 for Week 2: Common built-in functions (map, filter, sorted) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">常用內建函式操作資料結構</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">map(function, iterable)</code>：</span>將函式應用到序列中的每個元素。</li>
+                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">filter(function, iterable)</code>：</span>根據函式過濾序列中的元素。</li>
+                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">sorted(iterable, key=None, reverse=False)</code>：</span>對序列進行排序。</li>
+                            </ul>
+                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 你會如何問 AI，請它示範如何使用 <code class="code-snippet inline-block !p-1 !m-0">filter</code> 過濾出一個數字列表中所有大於10的偶數？</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quiz Slide: 列表推導式 -->
+                <div class="slide quiz-slide">
+                  <div class="slide-content-wrapper">
+                    <h3 class="slide-title">小測驗：列表推導式應用</h3>
+                    <div class="content-box">
+                      <p class="mb-2">下列哪一個列表推導式可以正確產生所有大於 10 且為偶數的數字，範圍從 0 到 20？</p>
+                      <div class="quiz-options">
+                        <button class="quiz-btn" type="button">[x for x in range(21) if x % 2 == 0 and x &gt; 10]</button>
+                        <button class="quiz-btn" type="button" data-correct="true">[x for x in range(0, 21) if x &gt; 10 and x % 2 == 0]</button>
+                        <button class="quiz-btn" type="button">[x for x in range(10, 21) if x % 2 == 1]</button>
+                        <button class="quiz-btn" type="button">[x for x in range(21) if x &gt; 10 or x % 2 == 0]</button>
+                      </div>
+                      <div class="quiz-feedback"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Quiz Slide: 字典推導式 -->
+                <div class="slide quiz-slide">
+                  <div class="slide-content-wrapper">
+                    <h3 class="slide-title">小測驗：字典推導式應用</h3>
+                    <div class="content-box">
+                      <p class="mb-2">以下哪一行程式碼可以將兩個列表 <code>keys = ['a', 'b', 'c']</code> 和 <code>values = [1, 2, 3]</code> 合併成 <code>{'a': 1, 'b': 2, 'c': 3}</code>？</p>
+                      <div class="quiz-options">
+                        <button class="quiz-btn" type="button">dict([keys, values])</button>
+                        <button class="quiz-btn" type="button">dict(zip(values, keys))</button>
+                        <button class="quiz-btn" type="button" data-correct="true">{k: v for k, v in zip(keys, values)}</button>
+                        <button class="quiz-btn" type="button">dict(keys, values)</button>
+                      </div>
+                      <div class="quiz-feedback"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Quiz Slide: map/filter/sorted 綜合應用 -->
+                <div class="slide quiz-slide">
+                  <div class="slide-content-wrapper">
+                    <h3 class="slide-title">小測驗：資料處理函式</h3>
+                    <div class="content-box">
+                      <p class="mb-2">有一個分數列表 <code>scores = [58, 92, 75, 43, 86]</code>，要找出所有及格（60分以上）且分數從高到低排序，下列哪一行程式碼最合適？</p>
+                      <div class="quiz-options">
+                        <button class="quiz-btn" type="button">sorted(scores, key=lambda x: x &gt;= 60, reverse=True)</button>
+                        <button class="quiz-btn" type="button" data-correct="true">sorted(filter(lambda x: x &gt;= 60, scores), reverse=True)</button>
+                        <button class="quiz-btn" type="button">map(lambda x: x &gt;= 60, scores)</button>
+                        <button class="quiz-btn" type="button">filter(lambda x: x &gt;= 60, sorted(scores))</button>
+                      </div>
+                      <div class="quiz-feedback"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Slide 6 for Week 2: Activity: Student list & grades -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：學生名單與成績處理 (AI 輔助思考)</h4>
+                            <p class="text-sm mb-1">假設你有一份學生成績資料 (例如，一個包含學生姓名和分數的字典列表)。</p>
+                            <p class="text-sm mb-1">針對以下任務，思考你會如何向 ChatGPT (或類似 AI) 提問，以獲得解題思路或程式碼片段：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>計算全班的平均分數。</li>
+                                <li>找出最高分的學生及其分數。</li>
+                                <li>篩選出所有不及格 (例如低於60分) 的學生名單。</li>
+                                <li>將學生成績從高到低排序。</li>
+                            </ul>
+                            <p class="text-sm mt-2">試著寫下你的 Prompt，並看 AI 會給你什麼樣的幫助。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 7 for Week 2: 2.2 堅固的程式碼：錯誤與異常處理 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理 (AI 輔助視角)</h3>
+                        <p class="text-gray-700 p-4 text-lg">程式出錯是家常便飯！學會處理「錯誤」和「異常」能讓你的程式更強壯。思考一下，AI 如何在這方面提供協助？</p>
+                        <img src="./img/bug.png" alt="程式錯誤與AI輔助" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 8 for Week 2: Common Python error types (Part 1) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">常見的 Python 錯誤類型 (Part 1)</h4>
+                            <p class="text-sm mb-1">複習一下常見的錯誤：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><code class="code-snippet inline-block !p-1 !m-0">SyntaxError</code>, <code class="code-snippet inline-block !p-1 !m-0">NameError</code>,  <code class="code-snippet inline-block !p-1 !m-0">TypeError</code>, <code class="code-snippet inline-block !p-1 !m-0">ValueError</code></li>
+                            </ul>
+                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 當你遇到一個 <code class="code-snippet inline-block !p-1 !m-0">TypeError</code>，但不太確定原因時，你會怎麼把錯誤訊息和相關程式碼提供給 ChatGPT，請它幫忙分析？</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 9 for Week 2: Common Python error types (Part 2) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">常見的 Python 錯誤類型 (Part 2)</h4>
+                             <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><code class="code-snippet inline-block !p-1 !m-0">IndexError</code>, <code class="code-snippet inline-block !p-1 !m-0">KeyError</code>, <code class="code-snippet inline-block !p-1 !m-0">FileNotFoundError</code>, <code class="code-snippet inline-block !p-1 !m-0">ZeroDivisionError</code>, <code class="code-snippet inline-block !p-1 !m-0">AttributeError</code></li>
+                            </ul>
+                            <p class="text-sm mt-2">當程式出現錯誤時，仔細閱讀錯誤訊息是除錯的第一步！它通常會告訴你錯誤的類型和發生的位置。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 10 for Week 2: try-except, else, finally -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">使用 `try-except` 捕捉錯誤</h4>
+                            <p class="text-sm mb-1">我們可以使用 `try` 和 `except` 區塊來「捕捉」可能發生的錯誤，並優雅地處理它們。</p>
+                            <pre class="code-snippet"><code>try:
+    num_str = input("請輸入一個數字：")
+    num = int(num_str) 
+    result = 10 / num  
+    print(f"結果是 {result}")
+except ValueError:
+    print("輸入的不是有效數字！")
+# ... 其他 except 區塊 ...
+else:
+    print("計算順利完成！")
+finally:
+    print("程式區塊執行結束。")</code></pre>
+                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你不確定一段程式碼可能會拋出哪些具體的錯誤類型，你會如何請 ChatGPT 幫你分析並建議 `except` 區塊的寫法？</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 11 for Week 2: Raising custom exceptions -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">引發自訂義異常 (raise)</h4>
+                            <p class="text-sm mb-1">有時候，我們希望在特定條件下主動引發一個錯誤，可以使用 `raise` 關鍵字。</p>
+                            <pre class="code-snippet"><code>def process_data(data):
+    if not data:
+        raise ValueError("輸入的資料不能是空的！")
+    # ... 處理資料 ...
+    print("資料處理完成。")</code></pre>
+                            <p class="text-sm mt-2">思考在什麼情境下，主動 <code class="code-snippet inline-block !p-1 !m-0">raise</code> 一個錯誤會比單純 <code class="code-snippet inline-block !p-1 !m-0">print</code> 錯誤訊息更好？</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 12 for Week 2: Activity: Error handling -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：為程式碼加上防護罩！(AI 輔助思考)</h4>
+                            <p class="text-sm mb-1">老師會提供一段可能產生錯誤的程式碼。</p>
+                            <p class="text-sm mb-1">你的任務是，思考你會如何向 ChatGPT (或類似 AI) 提問，來幫助你：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>分析這段程式碼可能會出現哪些錯誤？</li>
+                                <li>建議如何使用 <code class="code-snippet inline-block !p-1 !m-0">try-except</code> 結構來捕捉這些潛在的錯誤。</li>
+                                <li>為不同的錯誤類型提供友善的提示訊息。</li>
+                                <li>判斷是否需要使用 <code class="code-snippet inline-block !p-1 !m-0">else</code> 或 <code class="code-snippet inline-block !p-1 !m-0">finally</code> 子句。</li>
+                            </ul>
+                            <p class="text-sm mt-2">試著寫下你的 Prompt，並預想 AI 可能會提供哪些有用的建議。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 13 for Week 2: 2.3 AI 除錯夥伴 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 除錯夥伴 (ChatGPT 視角)</h3>
+                        <p class="text-gray-700 p-4 text-lg">即使有了錯誤處理，程式還是可能會有 bug (臭蟲)！像 ChatGPT 這樣的 AI 可以成為你強大的除錯夥伴，幫助你更快找到並解決問題。</p>
+                        <img src="./img/ai_debug.png" alt="AI 協助除錯示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 14 for Week 2: Describing errors to AI -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 除錯夥伴</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">如何有效地向 AI (如 ChatGPT) 求助除錯？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">複製完整的錯誤訊息：</span>這是最重要的資訊！</li>
+                                <li><span class="font-semibold">提供相關的程式碼片段：</span>讓 AI 知道錯誤發生在哪裡。</li>
+                                <li><span class="font-semibold">描述你預期的行為：</span>程式應該做什麼？</li>
+                                <li><span class="font-semibold">描述實際發生的行為：</span>程式實際上做了什麼？</li>
+                                <li><span class="font-semibold">說明你已經嘗試過的解決方法</span> (如果有的話)。</li>
+                            </ul>
+                            <p class="text-sm mt-2">Prompt 範例：「我的 Python 程式出現了這個錯誤訊息 [貼上錯誤訊息]。這是相關的程式碼：[貼上程式碼]。我希望它能 [描述預期行為]，但它卻 [描述實際行為]。請問可能是什麼問題？可以幫我看看程式碼哪裡有問題嗎？」</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 15 for Week 2: AI for logic errors -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 除錯夥伴</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">不只是語法錯誤，AI 也能幫忙找邏輯錯誤！</h4>
+                            <p class="text-sm mb-1">有時候程式可以執行，但結果不如預期，這就是邏輯錯誤。你可以：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li>向 AI 描述你的程式碼片段和它應該實現的功能，詢問它是否能看出邏輯上的問題。</li>
+                                <li>描述你的演算法或邏輯思路，請 AI 檢查是否有缺陷。</li>
+                                <li>提供輸入範例和預期輸出，請 AI 幫你分析為什麼實際輸出不同。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 16 for Week 2: Activity: Debugging challenge -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 除錯夥伴</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：「除錯大挑戰」！(AI 輔助思考)</h4>
+                            <p class="text-sm mb-1">老師會提供幾個帶有隱晦 bug 的 Python 程式片段。</p>
+                            <p class="text-sm mb-1">你的任務是，思考你會如何運用與 ChatGPT (或類似 AI) 互動的技巧來：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>理解程式碼的功能。</li>
+                                <li>分析錯誤訊息或不符合預期的行為。</li>
+                                <li>向 AI 清晰地描述問題，並提供相關資訊以獲得幫助。</li>
+                                <li>根據 AI 的建議，嘗試找出並修復 bug。</li>
+                            </ul>
+                            <p class="text-sm mt-2">和同學分享你的「提問策略」和 AI 可能給你的「啟發」。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 17 for Week 2: 2.4 軟體工程概念：防禦性程式設計 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.4 軟體工程概念：防禦性程式設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">什麼是防禦性程式設計？</h4>
+                            <p class="text-sm mb-1">這是一種程式設計的思維方式，目標是讓程式碼在面對未預期的輸入或情況時，依然能夠保持穩定和可預測的行為。</p>
+                            <p class="text-sm mb-1">主要原則：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">檢查所有來自外部的輸入：</span>不要信任任何來自使用者、檔案或網路的資料。</li>
+                                <li><span class="font-semibold">處理所有可能的錯誤情況：</span>使用錯誤處理機制。</li>
+                                <li><span class="font-semibold">使用斷言 (Assertions)：</span>在程式中加入檢查點，確保某些條件必須為真。 (例如：`assert age > 0, "年齡必須是正數"`)</li>
+                                <li><span class="font-semibold">保持程式碼簡單清晰：</span>複雜的程式碼更容易隱藏 bug。</li>
+                            </ul>
+                            <p class="text-sm mt-2">良好的錯誤處理是防禦性程式設計的重要一環！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 18 for Week 2: Week Review -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">第二週重點回顧</h3>
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                <li>我們思考了如何運用與 ChatGPT 類似的 AI 互動模式，來深化對 Python 資料結構的理解與應用。</li>
+                                <li>學習了 Python 的錯誤處理機制，並探討如何請 AI 協助分析與加入錯誤處理。</li>
+                                <li>掌握了向 AI 有效提問以輔助除錯的策略。</li>
+                                <li>認識了防禦性程式設計的重要性。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 19 for Week 2: Next Week Preview -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">下週預告</h3>
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <p class="text-gray-700 text-lg">我們將正式進入 Cursor 的世界！學習它的強大功能，如何將程式碼組織得更有條理 (模組化與函式設計)，探索 Python 豐富的函式庫，並開始規劃我們的期末專案！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation for Week 2 Slides -->
+            <button class="fullscreen-btn mt-4 mb-2 mx-auto block bg-white/80 hover:bg-blue-100 border border-blue-300 rounded px-3 py-1 flex items-center gap-2 shadow transition" aria-label="全螢幕播放" onclick="toggleFullscreen(this)">
+              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none"><path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="hidden sm:inline">全螢幕</span>
+            </button>
+            <div class="navigation-controls mt-6 flex justify-between items-center p-4 bg-gray-100 rounded-b-lg shadow">
+                <button id="prevSlideBtn_w2">上一頁</button>
+                <span id="slideIndicator_w2" class="text-sm text-gray-600"></span>
+                <button id="nextSlideBtn_w2">下一頁</button>
+            </div>
+        </div>
+
+        <!-- Week 3 Content Area -->
+        <div id="week3Content" class="week-content">
+             <div class="week-top-title">
+                 <h2 class="text-2xl font-semibold">第三週：Cursor 工具詳解、模組化與專案啟動</h2>
+            </div>
+            <div id="week3SlidesContainer" class="slides-container">
+
+                <!-- Slide 1 for Week 3: 本週學習目標 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">本週學習目標</h3>
+                        <div class="content-box">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>深入學習 Cursor 編輯器的核心 AI 功能：程式碼生成、重構、解釋與文檔化。</li>
+                                <li>理解函式設計原則 (單一職責、參數設計、回傳值) 並在 Cursor 中實踐。</li>
+                                <li>學習將大型專案拆解為模組與函式，並利用 Cursor 輔助。</li>
+                                <li>學習使用 Cursor 探索並整合 Python 標準函式庫。</li>
+                                <li>開始使用 Cursor 進行期末專案的詳細規劃與架構設計。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2 for Week 3: 3.1 歡迎來到 Cursor 的世界！ -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.1 歡迎來到 Cursor 的世界！</h3>
+                        <p class="text-gray-700 p-4 text-lg">從這週開始，我們將正式使用 Cursor 這款專為 AI 協作打造的程式編輯器來進行學習和專案開發。它將 AI 的力量深度整合到我們寫程式的每一個環節！</p>
+                        <img src="https://placehold.co/600x150/10b981/white?text=Cursor+編輯器介面示意圖" alt="Cursor 編輯器介面示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                        <p class="text-sm text-center mt-2">準備好體驗 Cursor 的魔法了嗎？</p>
+                    </div>
+                </div>
+                <!-- Slide 3 for Week 3: Cursor 核心 AI 功能 (原第一週內容) - 生成 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能1：程式碼生成 (Code Generation)</h4>
+                            <p class="text-sm mb-1">可以直接在編輯器中請 Cursor 幫你寫程式碼！</p>
+                            <p class="text-sm font-semibold">例如：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
+                                <li>在空白處或註解中輸入：「幫我寫一個 Python 函式，它可以反轉一個字串。」然後按特定快捷鍵 (老師會說明) 或使用 AI 指令。</li>
+                                <li>選取一段註解描述你想要的功能，讓 Cursor 把它變成程式碼。</li>
+                            </ul>
+                            <p class="text-sm mt-2 activity-box">試一試：請 Cursor 幫你生成一個計算圓形面積的函式。</p>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Slide 4 for Week 3: Cursor 核心 AI 功能 - 重構 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能2：程式碼重構 (Code Refactoring)</h4>
+                            <p class="text-sm mb-1">選取你寫好的一段程式碼，可以請 Cursor 幫你：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
+                                <li>「將這段程式碼改寫得更簡潔。」</li>
+                                <li>「將這段重複的邏輯提取成一個名為 `calculate_sum` 的函式。」</li>
+                                <li>「幫我優化這段程式碼的效能。」</li>
+                            </ul>
+                             <p class="text-sm mt-2 activity-box">試一試：寫一段包含重複邏輯的程式碼，然後請 Cursor 幫你重構成使用函式。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 5 for Week 3: Cursor 核心 AI 功能 - 解釋與文檔化 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能3：程式碼解釋與文檔化</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
+                                <li><span class="font-semibold">解釋：</span>選取一段看不懂的程式碼 (無論是你自己寫的、同學寫的、還是網路上找的)，請 Cursor：「解釋這段程式碼在做什麼？」</li>
+                                <li><span class="font-semibold">文檔化 (Docstrings)：</span>選取一個函式，請 Cursor：「幫這個函式加上 Docstring。」它會自動分析函式的參數和可能的行為，產生說明文件。</li>
+                            </ul>
+                             <p class="text-sm mt-2 activity-box">試一試：找一段稍微複雜的 Python 程式碼 (可以請老師提供，或網路上搜尋)，讓 Cursor 解釋給你聽。然後再請它為其中的函式加上 Docstring。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 6 for Week 3: Cursor 核心 AI 功能 - AI 聊天與除錯 -->
+                 <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能4：AI 聊天與除錯</h4>
+                             <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
+                                <li><span class="font-semibold">AI 聊天 (Chat)：</span>Cursor 內建了聊天視窗，你可以隨時向 AI 提問、討論程式設計概念、尋求建議等，就像之前我們討論如何與 ChatGPT 互動一樣。</li>
+                                <li><span class="font-semibold">AI 除錯 (AI Debugging)：</span>當程式出錯時，你可以將錯誤訊息和相關程式碼貼給 Cursor 的 AI，請它協助分析錯誤原因並提供修復建議。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 7 for Week 3: 3.2 模組化與函式設計 (複習與 Cursor 實踐) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.2 模組化與函式設計 (Cursor 實踐)</h3>
+                        <p class="text-gray-700 p-4 text-lg">我們在第二週已經討論過函式設計原則和模組化的概念。現在，我們將在 Cursor 中實際運用這些原則，並看看 Cursor 如何幫助我們更好地組織程式碼。</p>
+                         <div class="content-box">
+                            <h4 class="text-md font-semibold">複習：良好函式設計原則</h4>
+                             <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>職責單一性</li>
+                                <li>有意義的命名</li>
+                                <li>適當的參數與明確的回傳值</li>
+                                <li>撰寫 Docstrings</li>
+                            </ul>
+                         </div>
+                    </div>
+                </div>
+                <!-- Slide 8 for Week 3: Activity: Refactor with Cursor -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.2 模組化與函式設計 (Cursor 實踐)</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：用 Cursor 重構複雜問題</h4>
+                            <p class="text-sm mb-1">回想一下第二週的「程式碼大整理」活動，或者老師可以提供一個新的、結構較為混亂的程式碼範例。</p>
+                            <p class="text-sm mb-1">這次，請<span class="font-semibold">全程使用 Cursor</span> 來完成以下任務：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>使用 Cursor 的 AI 聊天功能，討論如何將程式拆解成更小的函式。</li>
+                                <li>選取程式碼片段，使用 Cursor 的重構功能 (例如 "Extract to function") 將其轉換為函式。</li>
+                                <li>請 Cursor 為你生成的函式建議有意義的名稱和參數。</li>
+                                <li>使用 Cursor 為每個函式自動生成 Docstrings，並手動調整使其更完善。</li>
+                                <li>(進階) 如果程式碼夠多，嘗試將相關函式放到一個新的 `.py` 檔案中，並在主程式中 `import` 它，體驗 Cursor 對模組的支援。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 9 for Week 3: 3.3 Python 函式庫探索 (Cursor 輔助) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.3 Python 函式庫探索 (Cursor 輔助)</h3>
+                        <p class="text-gray-700 p-4 text-lg">Python 的標準函式庫非常豐富。當你需要某個特定功能時，可以先問問 Cursor：「Python 有沒有內建的模組可以做 [某件事]？」或者「我想用 Python 實現 [某功能]，有推薦的標準函式庫嗎？」</p>
+                         <img src="https://placehold.co/600x150/22c55e/white?text=Cursor+探索函式庫" alt="Cursor 探索函式庫" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 10 for Week 3: Activity: Library exploration with Cursor -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.3 Python 函式庫探索 (Cursor 輔助)</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：跟著 Cursor 探索函式庫</h4>
+                            <p class="text-sm mb-1">選擇以下任一或多個標準函式庫模組，利用 Cursor 的 AI 功能來學習如何使用它們：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">`json` 模組：</span>
+                                    <ul>
+                                        <li>問 Cursor：「如何使用 Python 的 json 模組將一個字典儲存到檔案？」</li>
+                                        <li>問 Cursor：「如何從 JSON 檔案讀取資料並轉換成 Python 字典？」</li>
+                                        <li>請 Cursor 生成相關的範例程式碼。</li>
+                                    </ul>
+                                </li>
+                                <li><span class="font-semibold">`os` 模組：</span>
+                                    <ul>
+                                        <li>問 Cursor：「如何使用 Python 的 os 模組檢查一個檔案是否存在？」</li>
+                                        <li>問 Cursor：「如何列出一個資料夾中的所有檔案和子資料夾？」</li>
+                                    </ul>
+                                </li>
+                                 <li><span class="font-semibold">`csv` 模組：</span>
+                                    <ul>
+                                        <li>問 Cursor：「如何使用 Python 的 csv 模組讀取 CSV 檔案的內容？」</li>
+                                        <li>問 Cursor：「如何將一個列表的列表資料寫入到 CSV 檔案？」</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <p class="text-sm mt-2">在 Cursor 中實際編寫並執行這些範例程式碼，觀察結果。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 11 for Week 3: 3.4 期末專案規劃與架構設計 (Cursor 導入) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.4 期末專案規劃與架構設計 (Cursor 導入)</h3>
+                        <p class="text-gray-700 p-4 text-lg">現在，我們將正式啟動期末專案的規劃！這次，我們將全程使用 Cursor 來輔助我們進行思考、設計和初步的程式碼框架搭建。</p>
+                    </div>
+                </div>
+                 <!-- Slide 12 for Week 3: 選擇專案主題與範圍 (Cursor 討論) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.4 期末專案規劃與架構設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">1. 選擇專案主題 & 明確範圍 (與 Cursor 討論)</h4>
+                            <p class="text-sm mb-1">再次檢視你的專案想法。可以和 Cursor 討論：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>「我對 [專案主題A] 和 [專案主題B] 都有興趣，以一個初學者兩週的開發時間來看，哪個主題的核心功能比較容易實現？」</li>
+                                <li>「我選擇了 [專案主題]，它的核心功能應該包含哪些？有沒有建議的 MVP (最小可行產品) 範圍？」</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 13 for Week 3: 拆解專案與 Cursor 協助 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.4 期末專案規劃與架構設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">2. 拆解功能與設計架構 (Cursor 輔助)</h4>
+                            <p class="text-sm mb-1">利用 Cursor 的 AI 聊天功能，將你的專案拆解成更小的模組和函式：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>「我正在規劃一個 [你的專案類型，例如：文字冒險遊戲]。請幫我建議主要的 Python 模組劃分。」</li>
+                                <li>「針對 [某個模組/功能，例如：玩家移動]，它可能需要哪些函式？每個函式的參數和回傳值大概是什麼？」</li>
+                                <li>請 Cursor 幫你生成初步的檔案結構或函式骨架。例如：「請幫我生成一個 Python 專案的目錄結構，包含主程式檔案和一個存放工具函式的 `utils` 資料夾。」</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Slide 14 for Week 3: 活動：使用 Cursor 進行專案規劃 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">3.4 期末專案規劃與架構設計</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：用 Cursor 規劃你的專案！</h4>
+                            <p class="text-sm">使用 Cursor 完成你的專案計畫書初稿。內容應包含：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>專案名稱與簡介。</li>
+                                <li>核心功能列表 (MVP)。</li>
+                                <li>主要模組/函式初步劃分 (可以請 Cursor 協助生成函式簽名)。</li>
+                                <li>預計的檔案結構。</li>
+                                <li>你認為哪些部分最能體現 AI 輔助開發的優勢？</li>
+                            </ul>
+                            <p class="text-sm mt-2"> активно與 Cursor 互動，讓它成為你規劃階段的好夥伴！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 15 for Week 3: Week Review -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">第三週重點回顧</h3>
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                <li>我們深入學習了 Cursor 的核心 AI 功能，包括程式碼生成、重構、解釋與文檔化。</li>
+                                <li>複習了函式設計原則，並練習在 Cursor 中應用它們來組織程式碼。</li>
+                                <li>學會了如何利用 Cursor 探索和使用 Python 標準函式庫。</li>
+                                <li>開始使用 Cursor 進行期末專案的詳細規劃，明確了專案範圍並進行了初步的功能拆解。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 16 for Week 3: Next Week Preview -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">下週預告</h3>
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                            <p class="text-gray-700 text-lg">期末專案開發正式啟動！我們將全程使用 Cursor 全力衝刺，並學習如何測試我們的程式，最後進行成果展示與分享！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation for Week 3 Slides -->
+            <button class="fullscreen-btn mt-4 mb-2 mx-auto block bg-white/80 hover:bg-blue-100 border border-blue-300 rounded px-3 py-1 flex items-center gap-2 shadow transition" aria-label="全螢幕播放" onclick="toggleFullscreen(this)">
+              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none"><path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="hidden sm:inline">全螢幕</span>
+            </button>
+            <div class="navigation-controls mt-6 flex justify-between items-center p-4 bg-gray-100 rounded-b-lg shadow">
+                <button id="prevSlideBtn_w3">上一頁</button>
+                <span id="slideIndicator_w3" class="text-sm text-gray-600"></span>
+                <button id="nextSlideBtn_w3">下一頁</button>
+            </div>
+        </div>
+
+        <!-- Week 4 Content Area -->
+        <div id="week4Content" class="week-content">
+             <div class="week-top-title">
+                <h2 class="text-2xl font-semibold">第四週：Cursor 專案實作、測試與成果發表</h2>
+            </div>
+            <div id="week4SlidesContainer" class="slides-container">
+
+                <!-- Slide 1 for Week 4: 本週學習目標 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">本週學習目標</h3>
+                        <div class="content-box">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>綜合應用所學知識與 Cursor 技能完成期末專案。</li>
+                                <li>學習撰寫基本的單元測試或進行系統化的功能測試。</li>
+                                <li>利用 Cursor 進行程式碼優化與效能分析 (概念)。</li>
+                                <li>準備並進行專案成果展示與分享。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2 for Week 4: 4.1 專案開發衝刺 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                        <p class="text-gray-700 p-4 text-lg">這是我們大展身手的時刻！運用前三週所學的 Python 技巧、軟體工程概念以及 Cursor 的強大 AI 協作能力，全力完成我們的期末專案！</p>
+                        <img src="https://placehold.co/600x150/a3e635/1f2937?text=專案開發衝刺示意圖" alt="專案開發衝刺示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 3 for Week 4: 迭代開發 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">開發心法：迭代開發 (Iterative Development)</h4>
+                            <p class="text-sm mb-1">不要想一次就把所有功能都完美實現。先完成最核心、最基本的功能 (MVP - Minimum Viable Product)，讓程式可以跑起來。然後再逐步添加新功能、優化現有功能。</p>
+                            <p class="text-sm mb-1">例如，如果你在做一個遊戲：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">迭代1：</span>讓玩家可以在一個簡單的地圖上移動 (可請 Cursor 協助生成基本移動邏輯)。</li>
+                                <li><span class="font-semibold">迭代2：</span>加入物品拾取功能 (可請 Cursor 建議如何用列表或字典儲存物品)。</li>
+                                <li><span class="font-semibold">迭代3：</span>加入簡單的敵人 (可與 Cursor 討論敵人行為)。</li>
+                                <li>...依此類推</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 4 for Week 4: 持續測試 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                        <div class="content-box">
+                             <h4 class="text-md font-semibold">開發心法：持續測試 (Continuous Testing)</h4>
+                            <p class="text-sm mb-1">每完成一個小模組、一個小函式，或者一個小功能點，就立刻進行測試，確保它能正常運作，並且符合你的預期。這樣可以及早發現問題，避免問題越積越多，最後變成難以收拾的「技術債」。</p>
+                            <p class="text-sm mb-1">在 Cursor 中，你可以方便地執行你的 Python 腳本來測試功能。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 5 for Week 4: 有效求助 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">與 Cursor AI 協作的進階技巧：有效求助</h4>
+                            <p class="text-sm mb-1">當你卡關時，向 Cursor 的 AI 提問時，記得：</p>
+                             <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">選取相關程式碼：</span>讓 AI 知道你問的是哪一段。</li>
+                                <li><span class="font-semibold">使用 `@Code` 或 `@Symbol`：</span>更精準地引用程式碼或符號。</li>
+                                <li><span class="font-semibold">清晰描述問題和你的意圖。</span></li>
+                            </ul>
+                            <p class="text-sm mb-1">例如：「@Code 這段程式碼執行時出現了 `IndexError`，我希望它能遍歷列表中的所有元素並印出來，請問哪裡寫錯了？」</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 6 for Week 4: 批判性思考 -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">與 Cursor AI 協作的進階技巧：批判性思考</h4>
+                            <p class="text-sm mb-1">Cursor 提供的建議和程式碼非常有幫助，但它不一定是完美的或唯一的解決方案。我們要學會：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">理解 AI 的建議：</span>它為什麼這麼寫？背後的邏輯是什麼？不清楚就追問！</li>
+                                <li><span class="font-semibold">判斷是否適用：</span>這個建議真的適合我目前的需求嗎？有沒有其他更好的方法？</li>
+                                <li><span class="font-semibold">適時修改調整：</span>AI 的產出是起點，不是終點。我們可能需要對它生成的程式碼進行修改或優化。</li>
+                            </ul>
+                            <p class="text-sm mt-2">記住：AI 是你的助手，最終的決定權和理解責任還是在你身上！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 7 for Week 4: 專案開發時間 (活動) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">專案開發時間</h4>
+                            <p class="text-sm">同學們依照自己上週的規劃，開始動手實作專案！老師和 Cursor 會隨時提供協助。遇到問題時，先試著自己思考和解決，再向 Cursor 或老師請教。</p>
+                            <p class="text-sm mt-2">保持專注，享受創造的過程！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 8 for Week 4: 4.2 軟體工程概念：測試與品質保證 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+                        <p class="text-gray-700 p-4 text-lg">寫完程式只是第一步，如何確保程式的品質，讓它能正確、穩定地運作，也非常重要。「測試」就是保證程式品質的關鍵手段！</p>
+                        <img src="https://placehold.co/600x150/f87171/white?text=程式測試與品質保證示意圖" alt="程式測試與品質保證示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 9 for Week 4: Why test? -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">為什麼需要測試？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">確保功能正確：</span>驗證程式是否按照預期的方式運作。</li>
+                                <li><span class="font-semibold">及早發現錯誤：</span>越早發現錯誤，修復的成本就越低。</li>
+                                <li><span class="font-semibold">提升程式碼品質：</span>測試過程可以促使我們思考各種邊界情況和潛在問題。</li>
+                                <li><span class="font-semibold">方便重構與維護：</span>有了測試的保護，我們可以更放心地修改或重構程式碼，不用擔心改壞了不知道。</li>
+                                <li><span class="font-semibold">提供信心：</span>一套好的測試能讓我們對程式的穩定性更有信心。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 10 for Week 4: Types of tests -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">測試的種類 (概念性介紹)</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">單元測試 (Unit Testing)：</span>針對程式中最小的可測試單元 (例如：一個函式、一個類別的方法) 進行測試。這是我們最常接觸到的測試類型。</li>
+                                <li><span class="font-semibold">整合測試 (Integration Testing)：</span>測試多個模組或元件組合在一起時是否能正常協作。</li>
+                                <li><span class="font-semibold">系統測試 (System Testing)：</span>對整個系統進行測試，確保所有部分都能如預期般一起運作。</li>
+                                <li><span class="font-semibold">使用者驗收測試 (User Acceptance Testing, UAT)：</span>由最終使用者來測試程式是否符合他們的需求。</li>
+                            </ul>
+                            <p class="text-sm mt-1">在這堂課中，我們主要關注單元測試的概念。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 11 for Week 4: Designing test cases (Part 1) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">如何為你的函式設計簡單的測試案例？ (Part 1)</h4>
+                            <p class="text-sm mb-1">一個好的測試案例應該包含：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">測試的輸入 (Input)：</span>你會給函式什麼樣的參數？</li>
+                                <li><span class="font-semibold">預期的輸出 (Expected Output)：</span>在給定輸入後，你期望函式回傳什麼結果？</li>
+                                <li><span class="font-semibold">實際的輸出 (Actual Output)：</span>函式實際回傳了什麼？ (透過執行函式得到)</li>
+                                <li><span class="font-semibold">斷言 (Assertion)：</span>比較預期輸出和實際輸出是否一致。如果不一致，測試就失敗。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 12 for Week 4: Designing test cases (Part 2) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+                        <div class="content-box">
+                             <h4 class="text-md font-semibold">如何為你的函式設計簡單的測試案例？ (Part 2)</h4>
+                            <p class="text-sm mb-1">思考各種情況：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">正常情況 (Happy Path)：</span>最常見、最典型的輸入，函式應該能正確處理。</li>
+                                <li><span class="font-semibold">邊界情況 (Boundary Cases)：</span>例如最小值、最大值、空字串、空列表、0 等。這些地方常常是 bug 的溫床。</li>
+                                <li><span class="font-semibold">錯誤情況 (Error Cases)：</span>不合法的輸入，期望程式能正確處理 (例如：回傳特定錯誤碼、引發預期的異常)。</li>
+                            </ul>
+                            <p class="text-sm mt-2">你可以請 Cursor 協助你思考測試案例：「我有一個函式 `def calculate_discount(price, percentage): ...`，請幫我建議一些測試案例，包含正常、邊界和錯誤情況。」</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 13 for Week 4: Activity: Write tests (Removed Gemini Feature) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：為你的專案寫測試！</h4>
+                            <p class="text-sm mb-1">針對你期末專案中的至少一個核心函式：</p>
+                            <ol class="list-decimal list-inside space-y-1 text-xs">
+                                <li>思考並寫下至少 3-5 個測試案例 (包含正常、邊界、錯誤情況)。</li>
+                                <li>嘗試手動執行這些測試案例，看看函式是否如預期運作。</li>
+                                <li>(進階) 如果學有餘力，可以和 Cursor 一起探索 Python 的 `unittest` 或 `pytest` 等測試框架，學習如何撰寫自動化的測試程式碼。 (例如，問 Cursor：「如何使用 Python 的 unittest 模組為這個函式寫測試？」)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 14 for Week 4: 4.3 成果展示、回顧與展望 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
+                        <p class="text-gray-700 p-4 text-lg">恭喜大家完成了四周的課程和期末專案！現在是時候展示我們的學習成果，並分享這段旅程中的點點滴滴了。</p>
+                        <img src="https://placehold.co/600x200/10b981/white?text=成果發表會示意圖" alt="成果發表會示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+                <!-- Slide 15 for Week 4: Project showcase, sharing experiences -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">專案成果展示與分享</h4>
+                            <p class="text-sm mb-1">每位同學 (或小組) 將有機會上台：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">展示你的專案：</span>實際操作你的程式，讓大家看看它能做什麼。</li>
+                                <li><span class="font-semibold">說明設計思路：</span>你是如何規劃和設計這個專案的？</li>
+                                <li><span class="font-semibold">分享如何利用 Cursor：</span>在開發過程中，Cursor 在哪些方面幫助了你？你是如何與它協作的？</li>
+                                <li><span class="font-semibold">分享遇到的挑戰與解決方案：</span>遇到了什麼困難？你是如何克服的？</li>
+                                <li><span class="font-semibold">未來展望：</span>如果還有時間，你會想為這個專案添加什麼新功能？</li>
+                            </ul>
+                            <p class="text-sm mt-2">這是一個互相學習、互相欣賞的好機會！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 16 for Week 4: Course summary -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">課程總結</h4>
+                            <p class="text-sm mb-1">回顧這四週，我們一起：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>認識了 ChatGPT、Gemini、Claude 等 AI 模型，並學習了與 ChatGPT 互動的技巧。</li>
+                                <li>在前兩週，我們以 ChatGPT 的概念為輔助，深化了 Python 技能。</li>
+                                <li>在後兩週，我們深入學習了 Cursor，並用它完成了期末專案。</li>
+                                <li>學習了軟體工程的基本概念，如可讀性、模組化、測試、版本控制。</li>
+                                <li>提升了問題解決和與 AI 協作的能力。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 17 for Week 4: Future outlook and encouragement -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">未來展望與鼓勵</h4>
+                            <p class="text-sm mt-2 font-semibold">程式設計的世界廣闊無垠，AI 的發展也日新月異。希望這次課程能為大家打開一扇窗，激發你對程式設計和 AI 的興趣，鼓勵大家在未來：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li><span class="font-semibold">持續學習：</span>不斷探索新的技術和工具，Python 和 AI 領域都有學不完的新東西！</li>
+                                <li><span class="font-semibold">動手實作：</span>用程式解決生活中的問題，或者創造一些有趣的小作品、小遊戲。</li>
+                                <li><span class="font-semibold">參與社群：</span>網路上有很多程式設計社群和論壇，可以和別人交流學習。</li>
+                                <li><span class="font-semibold">保持好奇心，擁抱變化！</span></li>
+                            </ul>
+                            <p class="text-sm mt-3 text-center font-bold text-blue-600">Happy Coding! 祝大家程式設計愉快！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Navigation for Week 4 Slides -->
+            <button class="fullscreen-btn mt-4 mb-2 mx-auto block bg-white/80 hover:bg-blue-100 border border-blue-300 rounded px-3 py-1 flex items-center gap-2 shadow transition" aria-label="全螢幕播放" onclick="toggleFullscreen(this)">
+              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none"><path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="hidden sm:inline">全螢幕</span>
+            </button>
+            <div class="navigation-controls mt-6 flex justify-between items-center p-4 bg-gray-100 rounded-b-lg shadow">
+                <button id="prevSlideBtn_w4">上一頁</button>
+                <span id="slideIndicator_w4" class="text-sm text-gray-600"></span>
+                <button id="nextSlideBtn_w4">下一頁</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Week Navigation Logic ---
+        const navLinks = document.querySelectorAll('.nav-link');
+        const weekContents = document.querySelectorAll('.week-content');
+        
+        // Slideshow state and elements for each week
+        const slideshows = {
+            1: {
+                container: document.getElementById('week1SlidesContainer'),
+                slides: [],
+                prevBtn: document.getElementById('prevSlideBtn_w1'),
+                nextBtn: document.getElementById('nextSlideBtn_w1'),
+                indicator: document.getElementById('slideIndicator_w1'),
+                currentIndex: 0
+            },
+            2: {
+                container: document.getElementById('week2SlidesContainer'),
+                slides: [],
+                prevBtn: document.getElementById('prevSlideBtn_w2'),
+                nextBtn: document.getElementById('nextSlideBtn_w2'),
+                indicator: document.getElementById('slideIndicator_w2'),
+                currentIndex: 0
+            },
+            3: {
+                container: document.getElementById('week3SlidesContainer'),
+                slides: [],
+                prevBtn: document.getElementById('prevSlideBtn_w3'),
+                nextBtn: document.getElementById('nextSlideBtn_w3'),
+                indicator: document.getElementById('slideIndicator_w3'),
+                currentIndex: 0
+            },
+            4: {
+                container: document.getElementById('week4SlidesContainer'),
+                slides: [],
+                prevBtn: document.getElementById('prevSlideBtn_w4'),
+                nextBtn: document.getElementById('nextSlideBtn_w4'),
+                indicator: document.getElementById('slideIndicator_w4'),
+                currentIndex: 0
+            }
+        };
+
+        // Initialize slides for each slideshow
+        for (let weekNum = 1; weekNum <= 4; weekNum++) {
+            if (slideshows[weekNum].container) {
+                slideshows[weekNum].slides = slideshows[weekNum].container.querySelectorAll('.slide');
+            }
+        }
+
+        function showWeek(weekNumber) {
+            weekContents.forEach(content => {
+                content.classList.remove('active-week');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active-nav-link');
+            });
+
+            const activeWeekContent = document.getElementById(`week${weekNumber}Content`);
+            const activeNavLink = document.querySelector(`.nav-link[data-week="${weekNumber}"]`);
+
+            if (activeWeekContent) {
+                activeWeekContent.classList.add('active-week');
+            }
+            if (activeNavLink) {
+                activeNavLink.classList.add('active-nav-link');
+            }
+
+            if (slideshows[weekNumber] && slideshows[weekNumber].slides.length > 0) {
+                showSlideForWeek(weekNumber, 0); 
+            } else {
+                 const navControls = activeWeekContent ? activeWeekContent.querySelector('.navigation-controls') : null;
+                 if(navControls) navControls.style.display = 'none';
+                 const slidesContainer = activeWeekContent ? activeWeekContent.querySelector('.slides-container') : null;
+                 if(slidesContainer ) {
+                    const existingMsg = slidesContainer.querySelector('.no-content-message');
+                    if(existingMsg) existingMsg.remove(); 
+                    if (slideshows[weekNumber] && slideshows[weekNumber].slides.length === 0) { 
+                        const noContentMsg = document.createElement('p');
+                        noContentMsg.textContent = '本週內容即將推出！';
+                        noContentMsg.className = 'text-center text-gray-500 italic p-8 no-content-message';
+                        slidesContainer.appendChild(noContentMsg);
+                    }
+                 }
+            }
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const weekNumber = parseInt(event.target.getAttribute('data-week'));
+                showWeek(weekNumber);
+            });
+        });
+
+        // --- Generic Slideshow Logic for a given Week ---
+        function showSlideForWeek(weekNum, index) {
+            const ss = slideshows[weekNum];
+            if (!ss || !ss.container || ss.slides.length === 0) return;
+
+            ss.slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            ss.currentIndex = index;
+            updateSlideIndicatorForWeek(weekNum);
+            updateNavButtonsForWeek(weekNum);
+        }
+
+        function updateSlideIndicatorForWeek(weekNum) {
+            const ss = slideshows[weekNum];
+            if (ss.indicator && ss.slides.length > 0) {
+                ss.indicator.textContent = `第 ${ss.currentIndex + 1} / ${ss.slides.length} 頁`;
+            } else if (ss.indicator) {
+                ss.indicator.textContent = ""; 
+            }
+        }
+
+        function updateNavButtonsForWeek(weekNum) {
+            const ss = slideshows[weekNum];
+            if (!ss.prevBtn || !ss.nextBtn) return; 
+
+            const navControlsDiv = ss.prevBtn.closest('.navigation-controls');
+
+            if (ss.slides.length === 0) {
+                ss.prevBtn.disabled = true;
+                ss.nextBtn.disabled = true;
+                if (navControlsDiv) navControlsDiv.style.display = 'none';
+                return;
+            }
+            
+            if (navControlsDiv) navControlsDiv.style.display = 'flex'; 
+
+            ss.prevBtn.disabled = ss.currentIndex === 0;
+            ss.nextBtn.disabled = ss.currentIndex === ss.slides.length - 1;
+        }
+
+        // Setup event listeners for each week's slideshow
+        for (let weekNum = 1; weekNum <= 4; weekNum++) {
+            const ss = slideshows[weekNum];
+            if (ss.prevBtn && ss.nextBtn) { 
+                ss.prevBtn.addEventListener('click', () => {
+                    if (ss.currentIndex > 0) {
+                        showSlideForWeek(weekNum, ss.currentIndex - 1);
+                    }
+                });
+                ss.nextBtn.addEventListener('click', () => {
+                    if (ss.currentIndex < ss.slides.length - 1) {
+                        showSlideForWeek(weekNum, ss.currentIndex + 1);
+                    }
+                });
+            }
+        }
+        
+        // --- 鍵盤左右鍵切換投影片 ---
+        // 全域切頁函式，供全螢幕按鈕與鍵盤共用
+window.showPrevSlide = function() {
+  const week = Array.from(document.querySelectorAll('.week-content')).findIndex(w => w.classList.contains('active-week')) + 1;
+  if (!week) return;
+  const prevBtn = document.getElementById(`prevSlideBtn_w${week}`);
+  if (prevBtn && !prevBtn.disabled) prevBtn.click();
+};
+window.showNextSlide = function() {
+  const week = Array.from(document.querySelectorAll('.week-content')).findIndex(w => w.classList.contains('active-week')) + 1;
+  if (!week) return;
+  const nextBtn = document.getElementById(`nextSlideBtn_w${week}`);
+  if (nextBtn && !nextBtn.disabled) nextBtn.click();
+};
+document.addEventListener('keydown', function(e) {
+  // 忽略在輸入框/textarea/按鈕聚焦時的快捷鍵
+  const tag = document.activeElement.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'button') return;
+  // 取得目前顯示的週次
+  const week = Array.from(document.querySelectorAll('.week-content')).findIndex(w => w.classList.contains('active-week')) + 1;
+  if (!week) return;
+  if (e.key === 'ArrowLeft') {
+    window.showPrevSlide();
+  } else if (e.key === 'ArrowRight') {
+    window.showNextSlide();
+  }
+});
+        // --- Fullscreen API ---
+        function toggleFullscreen(btn) {
+          // 找到同一週的 slides-container
+          let slides = btn.parentElement.querySelector('.slides-container');
+          if (!slides) return;
+          if (!document.fullscreenElement) {
+            slides.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        }
+        // 切換按鈕圖示與 aria-label，並在全螢幕時置中內容與等比例縮放
+        function updateSlideScale() {
+          const fs = document.fullscreenElement;
+          document.querySelectorAll('.slide-scale-root').forEach(root => {
+            if (fs && root.closest('.slides-container.fullscreen-centered')) {
+              // 取得可用區域（父層 slides-container）
+              const container = root.closest('.slides-container');
+              const w = container.offsetWidth;
+              const h = container.offsetHeight;
+              const scale = Math.min(w/1280, h/720);
+              root.style.transform = `scale(${scale})`;
+            } else {
+              root.style.transform = '';
+            }
+          });
+        }
+        document.addEventListener('fullscreenchange', function() {
+          document.querySelectorAll('.fullscreen-btn').forEach(btn => {
+            let svg = btn.querySelector('svg');
+            let span = btn.querySelector('span');
+            if (document.fullscreenElement) {
+              svg.innerHTML = '<path d="M7 7h-4v4M13 7h4v4M7 13h-4v-4M13 13h4v-4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>';
+              btn.setAttribute('aria-label', '退出全螢幕');
+              if(span) span.textContent = '退出全螢幕';
+              // 置中內容
+              if(btn.parentElement.querySelector('.slides-container')) {
+                btn.parentElement.querySelector('.slides-container').classList.add('fullscreen-centered');
+              }
+            } else {
+              svg.innerHTML = '<path d="M3 7V3h4M17 7V3h-4M3 13v4h4M17 13v4h-4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>';
+              btn.setAttribute('aria-label', '全螢幕播放');
+              if(span) span.textContent = '全螢幕';
+              // 移除置中
+              document.querySelectorAll('.slides-container.fullscreen-centered').forEach(sc => {
+                sc.classList.remove('fullscreen-centered');
+              });
+            }
+          });
+          updateSlideScale();
+        });
+        window.addEventListener('resize', updateSlideScale);
+        // 初始進場時也要 scale 一次（避免全螢幕後切週）
+        document.addEventListener('DOMContentLoaded', updateSlideScale);
+        // 支援 F 鍵進入/離開全螢幕
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'f' || e.key === 'F') {
+            const activeWeek = document.querySelector('.week-content.active-week');
+            if (!activeWeek) return;
+            const btn = activeWeek.querySelector('.fullscreen-btn');
+            if (btn) btn.click();
+          }
+          if (e.key === 'Escape' && document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+        });
+        // --- Accordion Logic for Collapsible Course Overview ---
+        function toggleAccordion(element) {
+            const content = element.nextElementSibling;
+            const arrow = element.querySelector('.arrow-icon');
+            if (!content || !content.classList.contains('accordion-content')) return;
+
+            // 切換箭頭方向
+            element.classList.toggle('open');
+            if (arrow) {
+                arrow.style.transform = element.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                arrow.style.transition = 'transform 0.3s';
+            }
+
+            // 展開/收合動畫與高度自動調整
+            if (content.classList.contains('open')) {
+                // 收合
+                content.style.maxHeight = '0px';
+                content.classList.remove('open');
+            } else {
+                // 展開（每次都重新計算 scrollHeight，並展開後補抓一次，解決圖片/字體延遲）
+                content.style.maxHeight = 'none';
+                const fullHeight = content.scrollHeight;
+                content.style.maxHeight = '0px';
+                void content.offsetWidth;
+                content.style.maxHeight = fullHeight + 'px';
+                content.classList.add('open');
+                // 展開後補抓一次高度，防止圖片/字體延遲導致內容被裁切
+                setTimeout(() => {
+                    if (content.classList.contains('open')) {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
+                }, 350);
+            }
+        }
+
+        // 保證內容變更時高度能自動調整
+        function updateAccordionHeight() {
+            document.querySelectorAll('.accordion-content.open').forEach(content => {
+                content.style.maxHeight = 'none';
+                const fullHeight = content.scrollHeight;
+                content.style.maxHeight = fullHeight + 'px';
+            });
+        }
+
+        // --- Initial Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            showWeek(1); 
+            
+
+        });
+        // 內容變更時自動調整高度（可在內容動態更新後呼叫）
+        window.updateAccordionHeight = updateAccordionHeight;
+    </script>
+<style>
+.quiz-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #f0f4ff;
+  border: 1px solid #b6c6e6;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s, color 0.2s;
+  color: #111;
+}
+.quiz-btn.correct {
+  background: #d1f7c4;
+  border-color: #34a853;
+  color: #208c2c;
+}
+.quiz-btn.wrong {
+  background: #ffe0e0;
+  border-color: #e53935;
+  color: #b71c1c;
+  animation: shake 0.2s;
+}
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+.quiz-feedback {
+  min-height: 1.5em;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+.quiz-feedback.correct {
+  color: #208c2c;
+}
+.quiz-feedback.wrong {
+  color: #b71c1c;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.quiz-slide').forEach(function(slide) {
+    const btns = slide.querySelectorAll('.quiz-btn');
+    const feedback = slide.querySelector('.quiz-feedback');
+    btns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (btn.classList.contains('correct')) return; // 已答對
+        if (btn.dataset.correct === 'true') {
+          btn.classList.add('correct');
+          feedback.textContent = '答對了！';
+          feedback.classList.remove('wrong');
+          feedback.classList.add('correct');
+          // 鎖定所有按鈕
+          btns.forEach(b => b.disabled = true);
+        } else {
+          btn.classList.add('wrong');
+          feedback.textContent = '再試一次';
+          feedback.classList.remove('correct');
+          feedback.classList.add('wrong');
+          setTimeout(() => {
+            btn.classList.remove('wrong');
+            feedback.textContent = '';
+          }, 1000);
+        }
+      });
+    });
+  });
+});
+// === 全螢幕觸控裝置切頁按鈕（僅觸控裝置+全螢幕顯示） ===
+document.addEventListener('fullscreenchange', function() {
+  var nav = document.querySelector('.fullscreen-nav-btns');
+  if (nav) nav.removeAttribute('style');
+});
+
+(function() {
+  function isTouchDevice() {
+    return (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) || 'ontouchstart' in window;
+  }
+  function createNavBtns() {
+    if (document.querySelector('.fullscreen-nav-btns')) return;
+    const nav = document.createElement('div');
+    nav.className = 'fullscreen-nav-btns';
+    nav.innerHTML = `
+      <button type="button" class="fullscreen-prev-btn" aria-label="上一頁">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="18" fill="currentColor" fill-opacity="0.15"/>
+          <path d="M22 12L16 18L22 24" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button type="button" class="fullscreen-next-btn" aria-label="下一頁">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="18" fill="currentColor" fill-opacity="0.15"/>
+          <path d="M14 12L20 18L14 24" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    `;
+    const fsRoot = document.fullscreenElement || document.webkitFullscreenElement || document.querySelector('.slides-container');
+    fsRoot.appendChild(nav);
+    nav.querySelector('.fullscreen-prev-btn').onclick = () => {
+      if (typeof window.showPrevSlide === 'function') window.showPrevSlide();
+      else document.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowLeft', bubbles:true}));
+    };
+    nav.querySelector('.fullscreen-next-btn').onclick = () => {
+      if (typeof window.showNextSlide === 'function') window.showNextSlide();
+      else document.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight', bubbles:true}));
+    };
+    // --- 強制定位修正 ---
+    if (typeof fixFullscreenNavBtnDisplay === 'function') fixFullscreenNavBtnDisplay();
+  }
+  function removeNavBtns() {
+    const nav = document.querySelector('.fullscreen-nav-btns');
+    if (nav) nav.remove();
+  }
+  function handleFullscreenNavBtns() {
+    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+    if (isFullscreen && isTouchDevice()) {
+      createNavBtns();
+    } else {
+      removeNavBtns();
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    setTimeout(handleFullscreenNavBtns, 100);
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    setTimeout(handleFullscreenNavBtns, 100);
+  });
+  window.addEventListener('DOMContentLoaded', handleFullscreenNavBtns);
+})();
+</script>
+</body>
+</html>

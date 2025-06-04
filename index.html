@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telearn 得能教育 - 課程主題選擇</title>
+    <style>
+        /* Basic styling for the body and container */
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            padding: clamp(8px, 3vw, 40px);
+        }
+        /* Header RWD */
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: clamp(16px, 5vw, 40px);
+            flex-wrap: wrap;
+            gap: clamp(8px, 4vw, 32px);
+        }
+        .logo {
+            max-height: clamp(48px, 10vw, 80px);
+            margin-right: clamp(8px, 3vw, 20px);
+        }
+        h1 {
+            color: #0056b3;
+            margin-bottom: 0;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            line-height: 1.15;
+        }
+        /* Course grid and card RWD */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: clamp(12px, 3vw, 30px);
+            justify-content: center;
+        }
+        .course-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: clamp(16px, 4vw, 32px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+        .course-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: clamp(12px, 3vw, 24px);
+        }
+        .course-card h2 {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            margin: 0 0 clamp(8px, 2vw, 16px) 0;
+        }
+        .course-card p {
+            font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+            margin-bottom: clamp(12px, 2vw, 20px);
+        }
+        .course-card .btn {
+            font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+            padding: clamp(6px, 1.2vw, 12px) clamp(18px, 4vw, 32px);
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .course-card .btn:hover {
+            background: #1d4ed8;
+        }
+        @media (max-width: 600px) {
+          .header {
+            flex-direction: column;
+            gap: 12px;
+          }
+          .logo {
+            margin-right: 0;
+          }
+        }
+        .course-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none; /* Remove underline from links */
+            color: inherit; /* Inherit text color */
+            display: block; /* Make the entire card clickable */
+        }
+        .course-card:hover {
+            transform: translateY(-8px); /* Lift card on hover */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Enhance shadow on hover */
+        }
+        .course-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover; /* Cover the area, cropping if necessary */
+            border-bottom: 1px solid #eee;
+        }
+        .course-card-content {
+            padding: 20px;
+        }
+        .course-card h2 {
+            font-size: 22px;
+            margin-top: 0;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+        .course-card p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #666;
+        }
+
+        /* Responsive design adjustments */
+        /* For screens wider than 1024px (e.g., desktop monitors) */
+        @media (min-width: 1024px) {
+            .course-grid {
+                /* Explicitly set to 4 columns for larger screens */
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* For screens between 768px and 1023px (e.g., tablets in landscape) */
+        @media (max-width: 1023px) and (min-width: 768px) {
+            .course-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Adjust min-width for flexibility */
+            }
+        }
+
+        /* For screens smaller than 768px (e.g., tablets in portrait and mobile) */
+        @media (max-width: 767px) {
+            .course-grid {
+                grid-template-columns: 1fr; /* Single column on smaller screens */
+            }
+            .header {
+                flex-direction: column; /* Stack logo and title vertically */
+                align-items: center;
+                text-align: center;
+            }
+            .logo {
+                margin-right: 0;
+                margin-bottom: 10px; /* Space between stacked logo and title */
+                max-height: 60px; /* Smaller logo on small screens */
+            }
+        }
+    </style>
+    <!-- Import Google Fonts for Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- 得能教育 Logo -->
+            <img src="https://telearn.best/images/logo-light.png" alt="得能教育Logo" class="logo">
+            <!-- Main heading for the page -->
+            <h1>得能教育 課程</h1>
+        </div>
+        <div class="course-grid">
+            <!-- Single course card for "Vibe Coding 與軟體工程初探課程" -->
+            <a href="./vibe_coding2025/index.html" class="course-card">
+                <!-- Placeholder image for the course -->
+                <img src="./vibe_coding2025/cover.png" alt="Vibe Coding 與軟體工程初探課程">
+                <div class="course-card-content">
+                    <!-- Course title -->
+                    <h2>Vibe Coding 與軟體工程初探課程</h2>
+                    <!-- Course description -->
+                    <p>透過 Vibe Coding 學習程式設計，深入探索軟體工程的核心概念與實務應用。</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
