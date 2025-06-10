@@ -949,11 +949,11 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
         <!-- Week 2 Content Area -->
         <div id="week2Content" class="week-content">
             <div class="week-top-title">
-                <h2 class="text-2xl font-semibold">第二週：運用 ChatGPT 概念深化 Python 技能</h2>
+                <h2 class="text-2xl font-semibold">第二週：從 Python 進階到軟體工程入門</h2>
             </div>
             <div id="week2SlidesContainer" class="slides-container">
-
-                 <!-- Slide 1 for Week 2: 本週學習目標 -->
+    
+                <!-- Slide 1: 本週學習目標 (UPDATED) -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
@@ -962,81 +962,73 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                         </div>
                         <h3 class="slide-title">本週學習目標</h3>
                         <div class="content-box">
-                            <ul class="list-disc list-inside space-y-1">
-                                <li>複習並深入應用 Python 的列表 (List)、字典 (Dictionary)、元組 (Tuple)、集合 (Set)。</li>
-                                <li>學習如何構思 Prompt，向類似 ChatGPT 的 AI 提問，以高效操作這些資料結構。</li>
-                                <li>理解 Python 的錯誤與異常處理 (<code class="code-snippet inline-block !p-1 !m-0">try-except-finally</code>)，並思考如何請 AI 協助。</li>
-                                <li>掌握運用 AI 輔助進行進階除錯的策略與提問技巧。</li>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li><b>精通 Python 進階資料結構</b>: 深入了解 List, Tuple, Dict, Set 的效能與應用場景。</li>
+                                <li><b>掌握專業級錯誤處理</b>: 學習捕捉、處理，甚至自訂錯誤 (Custom Exceptions)，寫出更穩固的程式。</li>
+                                <li><b>升級 AI 協作技巧</b>: 學習「多步驟提示」等進階 Prompt 策略，讓 AI 成為你的神隊友。</li>
+                                <li><b>入門軟體工程實務</b>: 接觸測試驅動開發 (TDD)、文件字串 (Docstrings) 與程式碼風格 (PEP 8) 等核心概念。</li>
+                                <li><b>完成小型專題</b>: 應用本週所學，從零到一打造一個簡易購物車系統。</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 2 for Week 2: 2.1 Python 資料結構進階應用 (Intro) -->
+    
+                <!-- Slide 2: 2.1 Python 資料結構進階 (Intro) -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
                             <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
                             <span class="slide-internal-text">得能教育 Telearn</span>
                         </div>
-                        <h3 class="slide-title">2.1 Python 資料結構進階應用 (ChatGPT 輔助視角)</h3>
+                        <h3 class="slide-title">2.1 Python 資料結構進階</h3>
                         <p class="text-gray-700 p-4 text-lg">Python 提供了多種強大的內建資料結構。這週，我們將思考如何透過向 ChatGPT 這樣的 AI 提問，來幫助我們更深入地理解和應用它們！</p>
                         <img src="./img/dict.png" alt="Python 資料結構與AI提問" class="my-2 rounded-md shadow-sm mx-auto">
                     </div>
                 </div>
-                <!-- Slide 3 for Week 2: List Comprehensions -->
+    
+                <!-- Slide 3: Data Structure Performance -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">2.1 Python 資料結構進階</h3>
+                        <div class="content-box">
+                            <p class="text-sm mb-2">不同的資料結構有不同的特性，適用於不同的場景。</p>
+                            <table class="w-full text-sm text-left text-gray-600">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                    <tr><th class="py-2 px-4">資料結構</th><th class="py-2 px-4">特性</th><th class="py-2 px-4">適用場景</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b"><td class="py-2 px-4 font-medium">List</td><td class="py-2 px-4">有序、可變、允許重複</td><td class="py-2 px-4">儲存一連串需要修改或排序的資料</td></tr>
+                                    <tr class="border-b"><td class="py-2 px-4 font-medium">Tuple</td><td class="py-2 px-4">有序、不可變、允許重複</td><td class="py-2 px-4">儲存不應被修改的資料，如座標</td></tr>
+                                    <tr class="border-b"><td class="py-2 px-4 font-medium">Dictionary</td><td class="py-2 px-4">無序(3.7+ 有序)、鍵值對、鍵唯一</td><td class="py-2 px-4">需要快速透過鍵查找值的場景</td></tr>
+                                    <tr class="border-b"><td class="py-2 px-4 font-medium">Set</td><td class="py-2 px-4">無序、元素唯一</td><td class="py-2 px-4">去重、檢查成員資格</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="activity-box mt-2">
+                            <p class="text-sm"><b>小測驗：</b>如果要儲存一個班級所有學生的學號（不重複），用哪種資料結構最合適？</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 4: List Comprehensions -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
                             <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
                             <span class="slide-internal-text">得能教育 Telearn</span>
                         </div>
-                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
+                        <h3 class="slide-title">2.1 Python 資料結構進階</h3>
                         <div class="content-box">
                             <h4 class="text-md font-semibold">列表推導式 (List Comprehensions)</h4>
                             <p class="text-sm mb-1">一種簡潔的方式來建立列表。例如，快速產生一個包含平方數的列表：</p>
                             <pre class="code-snippet"><code>squares = [x**2 for x in range(10)]
-# squares 會是 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]</code></pre>
+    # squares 會是 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]</code></pre>
                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你想用列表推導式從一個字串中選出所有母音，你會怎麼問 ChatGPT (或類似 AI) 來獲得提示或程式碼？</p>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 4 for Week 2: Dictionary Comprehensions -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">字典推導式 (Dictionary Comprehensions)</h4>
-                            <p class="text-sm mb-1">類似地，用簡潔的方式建立字典：</p>
-                            <pre class="code-snippet"><code>square_dict = {x: x**2 for x in range(5)}
-# square_dict 會是 {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}</code></pre>
-                            <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你想將兩個列表 (一個包含鍵，一個包含值) 合併成一個字典，你會如何向 AI 提問以獲得使用字典推導式的方案？</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 5 for Week 2: Common built-in functions (map, filter, sorted) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">常用內建函式操作資料結構</h4>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">map(function, iterable)</code>：</span>將函式應用到序列中的每個元素。</li>
-                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">filter(function, iterable)</code>：</span>根據函式過濾序列中的元素。</li>
-                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">sorted(iterable, key=None, reverse=False)</code>：</span>對序列進行排序。</li>
-                            </ul>
-                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 你會如何問 AI，請它示範如何使用 <code class="code-snippet inline-block !p-1 !m-0">filter</code> 過濾出一個數字列表中所有大於10的偶數？</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Quiz Slide: 列表推導式 -->
+    
+                <!-- Slide 5: Quiz: 列表推導式 -->
                 <div class="slide quiz-slide">
                   <div class="slide-content-wrapper">
                     <h3 class="slide-title">小測驗：列表推導式應用</h3>
@@ -1052,7 +1044,26 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                     </div>
                   </div>
                 </div>
-                <!-- Quiz Slide: 字典推導式 -->
+    
+                <!-- Slide 6: Dictionary Comprehensions -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">字典推導式 (Dictionary Comprehensions)</h4>
+                            <p class="text-sm mb-1">類似地，用簡潔的方式建立字典：</p>
+                            <pre class="code-snippet"><code>square_dict = {x: x**2 for x in range(5)}
+    # square_dict 會是 {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}</code></pre>
+                            <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你想將兩個列表 (一個包含鍵，一個包含值) 合併成一個字典，你會如何向 AI 提問以獲得使用字典推導式的方案？</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 7: Quiz: 字典推導式 -->
                 <div class="slide quiz-slide">
                   <div class="slide-content-wrapper">
                     <h3 class="slide-title">小測驗：字典推導式應用</h3>
@@ -1068,7 +1079,28 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                     </div>
                   </div>
                 </div>
-                <!-- Quiz Slide: map/filter/sorted 綜合應用 -->
+    
+                <!-- Slide 8: Common built-in functions (map, filter, sorted) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.1 Python 資料結構進階</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">常用內建函式操作資料結構</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">map(function, iterable)</code>：</span>將函式應用到序列中的每個元素。</li>
+                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">filter(function, iterable)</code>：</span>根據函式過濾序列中的元素。</li>
+                                <li><span class="font-semibold"><code class="code-snippet inline-block !p-1 !m-0">sorted(iterable, key=None, reverse=False)</code>：</span>對序列進行排序。</li>
+                            </ul>
+                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 你會如何問 AI，請它示範如何使用 <code class="code-snippet inline-block !p-1 !m-0">filter</code> 過濾出一個數字列表中所有大於10的偶數？</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 9: Quiz: map/filter/sorted 綜合應用 -->
                 <div class="slide quiz-slide">
                   <div class="slide-content-wrapper">
                     <h3 class="slide-title">小測驗：資料處理函式</h3>
@@ -1084,14 +1116,15 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                     </div>
                   </div>
                 </div>
-                <!-- Slide 6 for Week 2: Activity: Student list & grades -->
+    
+                <!-- Slide 10: Activity: Student list & grades -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
                             <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
                             <span class="slide-internal-text">得能教育 Telearn</span>
                         </div>
-                        <h3 class="slide-title">2.1 Python 資料結構進階應用</h3>
+                        <h3 class="slide-title">2.1 Python 資料結構進階</h3>
                         <div class="activity-box">
                             <h4 class="text-md font-semibold text-green-700 mb-2">活動：學生名單與成績處理 (AI 輔助思考)</h4>
                             <p class="text-sm mb-1">假設你有一份學生成績資料 (例如，一個包含學生姓名和分數的字典列表)。</p>
@@ -1106,204 +1139,28 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                         </div>
                     </div>
                 </div>
-                <!-- Slide 7 for Week 2: 2.2 堅固的程式碼：錯誤與異常處理 (Intro) -->
+    
+                <!-- Slide 11: 2.2 錯誤處理與防禦性程式設計 (Intro) -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
                             <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
                             <span class="slide-internal-text">得能教育 Telearn</span>
                         </div>
-                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理 (AI 輔助視角)</h3>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
                         <p class="text-gray-700 p-4 text-lg">程式出錯是家常便飯！學會處理「錯誤」和「異常」能讓你的程式更強壯。思考一下，AI 如何在這方面提供協助？</p>
                         <img src="./img/bug.png" alt="程式錯誤與AI輔助" class="my-2 rounded-md shadow-sm mx-auto">
                     </div>
                 </div>
-                <!-- Slide 8 for Week 2: Common Python error types (Part 1) -->
+                
+                <!-- Slide 12: 什麼是防禦性程式設計？ -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
                             <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
                             <span class="slide-internal-text">得能教育 Telearn</span>
                         </div>
-                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">常見的 Python 錯誤類型 (Part 1)</h4>
-                            <p class="text-sm mb-1">複習一下常見的錯誤：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><code class="code-snippet inline-block !p-1 !m-0">SyntaxError</code>, <code class="code-snippet inline-block !p-1 !m-0">NameError</code>,  <code class="code-snippet inline-block !p-1 !m-0">TypeError</code>, <code class="code-snippet inline-block !p-1 !m-0">ValueError</code></li>
-                            </ul>
-                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 當你遇到一個 <code class="code-snippet inline-block !p-1 !m-0">TypeError</code>，但不太確定原因時，你會怎麼把錯誤訊息和相關程式碼提供給 ChatGPT，請它幫忙分析？</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 9 for Week 2: Common Python error types (Part 2) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">常見的 Python 錯誤類型 (Part 2)</h4>
-                             <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><code class="code-snippet inline-block !p-1 !m-0">IndexError</code>, <code class="code-snippet inline-block !p-1 !m-0">KeyError</code>, <code class="code-snippet inline-block !p-1 !m-0">FileNotFoundError</code>, <code class="code-snippet inline-block !p-1 !m-0">ZeroDivisionError</code>, <code class="code-snippet inline-block !p-1 !m-0">AttributeError</code></li>
-                            </ul>
-                            <p class="text-sm mt-2">當程式出現錯誤時，仔細閱讀錯誤訊息是除錯的第一步！它通常會告訴你錯誤的類型和發生的位置。</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 10 for Week 2: try-except, else, finally -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">使用 `try-except` 捕捉錯誤</h4>
-                            <p class="text-sm mb-1">我們可以使用 `try` 和 `except` 區塊來「捕捉」可能發生的錯誤，並優雅地處理它們。</p>
-                            <pre class="code-snippet"><code>try:
-    num_str = input("請輸入一個數字：")
-    num = int(num_str) 
-    result = 10 / num  
-    print(f"結果是 {result}")
-except ValueError:
-    print("輸入的不是有效數字！")
-# ... 其他 except 區塊 ...
-else:
-    print("計算順利完成！")
-finally:
-    print("程式區塊執行結束。")</code></pre>
-                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你不確定一段程式碼可能會拋出哪些具體的錯誤類型，你會如何請 ChatGPT 幫你分析並建議 `except` 區塊的寫法？</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 11 for Week 2: Raising custom exceptions -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">引發自訂義異常 (raise)</h4>
-                            <p class="text-sm mb-1">有時候，我們希望在特定條件下主動引發一個錯誤，可以使用 `raise` 關鍵字。</p>
-                            <pre class="code-snippet"><code>def process_data(data):
-    if not data:
-        raise ValueError("輸入的資料不能是空的！")
-    # ... 處理資料 ...
-    print("資料處理完成。")</code></pre>
-                            <p class="text-sm mt-2">思考在什麼情境下，主動 <code class="code-snippet inline-block !p-1 !m-0">raise</code> 一個錯誤會比單純 <code class="code-snippet inline-block !p-1 !m-0">print</code> 錯誤訊息更好？</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 12 for Week 2: Activity: Error handling -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.2 堅固的程式碼：錯誤與異常處理</h3>
-                        <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：為程式碼加上防護罩！(AI 輔助思考)</h4>
-                            <p class="text-sm mb-1">老師會提供一段可能產生錯誤的程式碼。</p>
-                            <p class="text-sm mb-1">你的任務是，思考你會如何向 ChatGPT (或類似 AI) 提問，來幫助你：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>分析這段程式碼可能會出現哪些錯誤？</li>
-                                <li>建議如何使用 <code class="code-snippet inline-block !p-1 !m-0">try-except</code> 結構來捕捉這些潛在的錯誤。</li>
-                                <li>為不同的錯誤類型提供友善的提示訊息。</li>
-                                <li>判斷是否需要使用 <code class="code-snippet inline-block !p-1 !m-0">else</code> 或 <code class="code-snippet inline-block !p-1 !m-0">finally</code> 子句。</li>
-                            </ul>
-                            <p class="text-sm mt-2">試著寫下你的 Prompt，並預想 AI 可能會提供哪些有用的建議。</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 13 for Week 2: 2.3 AI 除錯夥伴 (Intro) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.3 AI 除錯夥伴 (ChatGPT 視角)</h3>
-                        <p class="text-gray-700 p-4 text-lg">即使有了錯誤處理，程式還是可能會有 bug (臭蟲)！像 ChatGPT 這樣的 AI 可以成為你強大的除錯夥伴，幫助你更快找到並解決問題。</p>
-                        <img src="./img/ai_debug.png" alt="AI 協助除錯示意圖" class="my-2 rounded-md shadow-sm mx-auto">
-                    </div>
-                </div>
-                <!-- Slide 14 for Week 2: Describing errors to AI -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.3 AI 除錯夥伴</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">如何有效地向 AI (如 ChatGPT) 求助除錯？</h4>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><span class="font-semibold">複製完整的錯誤訊息：</span>這是最重要的資訊！</li>
-                                <li><span class="font-semibold">提供相關的程式碼片段：</span>讓 AI 知道錯誤發生在哪裡。</li>
-                                <li><span class="font-semibold">描述你預期的行為：</span>程式應該做什麼？</li>
-                                <li><span class="font-semibold">描述實際發生的行為：</span>程式實際上做了什麼？</li>
-                                <li><span class="font-semibold">說明你已經嘗試過的解決方法</span> (如果有的話)。</li>
-                            </ul>
-                            <p class="text-sm mt-2">Prompt 範例：「我的 Python 程式出現了這個錯誤訊息 [貼上錯誤訊息]。這是相關的程式碼：[貼上程式碼]。我希望它能 [描述預期行為]，但它卻 [描述實際行為]。請問可能是什麼問題？可以幫我看看程式碼哪裡有問題嗎？」</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 15 for Week 2: AI for logic errors -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.3 AI 除錯夥伴</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">不只是語法錯誤，AI 也能幫忙找邏輯錯誤！</h4>
-                            <p class="text-sm mb-1">有時候程式可以執行，但結果不如預期，這就是邏輯錯誤。你可以：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li>向 AI 描述你的程式碼片段和它應該實現的功能，詢問它是否能看出邏輯上的問題。</li>
-                                <li>描述你的演算法或邏輯思路，請 AI 檢查是否有缺陷。</li>
-                                <li>提供輸入範例和預期輸出，請 AI 幫你分析為什麼實際輸出不同。</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 16 for Week 2: Activity: Debugging challenge -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.3 AI 除錯夥伴</h3>
-                        <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：「除錯大挑戰」！(AI 輔助思考)</h4>
-                            <p class="text-sm mb-1">老師會提供幾個帶有隱晦 bug 的 Python 程式片段。</p>
-                            <p class="text-sm mb-1">你的任務是，思考你會如何運用與 ChatGPT (或類似 AI) 互動的技巧來：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>理解程式碼的功能。</li>
-                                <li>分析錯誤訊息或不符合預期的行為。</li>
-                                <li>向 AI 清晰地描述問題，並提供相關資訊以獲得幫助。</li>
-                                <li>根據 AI 的建議，嘗試找出並修復 bug。</li>
-                            </ul>
-                            <p class="text-sm mt-2">和同學分享你的「提問策略」和 AI 可能給你的「啟發」。</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 17 for Week 2: 2.4 軟體工程概念：防禦性程式設計 -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">2.4 軟體工程概念：防禦性程式設計</h3>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
                         <div class="content-box">
                             <h4 class="text-md font-semibold">什麼是防禦性程式設計？</h4>
                             <p class="text-sm mb-1">這是一種程式設計的思維方式，目標是讓程式碼在面對未預期的輸入或情況時，依然能夠保持穩定和可預測的行為。</p>
@@ -1318,7 +1175,352 @@ finally:
                         </div>
                     </div>
                 </div>
-                <!-- Slide 18 for Week 2: Week Review -->
+    
+                <!-- Slide 13: Common Python error types (Part 1) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">常見的 Python 錯誤類型 (Part 1)</h4>
+                            <p class="text-sm mb-1">複習一下常見的錯誤：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><code class="code-snippet inline-block !p-1 !m-0">SyntaxError</code>, <code class="code-snippet inline-block !p-1 !m-0">NameError</code>,  <code class="code-snippet inline-block !p-1 !m-0">TypeError</code>, <code class="code-snippet inline-block !p-1 !m-0">ValueError</code></li>
+                            </ul>
+                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 當你遇到一個 <code class="code-snippet inline-block !p-1 !m-0">TypeError</code>，但不太確定原因時，你會怎麼把錯誤訊息和相關程式碼提供給 ChatGPT，請它幫忙分析？</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 14: Common Python error types (Part 2) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">常見的 Python 錯誤類型 (Part 2)</h4>
+                             <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><code class="code-snippet inline-block !p-1 !m-0">IndexError</code>, <code class="code-snippet inline-block !p-1 !m-0">KeyError</code>, <code class="code-snippet inline-block !p-1 !m-0">FileNotFoundError</code>, <code class="code-snippet inline-block !p-1 !m-0">ZeroDivisionError</code>, <code class="code-snippet inline-block !p-1 !m-0">AttributeError</code></li>
+                            </ul>
+                            <p class="text-sm mt-2">當程式出現錯誤時，仔細閱讀錯誤訊息是除錯的第一步！它通常會告訴你錯誤的類型和發生的位置。</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 15: try-except, else, finally -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">使用 <code class="code-snippet inline-block !p-1 !m-0">try-except</code> 捕捉錯誤</h4>
+                            <p class="text-sm mb-1">我們可以使用 <code class="code-snippet inline-block !p-1 !m-0">try</code> 和 <code class="code-snippet inline-block !p-1 !m-0">except</code> 區塊來「捕捉」可能發生的錯誤，並優雅地處理它們。</p>
+                            <pre class="code-snippet"><code>
+    try:
+        num_str = input("請輸入一個數字：")
+        num = int(num_str) 
+        result = 10 / num  
+        print(f"結果是 {result}")
+    except ValueError:
+        print("輸入的不是有效數字！")
+    # ... 其他 except 區塊 ...
+    else:
+        print("計算順利完成！")
+    finally:
+        print("程式區塊執行結束。")
+    </code></pre>
+                             <p class="text-sm mt-2 discussion-box">🤔 <span class="font-semibold">思考與提問：</span> 如果你不確定一段程式碼可能會拋出哪些具體的錯誤類型，你會如何請 ChatGPT 幫你分析並建議 <code class="code-snippet inline-block !p-1 !m-0">except</code> 區塊的寫法？</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 16: Raising exceptions -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">引發異常 (raise)</h4>
+                            <p class="text-sm mb-1">有時候，我們希望在特定條件下主動引發一個錯誤，可以使用 <code class="code-snippet inline-block !p-1 !m-0">raise</code> 關鍵字。</p>
+                            <pre class="code-snippet"><code>
+    def process_data(data):
+        if not data:
+            raise ValueError("輸入的資料不能是空的！")
+        # ... 處理資料 ...
+        print("資料處理完成。")</code></pre>
+                            <p class="text-sm mt-2">思考在什麼情境下，主動 <code class="code-snippet inline-block !p-1 !m-0">raise</code> 一個錯誤會比單純 <code class="code-snippet inline-block !p-1 !m-0">print</code> 錯誤訊息更好？</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 17: Advanced Error Handling (Custom Exceptions) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">進階：自訂錯誤類型</h4>
+                            <p class="text-sm mb-2">當內建的錯誤不夠用時，我們可以建立自己的錯誤類型，讓程式碼的意圖更清晰。</p>
+                            <pre class="code-snippet"><code>class InvalidURLError(Exception):
+        """當 URL 格式不正確時引發的自訂錯誤"""
+        pass
+    
+    def fetch_website(url):
+        if not url.startswith("http"):
+            raise InvalidURLError(f"無效的 URL：'{url}'，必須以 http 開頭")
+        print(f"正在嘗試抓取 {url}...")
+    
+    try:
+        fetch_website("www.google.com")
+    except InvalidURLError as e:
+        print(f"錯誤：{e}")</code></pre>
+                        </div>
+                        <div class="activity-box mt-2">
+                            <p class="text-sm"><b>活動：</b> 在您的筆記中，為成績設定函式建立一個 <code class="code-snippet inline-block !p-1 !m-0">InvalidGradeError</code>，當成績不在 0-100 範圍內時引發此錯誤。</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 18: Activity: Error handling -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.2 錯誤處理與防禦性程式設計</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：為程式碼加上防護罩！(AI 輔助思考)</h4>
+                            <p class="text-sm mb-1">老師會提供一段可能產生錯誤的程式碼。</p>
+                            <p class="text-sm mb-1">你的任務是，思考你會如何向 ChatGPT (或類似 AI) 提問，來幫助你：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>分析這段程式碼可能會出現哪些錯誤？</li>
+                                <li>建議如何使用 <code class="code-snippet inline-block !p-1 !m-0">try-except</code> 結構來捕捉這些潛在的錯誤。</li>
+                                <li>為不同的錯誤類型提供友善的提示訊息。</li>
+                                <li>判斷是否需要使用 <code class="code-snippet inline-block !p-1 !m-0">else</code> 或 <code class="code-snippet inline-block !p-1 !m-0">finally</code> 子句。</li>
+                            </ul>
+                            <p class="text-sm mt-2">試著寫下你的 Prompt，並預想 AI 可能會提供哪些有用的建議。</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 19: 2.3 AI 協作：Prompt 與除錯 (Intro) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 協作：Prompt 與除錯</h3>
+                        <p class="text-gray-700 p-4 text-lg">即使有了錯誤處理，程式還是可能會有 bug (臭蟲)！像 ChatGPT 這樣的 AI 可以成為你強大的除錯夥伴，幫助你更快找到並解決問題。</p>
+                        <img src="./img/ai_debug.png" alt="AI 協助除錯示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                    </div>
+                </div>
+    
+                <!-- Slide 20: Describing errors to AI -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 協作：Prompt 與除錯</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">如何有效地向 AI (如 ChatGPT) 求助除錯？</h4>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li><span class="font-semibold">複製完整的錯誤訊息：</span>這是最重要的資訊！</li>
+                                <li><span class="font-semibold">提供相關的程式碼片段：</span>讓 AI 知道錯誤發生在哪裡。</li>
+                                <li><span class="font-semibold">描述你預期的行為：</span>程式應該做什麼？</li>
+                                <li><span class="font-semibold">描述實際發生的行為：</span>程式實際上做了什麼？</li>
+                                <li><span class="font-semibold">說明你已經嘗試過的解決方法</span> (如果有的話)。</li>
+                            </ul>
+                            <p class="text-sm mt-2">Prompt 範例：「我的 Python 程式出現了這個錯誤訊息 [貼上錯誤訊息]。這是相關的程式碼：[貼上程式碼]。我希望它能 [描述預期行為]，但它卻 [描述實際行為]。請問可能是什麼問題？可以幫我看看程式碼哪裡有問題嗎？」</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 21: AI for logic errors -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 協作：Prompt 與除錯</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">不只是語法錯誤，AI 也能幫忙找邏輯錯誤！</h4>
+                            <p class="text-sm mb-1">有時候程式可以執行，但結果不如預期，這就是邏輯錯誤。你可以：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
+                                <li>向 AI 描述你的程式碼片段和它應該實現的功能，詢問它是否能看出邏輯上的問題。</li>
+                                <li>描述你的演算法或邏輯思路，請 AI 檢查是否有缺陷。</li>
+                                <li>提供輸入範例和預期輸出，請 AI 幫你分析為什麼實際輸出不同。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 22: AI Prompt Practice (Multi-step) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">2.3 AI 協作：Prompt 與除錯</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">技巧：多步驟提示 (Multi-step Prompt)</h4>
+                            <p class="text-sm mb-2">與其一次丟出複雜問題，不如分步驟引導 AI，逐步建構出最終答案。</p>
+                            <p class="text-sm font-semibold">範例：請 AI 幫你寫一個線上課程報名系統</p>
+                            <ol class="list-decimal list-inside text-sm space-y-1">
+                                <li>第一步：「請幫我設計一個 Python 字典來表示一門線上課程，需要包含課程名稱、老師和一個空的學生名單。」</li>
+                                <li>第二步：「基於上面的字典，請寫一個函式，可以將一個學生名字加入到學生名單中。」</li>
+                                <li>第三步：「很好，現在請幫這個函式加上錯誤處理，如果學生已經在名單中了，就印出提示訊息。」</li>
+                            </ol>
+                        </div>
+                         <div class="activity-box mt-2">
+                            <p class="text-sm"><b>活動：</b>在您的筆記中，練習使用多步驟提示，引導 AI 產生一個密碼驗證函式（例如，長度至少8碼，包含數字和字母）。</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 23: Activity: Debugging challenge -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header">
+                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
+                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        </div>
+                        <h3 class="slide-title">2.3 AI 協作：Prompt 與除錯</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：「除錯大挑戰」！(AI 輔助思考)</h4>
+                            <p class="text-sm mb-1">老師會提供幾個帶有隱晦 bug 的 Python 程式片段。</p>
+                            <p class="text-sm mb-1">你的任務是，思考你會如何運用與 ChatGPT (或類似 AI) 互動的技巧來：</p>
+                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
+                                <li>理解程式碼的功能。</li>
+                                <li>分析錯誤訊息或不符合預期的行為。</li>
+                                <li>向 AI 清晰地描述問題，並提供相關資訊以獲得幫助。</li>
+                                <li>根據 AI 的建議，嘗試找出並修復 bug。</li>
+                            </ul>
+                            <p class="text-sm mt-2">和同學分享你的「提問策略」和 AI 可能給你的「啟發」。</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 24: TDD Basics -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">2.4 軟體工程核心實務</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">測試驅動開發 (TDD) 與 <code class="code-snippet inline-block !p-1 !m-0">assert</code></h4>
+                            <p class="text-sm mb-2">TDD 的核心精神是「先寫測試，再寫功能」。 <code class="code-snippet inline-block !p-1 !m-0">assert</code> 是我們實踐這個精神最簡單的工具。</p>
+                             <p class="text-sm mb-1"><code class="code-snippet inline-block !p-1 !m-0">assert</code> 語句會在條件為 <code class="code-snippet inline-block !p-1 !m-0">False</code> 時，引發 <code class="code-snippet inline-block !p-1 !m-0">AssertionError</code>，直接中斷程式。</p>
+                            <pre class="code-snippet"><code>
+    def calculate_discount(price, discount_rate):
+        # 我們斷言折扣率必須在 0 和 1 之間
+        assert 0 <= discount_rate <= 1, "折扣率必須在 0 和 1 之間"
+        return price * (1 - discount_rate)
+    
+    # 這會正常運作
+    print(calculate_discount(100, 0.2))
+    
+    # 這會引發 AssertionError
+    print(calculate_discount(100, 1.5))</code></pre>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 25: NEW - Docstrings -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">2.4 軟體工程核心實務</h3>
+                        <div class="content-box">
+                            <h4 class="text-md font-semibold">撰寫清晰的文件字串 (Docstrings)</h4>
+                            <p class="text-sm mb-2">文件字串 (Docstring) 是說明函式、模組或類別用途的「內建說明書」。它不僅是給人看的，更是 AI 理解你程式碼意圖的關鍵！</p>
+                            <pre class="code-snippet"><code>def calculate_total_price(items, tax_rate):
+        """計算包含稅金的總價格。
+    
+        Args:
+            items (list): 一個包含商品價格 (數字) 的列表。
+            tax_rate (float): 稅率，例如 0.05 代表 5%。
+    
+        Returns:
+            float: 四捨五入到小數點後兩位的總金額。
+                   如果輸入無效則返回 -1。
+        """
+        if not isinstance(items, list) or not items:
+            return -1
+        subtotal = sum(items)
+        total = subtotal * (1 + tax_rate)
+        return round(total, 2)
+    
+    # 你可以這樣查看說明書
+    help(calculate_total_price)</code></pre>
+                        </div>
+                        <div class="activity-box mt-2">
+                             <p class="text-sm"><b>AI 協作提示：</b>寫好清晰的 Docstring 後，你可以請 AI：「根據這個函式的 Docstring，為它產生三個測試案例，包含一個邊界情況。」AI 能提供更高品質的協助！</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 26: PEP 8 & Linting -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">2.4 軟體工程核心實務</h3>
+                        <div class="content-box">
+                             <h4 class="text-md font-semibold">程式碼風格 (PEP 8)</h4>
+                            <p class="text-sm mb-2">PEP 8 是 Python 的官方風格指南。遵循它能讓你的程式碼更具可讀性、更專業，也更容易與他人協作。</p>
+                            <div class="grid grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <h4 class="font-semibold text-red-600">不推薦的風格 ❌</h4>
+                                    <pre class="code-snippet"><code>def calculate(x,y):
+        result=x*y
+        return result</code></pre>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-600">推薦的風格 (PEP 8) ✅</h4>
+                                    <pre class="code-snippet"><code>def calculate(x, y):
+        result = x * y
+        return result</code></pre>
+                                </div>
+                            </div>
+                            <p class="text-sm mt-2"><b>Linting 工具：</b>像 <code class="code-snippet inline-block !p-1 !m-0">flake8</code> 或 <code class="code-snippet inline-block !p-1 !m-0">pylint</code> 這樣的工具可以自動檢查你的程式碼是否符合 PEP 8 規範。</p>
+                        </div>
+                        <div class="activity-box mt-2">
+                             <p class="text-sm"><b>AI 協作提示：</b>將一段程式碼貼給 AI，並請它「根據 PEP 8 風格指南重構這段程式碼」。</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 27: Mini Project -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <h3 class="slide-title">2.5 綜合專題：簡易購物車系統</h3>
+                        <div class="content-box">
+                            <p class="text-sm mb-2">讓我們綜合運用所學，設計一個小型專案。這能幫助我們理解各個知識點如何協同工作。</p>
+                            <h4 class="text-md font-semibold">需求：</h4>
+                            <ul class="list-disc list-inside text-sm space-y-1">
+                                <li><b>資料結構：</b>設計一個結構來存放商品（名稱、價格）。</li>
+                                <li><b>新增商品：</b>一個函式 <code class="code-snippet inline-block !p-1 !m-0">add_to_cart()</code>。</li>
+                                <li><b>計算總價：</b>一個函式 <code class="code-snippet inline-block !p-1 !m-0">calculate_total()</code>。</li>
+                                <li><b>移除商品：</b>一個函式 <code class="code-snippet inline-block !p-1 !m-0">remove_from_cart()</code>，需處理商品不存在的情況。</li>
+                            </ul>
+                            <p class="text-sm mt-2"><b>AI 協作提示：</b>卡關時可以問 AI：「我該用哪種資料結構來設計購物車比較好？」或「請幫我寫一個從列表中移除指定商品的函式。」</p>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Slide 28: Week Review (UPDATED) -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
@@ -1326,17 +1528,22 @@ finally:
                             <span class="slide-internal-text">得能教育 Telearn</span>
                         </div>
                         <h3 class="slide-title">第二週重點回顧</h3>
-                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <ul class="list-disc list-inside space-y-1 text-gray-700">
-                                <li>我們思考了如何運用與 ChatGPT 類似的 AI 互動模式，來深化對 Python 資料結構的理解與應用。</li>
-                                <li>學習了 Python 的錯誤處理機制，並探討如何請 AI 協助分析與加入錯誤處理。</li>
-                                <li>掌握了向 AI 有效提問以輔助除錯的策略。</li>
-                                <li>認識了防禦性程式設計的重要性。</li>
+                        <div class="content-box">
+                            <p class="text-sm mb-3">這一週我們從 Python 的基礎上，加入了軟體工程的重要概念與 AI 協作技巧：</p>
+                            <ul class="list-disc list-inside space-y-2 text-sm">
+                                <li><b>進階資料結構</b>: 精通 List, Tuple, Dict, Set 的特性、效能與適用場景。</li>
+                                <li><b>進階錯誤處理</b>: 不僅能用 <code class="code-snippet inline-block !p-1 !m-0">try...except</code> 捕捉錯誤，更能定義自訂例外 (Custom Exception) 處理特定狀況。</li>
+                                <li><b>AI Prompt 實戰</b>: 掌握「多步驟提示」技巧，能更精準地引導 AI 完成複雜任務。</li>
+                                <li><b>TDD 測試驅動開發</b>: 了解 TDD 核心精神，並學會使用 <code class="code-snippet inline-block !p-1 !m-0">assert</code> 為功能撰寫基本驗證。</li>
+                                <li><b>撰寫文件字串 (Docstrings)</b>: 學習為函式撰寫標準化的說明文件，讓程式碼更易於理解與維護，並能有效引導 AI 協作。</li>
+                                <li><b>程式碼風格 (PEP 8)</b>: 認識程式碼風格的重要性，並能利用 AI 輔助重構，提升程式碼品質。</li>
+                                <li><b>綜合應用</b>: 透過「簡易購物車」小型專題，將本週所學知識點串連起來。</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 19 for Week 2: Next Week Preview -->
+    
+                <!-- Slide 29: Next Week Preview -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
                         <div class="slide-internal-header">
