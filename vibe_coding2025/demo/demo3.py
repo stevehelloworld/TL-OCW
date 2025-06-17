@@ -13,7 +13,7 @@ class ComicCreatorApp:
         :param root: tkinter 的主視窗
         """
         self.root = root
-        self.root.title("🎨 數位四格漫畫創作器")
+        self.root.title("🎨 數位四格漫畫展示器")
         self.root.geometry("700x750")        # 設定視窗背景色和字體
         self.root.config(bg="#2c3e50") # 深藍灰色背景
 

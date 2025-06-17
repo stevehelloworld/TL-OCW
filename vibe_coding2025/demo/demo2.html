@@ -194,6 +194,10 @@
             handleHeroClick();
         });
         
+        heroButton.addEventListener('mouseleave', () => {
+            heroImage.src = normalImage;
+        });
+        
         // 處理觸控事件
         heroButton.addEventListener('touchstart', (e) => {
             e.preventDefault();

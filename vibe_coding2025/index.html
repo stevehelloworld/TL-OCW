@@ -839,7 +839,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                                     </div>
                                     <div class="prompt-example">
                                         <p class="text-xs font-semibold">Prompt 範例2 (比較清楚)：</p>
-                                        <p class="text-xs">「請幫我寫一個 Python 函式，名稱叫做 `is_even`。這個函式接受一個整數作為參數，如果該整數是偶數，函式應該回傳 `True`，否則回傳 `False`。」</p>
+                                        <p class="text-xs">「請幫我寫一個 Python 函式，名稱叫做 <code class="code-snippet inline-block !p-1 !m-0">is_even</code>。這個函式接受一個整數作為參數，如果該整數是偶數，函式應該回傳 True，否則回傳 False。」</p>
                                     </div>
                                 </li>
                                 <li>思考一下，這兩種 Prompt 可能會得到什麼不同的回應？</li>
@@ -1168,7 +1168,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                             <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
                                 <li><span class="font-semibold">檢查所有來自外部的輸入：</span>不要信任任何來自使用者、檔案或網路的資料。</li>
                                 <li><span class="font-semibold">處理所有可能的錯誤情況：</span>使用錯誤處理機制。</li>
-                                <li><span class="font-semibold">使用斷言 (Assertions)：</span>在程式中加入檢查點，確保某些條件必須為真。 (例如：`assert age > 0, "年齡必須是正數"`)</li>
+                                <li><span class="font-semibold">使用斷言 (Assertions)：</span>在程式中加入檢查點，確保某些條件必須為真。 (例如：<code class="code-snippet inline-block !p-1 !m-0">assert age > 0, "年齡必須是正數"</code>)</li>
                                 <li><span class="font-semibold">保持程式碼簡單清晰：</span>複雜的程式碼更容易隱藏 bug。</li>
                             </ul>
                             <p class="text-sm mt-2">良好的錯誤處理是防禦性程式設計的重要一環！</p>
@@ -1629,7 +1629,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                         <div class="activity-box">
                             <h4 class="text-md font-semibold text-green-700 mb-2">任務</h4>
                             <p>老師會提供一段邏輯混雜的程式碼（例如：一段程式碼包辦了讀取、計算、判斷、輸出的所有工作）。</p>
-                            <p>你的目標是練習使用 Cursor 的「編輯/聊天」(快捷鍵 Ctrl+L)，選取特定區塊，並下達指令如：<span class="highlight">「將這段計算平均的邏輯，提取成一個名為 `calculate_average` 的新函式」</span>，體驗一鍵重構的魔法。</p>
+                            <p>你的目標是練習使用 Cursor 的「編輯/聊天」(快捷鍵 Ctrl+L)，選取特定區塊，並下達指令如：<span class="highlight">「將這段計算平均的邏輯，提取成一個名為 <code class="code-snippet inline-block !p-1 !m-0">calculate_average</code> 的新函式」</span>，體驗一鍵重構的魔法。</p>
                         </div>
                     </div>
                 </div>
@@ -1697,7 +1697,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                         <ul class="list-disc list-inside space-y-1 text-sm mb-2">
                            <li><b>GUI 元件：</b>「選擇圖片」按鈕、兩個文字輸入框、一個「產生迷因」按鈕、一個成品顯示區。</li>
                            <li><b>有趣之處：</b>結合時事與創意，可以立刻做出好笑的圖片和朋友分享。</li>
-                           <li><b>AI 協作點：</b>問 AI「Python 如何在圖片上寫字？」來探索 `Pillow` 函式庫。</li>
+                           <li><b>AI 協作點：</b>問 AI「Python 如何在圖片上寫字？」來探索 <code class="code-snippet inline-block !p-1 !m-0">Pillow</code> 函式庫。</li>
                        </ul>
                        
                     </div>
@@ -1722,7 +1722,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                 <div class="slide">
                      <div class="slide-content-wrapper">
                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
-                        <h3 class="slide-title">專案選項3：🎨 數位四格漫畫創作器</h3>
+                        <h3 class="slide-title">專案選項3：🎨 數位四格漫畫展示器</h3>
                          <p class="mb-2">製作一個可以呈現多張圖片與對應文字的看圖說故事工具。使用者可以透過「上一頁」、「下一頁」按鈕來瀏覽你創作的漫畫或故事。</p>
                         <ul class="list-disc list-inside space-y-1 text-sm mb-2">
                            <li><b>GUI 元件：</b>圖片顯示區、文字標籤、「上一頁」和「下一頁」按鈕。</li>
@@ -1811,7 +1811,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                         <div class="activity-box">
                             <h4 class="text-md font-semibold text-green-700 mb-2">目標</h4>
                              <p>完成所有 GUI 元件的排版。此刻，按鈕可能還沒有功能，但整個 App 的「外觀」和「版面」已經成形。</p>
-                            <p class="mt-2"><b>AI 協作提示：</b>如果不確定如何排版，可以問 AI：「請用 tkinter 的 `grid` 方法，幫我設計一個兩行兩列的佈局。」</p>
+                            <p class="mt-2"><b>AI 協作提示：</b>如果不確定如何排版，可以問 AI：「請用 tkinter 的 <code class="code-snippet inline-block !p-1 !m-0">grid</code> 方法，幫我設計一個兩行兩列的佈局。」</p>
                         </div>
                     </div>
                 </div>
@@ -1861,7 +1861,7 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                              <h4 class="text-md font-semibold text-green-700 mb-2">任務：故意玩壞它！</h4>
                              <p>試著做一些「不正常操作」。例如，在迷因產生器中不選擇任何圖片就按下「產生」按鈕。看看你的 App 會不會崩潰 (Crash)？</p>
                             <h4 class="text-md font-semibold text-green-700 mt-4 mb-2">AI 協作</h4>
-                            <p>如果程式崩潰了，告訴 AI：<br><span class="highlight">「如何在我點擊按鈕時，先檢查使用者是否已經選擇了圖片？如果沒有，就跳出一個錯誤提示視窗。」</span><br>AI 會引導你使用 `tkinter.messagebox` 來優雅地處理錯誤。</p>
+                            <p>如果程式崩潰了，告訴 AI：<br><span class="highlight">「如何在我點擊按鈕時，先檢查使用者是否已經選擇了圖片？如果沒有，就跳出一個錯誤提示視窗。」</span><br>AI 會引導你使用 <code class="code-snippet inline-block !p-1 !m-0">tkinter.messagebox</code> 來優雅地處理錯誤。</p>
                         </div>
                     </div>
                 </div>
@@ -1909,14 +1909,33 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
                         <h3 class="slide-title">特別加碼：一鍵變身網頁版！</h3>
                         <div class="content-box">
                             <p class="mb-2">你以為你的 App 只能在自己電腦上跑嗎？AI 還能幫我們做一件更酷的事：<span class="highlight">把它變成一個真正的網站！</span></p>
-                            <p class="text-sm">即使我們只學了 Python 和 `tkinter`，完全不懂網頁三劍客 (HTML, CSS, JavaScript)，我們依然可以讓 AI 幫我們完成這個魔法般的轉換。</p>
+                            <p class="text-sm">即使我們只學了 Python 和 <code class="code-snippet inline-block !p-1 !m-0">tkinter</code>，完全不懂網頁三劍客 (HTML, CSS, JavaScript)，我們依然可以讓 AI 幫我們完成這個魔法般的轉換。</p>
                             
                         </div>
                         <div class="activity-box">
                             <h4 class="text-md font-semibold text-green-700 mb-2">魔法詠唱咒語 (AI Prompt)</h4>
-                            <p class="text-sm">選取你專案中所有的 `tkinter` 程式碼，然後對 Cursor 的 AI 說：</p>
+                            <p class="text-sm">選取你專案中所有的 <code class="code-snippet inline-block !p-1 !m-0">tkinter</code> 程式碼，然後對 Cursor 的 AI 說：</p>
                             <pre class="code-snippet"><code>「請將這個 tkinter 應用程式，改寫成一個單一 HTML 檔案的網頁應用程式。請使用 Tailwind CSS 來美化外觀，並將所有的 Python 邏輯轉換成 JavaScript。」</code></pre>
                             <p class="text-sm mt-2">AI 就會為你生成一個完整的網頁，讓任何人只要有瀏覽器就能使用你的作品！這也是你們可以在成果發表會上展示的超酷亮點！</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- == NEW SLIDE INSERTED HERE == -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">AI 魔法成果展示：專案網頁版範例</h3>
+                        <div class="content-box">
+                            <p class="mb-2">這就是 AI 將我們上一週的三個專案範例，從 Python (<code class="code-snippet inline-block !p-1 !m-0">tkinter</code>) 桌面應用程式轉換成網頁版的成果！</p>
+                            <p class="text-sm">你可以點擊下方的連結，直接在瀏覽器中體驗這些由 AI 生成的網頁應用程式。</p>
+                        </div>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">點擊體驗網頁版 Demo</h4>
+                            <ul class="list-disc list-inside space-y-3 text-lg">
+                                <li><a href="demo/demo1.html" target="_blank" class="text-blue-600 hover:underline">1. 簡單迷因 (Meme) 產生器</a></li>
+                                <li><a href="demo/demo2.html" target="_blank" class="text-blue-600 hover:underline">2. 點擊英雄 (Clicker Hero)</a></li>
+                                <li><a href="demo/demo3.html" target="_blank" class="text-blue-600 hover:underline">3. 數位四格漫畫展示器</a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
