@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>😎 網頁版迷因產生器</title>
+    <style>
+        /* 基礎樣式重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        input[type="file"] {
+            padding: 8px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #preview {
+            max-width: 100%;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .canvas-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .btn-group button {
+            flex: 1;
+            min-width: 120px;
+        }
+        #downloadBtn {
+            background-color: #2196F3;
+        }
+        #downloadBtn:hover {
+            background-color: #0b7dda;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 22px;
+                margin: 10px 0;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                gap: 8px;
+                margin: 12px 0;
+            }
+            
+            .btn-group button {
+                width: 100%;
+                padding: 12px;
+                font-size: 15px;
+            }
+            
+            #memeCanvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            input[type="text"],
+            input[type="file"] {
+                font-size: 15px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>😎 網頁版迷因產生器</h1>
+        
+        <div class="controls">
+            <div class="form-group">
+                <label for="imageUpload">1. 選擇圖片：</label>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+                <label for="topText">頂部文字：</label>
+                <input type="text" id="topText" placeholder="輸入頂部文字">
+            </div>
+            
+            <div class="form-group">
+                <label for="bottomText">底部文字：</label>
+                <input type="text" id="bottomText" placeholder="輸入底部文字">
+            </div>
+            
+            <div class="btn-group">
+                <button id="generateBtn">2. 產生迷因</button>
+                <button id="downloadBtn">3. 下載迷因</button>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="memeCanvas">
+                您的瀏覽器不支援 Canvas，請使用現代瀏覽器。
+            </canvas>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageUpload = document.getElementById('imageUpload');
+            const topTextInput = document.getElementById('topText');
+            const bottomTextInput = document.getElementById('bottomText');
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const canvas = document.getElementById('memeCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            let uploadedImage = null;
+            
+            // 上傳圖片
+            imageUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            uploadedImage = img;
+                            updateCanvas();
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 產生迷因
+            generateBtn.addEventListener('click', updateCanvas);
+            
+            // 下載迷因
+            downloadBtn.addEventListener('click', function() {
+                if (!uploadedImage) {
+                    alert('請先上傳圖片！');
+                    return;
+                }
+                
+                const link = document.createElement('a');
+                link.download = 'meme.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+            
+            // 更新畫布
+            function updateCanvas() {
+                if (!uploadedImage) {
+                    alert('請先上傳圖片！');
+                    return;
+                }
+                
+                // 設定畫布大小與圖片相同
+                const maxWidth = 700;
+                const maxHeight = 500;
+                let width = uploadedImage.width;
+                let height = uploadedImage.height;
+                
+                // 如果圖片太大，則縮放
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // 繪製圖片
+                ctx.drawImage(uploadedImage, 0, 0, width, height);
+                
+                // 設定文字樣式
+                const fontSize = Math.floor(height / 10);
+                ctx.font = `bold ${fontSize}px Impact, Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = Math.max(2, fontSize / 10);
+                ctx.fillStyle = 'white';
+                
+                // 繪製頂部文字
+                const topText = topTextInput.value;
+                if (topText) {
+                    const x = width / 2;
+                    const y = fontSize + 10;
+                    
+                    // 繪製文字邊框
+                    ctx.strokeText(topText, x, y);
+                    // 繪製文字
+                    ctx.fillText(topText, x, y);
+                }
+                
+                // 繪製底部文字
+                const bottomText = bottomTextInput.value;
+                if (bottomText) {
+                    const x = width / 2;
+                    const y = height - 10;
+                    
+                    // 繪製文字邊框
+                    ctx.strokeText(bottomText, x, y);
+                    // 繪製文字
+                    ctx.fillText(bottomText, x, y);
+                }
+                
+                console.log('迷因已產生！');
+            }
+            
+            // 響應式調整
+            window.addEventListener('resize', function() {
+                if (uploadedImage) {
+                    updateCanvas();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

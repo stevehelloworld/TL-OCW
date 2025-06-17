@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數位四格漫畫創作器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            min-height: 100vh;
+        }
+        .comic-image {
+            max-width: 100%;
+            height: auto;
+            max-height: 60vh;
+            object-fit: contain;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+        }
+        .btn {
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        @media (max-width: 640px) {
+            .comic-container {
+                padding: 0 10px;
+            }
+            .btn {
+                min-width: 100px;
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="bg-indigo-800 text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl font-bold text-center">🎨 數位四格漫畫創作器</h1>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 comic-container">
+        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-6 shadow-2xl">
+            <!-- 圖片顯示區 -->
+            <div class="mb-6 flex justify-center">
+                <img id="comicImage" class="comic-image" src="" alt="漫畫圖片">
+            </div>
+
+            <!-- 文字顯示區 -->
+            <div class="mb-6 text-center">
+                <p id="comicText" class="text-lg md:text-xl font-medium text-white/90 px-4 py-3 bg-black/20 rounded-lg"></p>
+            </div>
+
+            <!-- 頁碼指示器 -->
+            <div class="text-center mb-6">
+                <span id="pageIndicator" class="text-white/80 text-sm md:text-base"></span>
+            </div>
+
+            <!-- 控制按鈕 -->
+            <div class="flex flex-col items-center space-y-4 md:flex-row md:justify-between md:space-y-0">
+                <button id="prevBtn" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:transform-none">
+                    ⬅️ 上一頁
+                </button>
+                
+                <div class="flex space-x-4">
+                    <button id="firstBtn" class="btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transform hover:scale-105">
+                        第一頁
+                    </button>
+                    <button id="lastBtn" class="btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transform hover:scale-105">
+                        最後一頁
+                    </button>
+                </div>
+                
+                <button id="nextBtn" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:transform-none">
+                    下一頁 ➡️
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 text-white/70 py-4 text-center text-sm">
+        <p>© 2025 數位四格漫畫創作器 | 響應式網頁版</p>
+    </footer>
+
+    <script>
+        // 漫畫資料
+        const comicData = [
+            { 
+                image: "1.png", 
+                text: "從前從前，有一隻勇敢的小貓，他夢想著成為一名太空探險家。" 
+            },
+            { 
+                image: "2.png", 
+                text: "他用紙箱和瓶子，日以繼夜地打造自己的太空船。" 
+            },
+            { 
+                image: "3.png", 
+                text: "終於，在一個星光燦爛的夜晚，他啟動了引擎，向著月亮飛去！" 
+            },
+            { 
+                image: "4.png", 
+                text: "雖然他只飛到了院子裡的蘋果樹上，但對他來說，這已經是宇宙的邊際了。 (完)" 
+            }
+        ];
+
+        // DOM 元素
+        const comicImage = document.getElementById('comicImage');
+        const comicText = document.getElementById('comicText');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const firstBtn = document.getElementById('firstBtn');
+        const lastBtn = document.getElementById('lastBtn');
+
+        let currentPage = 0;
+
+        // 載入頁面
+        function loadPage(pageIndex) {
+            // 確保頁碼在有效範圍內
+            currentPage = Math.max(0, Math.min(pageIndex, comicData.length - 1));
+            
+            // 更新圖片和文字
+            const page = comicData[currentPage];
+            comicImage.src = page.image;
+            comicImage.alt = `漫畫第 ${currentPage + 1} 頁`;
+            comicText.textContent = page.text;
+            
+            // 更新頁碼指示器
+            pageIndicator.textContent = `第 ${currentPage + 1} / ${comicData.length} 頁`;
+            
+            // 更新按鈕狀態
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = currentPage === comicData.length - 1;
+            firstBtn.disabled = currentPage === 0;
+            lastBtn.disabled = currentPage === comicData.length - 1;
+        }
+
+        // 事件監聽器
+        prevBtn.addEventListener('click', () => loadPage(currentPage - 1));
+        nextBtn.addEventListener('click', () => loadPage(currentPage + 1));
+        firstBtn.addEventListener('click', () => loadPage(0));
+        lastBtn.addEventListener('click', () => loadPage(comicData.length - 1));
+
+        // 鍵盤控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentPage > 0) {
+                loadPage(currentPage - 1);
+            } else if (e.key === 'ArrowRight' && currentPage < comicData.length - 1) {
+                loadPage(currentPage + 1);
+            }
+        });
+
+        // 觸控滑動手勢支援
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 50; // 最小滑動距離閾值
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (Math.abs(swipeDistance) > swipeThreshold) {
+                if (swipeDistance > 0 && currentPage > 0) {
+                    // 向右滑動，上一頁
+                    loadPage(currentPage - 1);
+                } else if (swipeDistance < 0 && currentPage < comicData.length - 1) {
+                    // 向左滑動，下一頁
+                    loadPage(currentPage + 1);
+                }
+            }
+        }
+
+        // 初始載入第一頁
+        loadPage(0);
+
+        // 響應式調整
+        function adjustLayout() {
+            const isMobile = window.innerWidth < 768;
+            document.body.style.fontSize = isMobile ? '14px' : '16px';
+        }
+
+        window.addEventListener('resize', adjustLayout);
+        adjustLayout();
+    </script>
+</body>
+</html>

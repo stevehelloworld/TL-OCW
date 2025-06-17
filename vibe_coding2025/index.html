@@ -543,8 +543,8 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
             <ul class="flex space-x-2 sm:space-x-4 justify-center">
                 <li><a href="#" class="nav-link active-nav-link" data-week="1">第一週</a></li>
                 <li><a href="#" class="nav-link" data-week="2">第二週</a></li>
-                <li><a href="#" class="nav-link pointer-events-none cursor-not-allowed opacity-60" tabindex="-1" aria-disabled="true">第三週</a></li>
-                <li><a href="#" class="nav-link pointer-events-none cursor-not-allowed opacity-60" tabindex="-1" aria-disabled="true">第四週</a></li>
+                <li><a href="#" class="nav-link" data-week="3">第三週</a></li>
+                <li><a href="#" class="nav-link" data-week="4">第四週</a></li>
             </ul>
         </nav>
 
@@ -1571,306 +1571,190 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
 
         <!-- Week 3 Content Area -->
         <div id="week3Content" class="week-content">
-             <div class="week-top-title">
-                 <h2 class="text-2xl font-semibold">第三週：Cursor 工具詳解、模組化與專案啟動</h2>
+            <div class="week-top-title">
+                <h2 class="text-2xl font-semibold">第三週：Cursor 實戰與 GUI 應用開發</h2>
             </div>
             <div id="week3SlidesContainer" class="slides-container">
 
-                <!-- Slide 1 for Week 3: 本週學習目標 -->
+                <!-- Slide 1: Week 3 Goals -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
                         <h3 class="slide-title">本週學習目標</h3>
                         <div class="content-box">
-                            <ul class="list-disc list-inside space-y-1">
-                                <li>深入學習 Cursor 編輯器的核心 AI 功能：程式碼生成、重構、解釋與文檔化。</li>
-                                <li>理解函式設計原則 (單一職責、參數設計、回傳值) 並在 Cursor 中實踐。</li>
-                                <li>學習將大型專案拆解為模組與函式，並利用 Cursor 輔助。</li>
-                                <li>學習使用 Cursor 探索並整合 Python 標準函式庫。</li>
-                                <li>開始使用 Cursor 進行期末專案的詳細規劃與架構設計。</li>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li><b>Cursor Power-User 訓練：</b>透過實戰挑戰，精通 Cursor 的程式碼生成、重構與 AI 除錯技巧。</li>
+                                <li><b>GUI 應用初體驗：</b>告別黑白終端機！學習用 Python 內建的 <code>tkinter</code> 函式庫，打造你的第一個圖形介面 App。</li>
+                                <li><b>AI 輔助 UI 設計：</b>學習如何與 Cursor 協作，快速生成視窗、按鈕、輸入框等視覺元件。</li>
+                                <li><b>期末專案啟動：</b>選擇一個有趣的 GUI 專案主題，並讓 AI 成為你的專案經理，協助你規劃藍圖。</li>
                             </ul>
                         </div>
+                        <p class="text-center text-gray-600">這週，我們將從理論走向實踐，把 AI 變成你手中最強大的開發工具！</p>
                     </div>
                 </div>
-                <!-- Slide 2 for Week 3: 3.1 歡迎來到 Cursor 的世界！ -->
+
+                <!-- Slide 2: Cursor Power-User Training Intro -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.1 歡迎來到 Cursor 的世界！</h3>
-                        <p class="text-gray-700 p-4 text-lg">從這週開始，我們將正式使用 Cursor 這款專為 AI 協作打造的程式編輯器來進行學習和專案開發。它將 AI 的力量深度整合到我們寫程式的每一個環節！</p>
-                        <img src="https://placehold.co/600x150/10b981/white?text=Cursor+編輯器介面示意圖" alt="Cursor 編輯器介面示意圖" class="my-2 rounded-md shadow-sm mx-auto">
-                        <p class="text-sm text-center mt-2">準備好體驗 Cursor 的魔法了嗎？</p>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">3.1 Cursor Power-User 訓練</h3>
+                         <p class="text-gray-700 p-4 text-lg text-center">我們將透過三個「小挑戰」，把 Cursor 從一個新工具，變成你最得力的程式設計夥伴！</p>
+                        
                     </div>
                 </div>
-                <!-- Slide 3 for Week 3: Cursor 核心 AI 功能 (原第一週內容) - 生成 -->
+
+                <!-- Slide 3: Challenge 1: Code Generation -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能1：程式碼生成 (Code Generation)</h4>
-                            <p class="text-sm mb-1">可以直接在編輯器中請 Cursor 幫你寫程式碼！</p>
-                            <p class="text-sm font-semibold">例如：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
-                                <li>在空白處或註解中輸入：「幫我寫一個 Python 函式，它可以反轉一個字串。」然後按特定快捷鍵 (老師會說明) 或使用 AI 指令。</li>
-                                <li>選取一段註解描述你想要的功能，讓 Cursor 把它變成程式碼。</li>
-                            </ul>
-                            <p class="text-sm mt-2 activity-box">試一試：請 Cursor 幫你生成一個計算圓形面積的函式。</p>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">練習1：AI 程式碼生成挑戰</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">任務</h4>
+                            <p>老師會提供一個有 3-4 個中文函式描述的 Python 檔案，你的目標是在每個註解下方，使用 Cursor 的「生成程式碼」(快捷鍵 Ctrl+K) 功能，讓 AI 自動完成這些函式。</p>
+                            <pre class="code-snippet text-sm"><code># 函式一：計算一個圓形的面積，需要傳入半徑
+
+# 函式二：檢查一個字串是否為有效台灣手機號碼 (09開頭，共10碼)
+
+# 函式三：將一個句子中的所有英文單字轉為大寫
+</code></pre>
                         </div>
                     </div>
                 </div>
-                 <!-- Slide 4 for Week 3: Cursor 核心 AI 功能 - 重構 -->
+
+                <!-- Slide 4: Challenge 2: Refactoring -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能2：程式碼重構 (Code Refactoring)</h4>
-                            <p class="text-sm mb-1">選取你寫好的一段程式碼，可以請 Cursor 幫你：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
-                                <li>「將這段程式碼改寫得更簡潔。」</li>
-                                <li>「將這段重複的邏輯提取成一個名為 `calculate_sum` 的函式。」</li>
-                                <li>「幫我優化這段程式碼的效能。」</li>
-                            </ul>
-                             <p class="text-sm mt-2 activity-box">試一試：寫一段包含重複邏輯的程式碼，然後請 Cursor 幫你重構成使用函式。</p>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">練習2：AI 程式碼重構挑戰</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">任務</h4>
+                            <p>老師會提供一段邏輯混雜的程式碼（例如：一段程式碼包辦了讀取、計算、判斷、輸出的所有工作）。</p>
+                            <p>你的目標是練習使用 Cursor 的「編輯/聊天」(快捷鍵 Ctrl+L)，選取特定區塊，並下達指令如：<span class="highlight">「將這段計算平均的邏輯，提取成一個名為 `calculate_average` 的新函式」</span>，體驗一鍵重構的魔法。</p>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 5 for Week 3: Cursor 核心 AI 功能 - 解釋與文檔化 -->
+
+                <!-- Slide 5: Challenge 3: Debugging -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能3：程式碼解釋與文檔化</h4>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
-                                <li><span class="font-semibold">解釋：</span>選取一段看不懂的程式碼 (無論是你自己寫的、同學寫的、還是網路上找的)，請 Cursor：「解釋這段程式碼在做什麼？」</li>
-                                <li><span class="font-semibold">文檔化 (Docstrings)：</span>選取一個函式，請 Cursor：「幫這個函式加上 Docstring。」它會自動分析函式的參數和可能的行為，產生說明文件。</li>
-                            </ul>
-                             <p class="text-sm mt-2 activity-box">試一試：找一段稍微複雜的 Python 程式碼 (可以請老師提供，或網路上搜尋)，讓 Cursor 解釋給你聽。然後再請它為其中的函式加上 Docstring。</p>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">練習3：AI 偵探除錯挑戰</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">任務</h4>
+                             <p>老師會提供一段含有隱晦邏輯錯誤的程式碼（例如：迴圈範圍少算一次）。</p>
+                             <p>你的目標是執行程式、觀察到錯誤的結果，然後練習向 Cursor 的 AI 清晰地描述問題：<span class="highlight">「我的程式沒有報錯，但計算結果不對，這是我的程式碼，你能幫我看看邏輯問題嗎？」</span></p>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 6 for Week 3: Cursor 核心 AI 功能 - AI 聊天與除錯 -->
+
+                <!-- Slide 6: Intro to GUI with tkinter -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">3.2 從零到有：打造你的第一個 GUI 視窗</h3>
+                        <p class="text-gray-700 mb-2">什麼是 GUI？就是我們每天都在用的圖形化介面！現在，我們要用 Python 的內建函式庫 <code>tkinter</code>，讓程式擁有視窗、按鈕和輸入框！</p>
+                        
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">Hello, tkinter!</h4>
+                            <p>我們的第一個 AI 協作任務：在 Cursor 中，問 AI：<br><span class="highlight">「請用 tkinter 幫我建立一個標題是『我的第一個 App』的空白視窗。」</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 7: tkinter Widgets -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">tkinter 實作：放置你的積木 (Widgets)</h3>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">整合練習：迷你「問候 App」</h4>
+                            <p class="mb-2">讓我們打造一個有輸入框和按鈕的視窗。當使用者在輸入框填入名字 (例如 "小明") 並按下按鈕後，一個標籤的文字會從 "你好，世界！" 變成 "你好，小明！"。這將是我們的第一個完整 GUI 互動練習！</p>
+                             <ol class="list-decimal list-inside space-y-1 text-sm">
+                                <li>問 AI 如何建立 <span class="highlight">Label (標籤)</span>。</li>
+                                <li>問 AI 如何建立 <span class="highlight">Entry (輸入框)</span>，並取得使用者輸入的文字。</li>
+                                <li>問 AI 如何建立 <span class="highlight">Button (按鈕)</span>，並讓它點擊後執行一個函式。</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 8: Final Project Intro -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">3.3 期末專案啟動：用 AI 當你的專案經理</h3>
+                        <p class="text-lg text-center p-4">技能已備！現在我們要啟動一個更大型、更有趣的專案。從下面三個選項中，選擇一個你最想挑戰的！</p>
+                        
+                    </div>
+                </div>
+
+                <!-- Slide 9: Project Option 1 -->
+                <div class="slide">
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">專案選項1：😂 簡單迷因 (Meme) 產生器</h3>
+                        <p class="mb-2">打造一個可以載入圖片，並在圖片上方和下方加上文字，製作出有趣迷因圖的工具。</p>
+                        <ul class="list-disc list-inside space-y-1 text-sm mb-2">
+                           <li><b>GUI 元件：</b>「選擇圖片」按鈕、兩個文字輸入框、一個「產生迷因」按鈕、一個成品顯示區。</li>
+                           <li><b>有趣之處：</b>結合時事與創意，可以立刻做出好笑的圖片和朋友分享。</li>
+                           <li><b>AI 協作點：</b>問 AI「Python 如何在圖片上寫字？」來探索 `Pillow` 函式庫。</li>
+                       </ul>
+                       
+                    </div>
+                </div>
+                
+                <!-- Slide 10: Project Option 2 -->
                  <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.1 Cursor 核心 AI 功能</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold text-gray-600 mb-1">AI 功能4：AI 聊天與除錯</h4>
-                             <ul class="list-disc list-inside ml-4 space-y-1 text-xs mb-2">
-                                <li><span class="font-semibold">AI 聊天 (Chat)：</span>Cursor 內建了聊天視窗，你可以隨時向 AI 提問、討論程式設計概念、尋求建議等，就像之前我們討論如何與 ChatGPT 互動一樣。</li>
-                                <li><span class="font-semibold">AI 除錯 (AI Debugging)：</span>當程式出錯時，你可以將錯誤訊息和相關程式碼貼給 Cursor 的 AI，請它協助分析錯誤原因並提供修復建議。</li>
-                            </ul>
-                        </div>
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">專案選項2：🎮 點擊英雄 (Clicker Hero)</h3>
+                         <p class="mb-2">一個簡單的點擊賺分遊戲。瘋狂點擊主角來賺取金幣，然後用金幣購買升級項目，讓每次點擊能賺更多金幣！</p>
+                        <ul class="list-disc list-inside space-y-1 text-sm mb-2">
+                           <li><b>GUI 元件：</b>大的「點擊」按鈕、金幣數量標籤、升級按鈕、數值標籤。</li>
+                           <li><b>有趣之處：</b>簡單又有毒的遊戲機制，看著數字不斷成長非常有成就感。</li>
+                           <li><b>AI 協作點：</b>問 AI「如何動態更新視窗上顯示分數的文字？」</li>
+                       </ul>
+                        
                     </div>
                 </div>
-                <!-- Slide 7 for Week 3: 3.2 模組化與函式設計 (複習與 Cursor 實踐) -->
+
+                <!-- Slide 11: Project Option 3 -->
                 <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.2 模組化與函式設計 (Cursor 實踐)</h3>
-                        <p class="text-gray-700 p-4 text-lg">我們在第二週已經討論過函式設計原則和模組化的概念。現在，我們將在 Cursor 中實際運用這些原則，並看看 Cursor 如何幫助我們更好地組織程式碼。</p>
-                         <div class="content-box">
-                            <h4 class="text-md font-semibold">複習：良好函式設計原則</h4>
-                             <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>職責單一性</li>
-                                <li>有意義的命名</li>
-                                <li>適當的參數與明確的回傳值</li>
-                                <li>撰寫 Docstrings</li>
-                            </ul>
-                         </div>
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">專案選項3：🎨 數位四格漫畫創作器</h3>
+                         <p class="mb-2">製作一個可以呈現多張圖片與對應文字的看圖說故事工具。使用者可以透過「上一頁」、「下一頁」按鈕來瀏覽你創作的漫畫或故事。</p>
+                        <ul class="list-disc list-inside space-y-1 text-sm mb-2">
+                           <li><b>GUI 元件：</b>圖片顯示區、文字標籤、「上一頁」和「下一頁」按鈕。</li>
+                           <li><b>有趣之處：</b>結合AI繪畫或網路圖片，創造屬於自己的短篇故事，發揮無限想像力。</li>
+                           <li><b>AI 協作點：</b>問 AI「如何管理多個頁面，每個頁面都有一張圖片和一段文字？」來設計資料結構。</li>
+                       </ul>
+                       
                     </div>
                 </div>
-                <!-- Slide 8 for Week 3: Activity: Refactor with Cursor -->
+                
+                <!-- Slide 12: Week 3 Review -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.2 模組化與函式設計 (Cursor 實踐)</h3>
-                        <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：用 Cursor 重構複雜問題</h4>
-                            <p class="text-sm mb-1">回想一下第二週的「程式碼大整理」活動，或者老師可以提供一個新的、結構較為混亂的程式碼範例。</p>
-                            <p class="text-sm mb-1">這次，請<span class="font-semibold">全程使用 Cursor</span> 來完成以下任務：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>使用 Cursor 的 AI 聊天功能，討論如何將程式拆解成更小的函式。</li>
-                                <li>選取程式碼片段，使用 Cursor 的重構功能 (例如 "Extract to function") 將其轉換為函式。</li>
-                                <li>請 Cursor 為你生成的函式建議有意義的名稱和參數。</li>
-                                <li>使用 Cursor 為每個函式自動生成 Docstrings，並手動調整使其更完善。</li>
-                                <li>(進階) 如果程式碼夠多，嘗試將相關函式放到一個新的 `.py` 檔案中，並在主程式中 `import` 它，體驗 Cursor 對模組的支援。</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 9 for Week 3: 3.3 Python 函式庫探索 (Cursor 輔助) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.3 Python 函式庫探索 (Cursor 輔助)</h3>
-                        <p class="text-gray-700 p-4 text-lg">Python 的標準函式庫非常豐富。當你需要某個特定功能時，可以先問問 Cursor：「Python 有沒有內建的模組可以做 [某件事]？」或者「我想用 Python 實現 [某功能]，有推薦的標準函式庫嗎？」</p>
-                         <img src="https://placehold.co/600x150/22c55e/white?text=Cursor+探索函式庫" alt="Cursor 探索函式庫" class="my-2 rounded-md shadow-sm mx-auto">
-                    </div>
-                </div>
-                <!-- Slide 10 for Week 3: Activity: Library exploration with Cursor -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.3 Python 函式庫探索 (Cursor 輔助)</h3>
-                        <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：跟著 Cursor 探索函式庫</h4>
-                            <p class="text-sm mb-1">選擇以下任一或多個標準函式庫模組，利用 Cursor 的 AI 功能來學習如何使用它們：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">`json` 模組：</span>
-                                    <ul>
-                                        <li>問 Cursor：「如何使用 Python 的 json 模組將一個字典儲存到檔案？」</li>
-                                        <li>問 Cursor：「如何從 JSON 檔案讀取資料並轉換成 Python 字典？」</li>
-                                        <li>請 Cursor 生成相關的範例程式碼。</li>
-                                    </ul>
-                                </li>
-                                <li><span class="font-semibold">`os` 模組：</span>
-                                    <ul>
-                                        <li>問 Cursor：「如何使用 Python 的 os 模組檢查一個檔案是否存在？」</li>
-                                        <li>問 Cursor：「如何列出一個資料夾中的所有檔案和子資料夾？」</li>
-                                    </ul>
-                                </li>
-                                 <li><span class="font-semibold">`csv` 模組：</span>
-                                    <ul>
-                                        <li>問 Cursor：「如何使用 Python 的 csv 模組讀取 CSV 檔案的內容？」</li>
-                                        <li>問 Cursor：「如何將一個列表的列表資料寫入到 CSV 檔案？」</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <p class="text-sm mt-2">在 Cursor 中實際編寫並執行這些範例程式碼，觀察結果。</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 11 for Week 3: 3.4 期末專案規劃與架構設計 (Cursor 導入) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.4 期末專案規劃與架構設計 (Cursor 導入)</h3>
-                        <p class="text-gray-700 p-4 text-lg">現在，我們將正式啟動期末專案的規劃！這次，我們將全程使用 Cursor 來輔助我們進行思考、設計和初步的程式碼框架搭建。</p>
-                    </div>
-                </div>
-                 <!-- Slide 12 for Week 3: 選擇專案主題與範圍 (Cursor 討論) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.4 期末專案規劃與架構設計</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">1. 選擇專案主題 & 明確範圍 (與 Cursor 討論)</h4>
-                            <p class="text-sm mb-1">再次檢視你的專案想法。可以和 Cursor 討論：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>「我對 [專案主題A] 和 [專案主題B] 都有興趣，以一個初學者兩週的開發時間來看，哪個主題的核心功能比較容易實現？」</li>
-                                <li>「我選擇了 [專案主題]，它的核心功能應該包含哪些？有沒有建議的 MVP (最小可行產品) 範圍？」</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 13 for Week 3: 拆解專案與 Cursor 協助 -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.4 期末專案規劃與架構設計</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">2. 拆解功能與設計架構 (Cursor 輔助)</h4>
-                            <p class="text-sm mb-1">利用 Cursor 的 AI 聊天功能，將你的專案拆解成更小的模組和函式：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>「我正在規劃一個 [你的專案類型，例如：文字冒險遊戲]。請幫我建議主要的 Python 模組劃分。」</li>
-                                <li>「針對 [某個模組/功能，例如：玩家移動]，它可能需要哪些函式？每個函式的參數和回傳值大概是什麼？」</li>
-                                <li>請 Cursor 幫你生成初步的檔案結構或函式骨架。例如：「請幫我生成一個 Python 專案的目錄結構，包含主程式檔案和一個存放工具函式的 `utils` 資料夾。」</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                 <!-- Slide 14 for Week 3: 活動：使用 Cursor 進行專案規劃 -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">3.4 期末專案規劃與架構設計</h3>
-                        <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：用 Cursor 規劃你的專案！</h4>
-                            <p class="text-sm">使用 Cursor 完成你的專案計畫書初稿。內容應包含：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>專案名稱與簡介。</li>
-                                <li>核心功能列表 (MVP)。</li>
-                                <li>主要模組/函式初步劃分 (可以請 Cursor 協助生成函式簽名)。</li>
-                                <li>預計的檔案結構。</li>
-                                <li>你認為哪些部分最能體現 AI 輔助開發的優勢？</li>
-                            </ul>
-                            <p class="text-sm mt-2"> активно與 Cursor 互動，讓它成為你規劃階段的好夥伴！</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 15 for Week 3: Week Review -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
+                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
                         <h3 class="slide-title">第三週重點回顧</h3>
                         <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                             <ul class="list-disc list-inside space-y-1 text-gray-700">
-                                <li>我們深入學習了 Cursor 的核心 AI 功能，包括程式碼生成、重構、解釋與文檔化。</li>
-                                <li>複習了函式設計原則，並練習在 Cursor 中應用它們來組織程式碼。</li>
-                                <li>學會了如何利用 Cursor 探索和使用 Python 標準函式庫。</li>
-                                <li>開始使用 Cursor 進行期末專案的詳細規劃，明確了專案範圍並進行了初步的功能拆解。</li>
+                                <li>我們透過實戰挑戰，將 Cursor 變成了真正的開發夥伴。</li>
+                                <li>學習了 Python 的 <code>tkinter</code> 函式庫，並打造了第一個 GUI 互動應用。</li>
+                                <li>選擇了期末專案主題，並利用 AI 完成了專案的「設計藍圖」。</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 16 for Week 3: Next Week Preview -->
+                
+                <!-- Slide 13: Next Week Preview -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">下週預告</h3>
+                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">下週預告：</h3>
                         <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                            <p class="text-gray-700 text-lg">期末專案開發正式啟動！我們將全程使用 Cursor 全力衝刺，並學習如何測試我們的程式，最後進行成果展示與分享！</p>
+                            <p class="text-gray-700 text-lg">下週，我們將全力投入專案開發，學習如何測試和優化我們的 App，並準備一場精彩的成果發表會，向大家展示你的作品！</p>
                         </div>
                     </div>
                 </div>
@@ -1889,316 +1773,202 @@ window.addEventListener('DOMContentLoaded', fixFullscreenNavBtnDisplay);
 
         <!-- Week 4 Content Area -->
         <div id="week4Content" class="week-content">
-             <div class="week-top-title">
-                <h2 class="text-2xl font-semibold">第四週：Cursor 專案實作、測試與成果發表</h2>
+            <div class="week-top-title">
+                <h2 class="text-2xl font-semibold">第四週：GUI 專案衝刺、測試與成果發表</h2>
             </div>
             <div id="week4SlidesContainer" class="slides-container">
-
-                <!-- Slide 1 for Week 4: 本週學習目標 -->
+                <!-- Slide 1: Week 4 Goals -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
                         <h3 class="slide-title">本週學習目標</h3>
                         <div class="content-box">
-                            <ul class="list-disc list-inside space-y-1">
-                                <li>綜合應用所學知識與 Cursor 技能完成期末專案。</li>
-                                <li>學習撰寫基本的單元測試或進行系統化的功能測試。</li>
-                                <li>利用 Cursor 進行程式碼優化與效能分析 (概念)。</li>
-                                <li>準備並進行專案成果展示與分享。</li>
+                           <ul class="list-disc list-inside space-y-2">
+                                <li><b>專案開發衝刺：</b>採用專業的「迭代開發」流程，在 AI 輔助下，將你的專案從藍圖變為現實。</li>
+                                <li><b>App 品質保證：</b>學習如何像玩家一樣測試你的 App，找出潛在問題並優化使用者體驗。</li>
+                                <li><b>AI 輔助測試：</b>利用 Cursor 幫你思考測試案例，提升你 App 的穩定性與強健度。</li>
+                                <li><b>App Showcase：</b>準備並進行一場精彩的個人專案成果發表會，分享你的創作與學習歷程！</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 2 for Week 4: 4.1 專案開發衝刺 (Intro) -->
+
+                 <!-- Slide 2: Coding Sprint Intro -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
-                        <p class="text-gray-700 p-4 text-lg">這是我們大展身手的時刻！運用前三週所學的 Python 技巧、軟體工程概念以及 Cursor 的強大 AI 協作能力，全力完成我們的期末專案！</p>
-                        <img src="https://placehold.co/600x150/a3e635/1f2937?text=專案開發衝刺示意圖" alt="專案開發衝刺示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">4.1 專案開發衝刺 (Coding Sprint)</h3>
+                         <p class="text-gray-700 p-4 text-lg text-center">這是本週最主要的動手時間！我們將採用「先求有，再求好」的策略，分三階段完成你的 App！</p>
+                        
                     </div>
                 </div>
-                <!-- Slide 3 for Week 4: 迭代開發 -->
+                
+                <!-- Slide 3: Sprint Stage 1 -->
                 <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">開發心法：迭代開發 (Iterative Development)</h4>
-                            <p class="text-sm mb-1">不要想一次就把所有功能都完美實現。先完成最核心、最基本的功能 (MVP - Minimum Viable Product)，讓程式可以跑起來。然後再逐步添加新功能、優化現有功能。</p>
-                            <p class="text-sm mb-1">例如，如果你在做一個遊戲：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">迭代1：</span>讓玩家可以在一個簡單的地圖上移動 (可請 Cursor 協助生成基本移動邏輯)。</li>
-                                <li><span class="font-semibold">迭代2：</span>加入物品拾取功能 (可請 Cursor 建議如何用列表或字典儲存物品)。</li>
-                                <li><span class="font-semibold">迭代3：</span>加入簡單的敵人 (可與 Cursor 討論敵人行為)。</li>
-                                <li>...依此類推</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 4 for Week 4: 持續測試 -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
-                        <div class="content-box">
-                             <h4 class="text-md font-semibold">開發心法：持續測試 (Continuous Testing)</h4>
-                            <p class="text-sm mb-1">每完成一個小模組、一個小函式，或者一個小功能點，就立刻進行測試，確保它能正常運作，並且符合你的預期。這樣可以及早發現問題，避免問題越積越多，最後變成難以收拾的「技術債」。</p>
-                            <p class="text-sm mb-1">在 Cursor 中，你可以方便地執行你的 Python 腳本來測試功能。</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 5 for Week 4: 有效求助 -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">與 Cursor AI 協作的進階技巧：有效求助</h4>
-                            <p class="text-sm mb-1">當你卡關時，向 Cursor 的 AI 提問時，記得：</p>
-                             <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">選取相關程式碼：</span>讓 AI 知道你問的是哪一段。</li>
-                                <li><span class="font-semibold">使用 `@Code` 或 `@Symbol`：</span>更精準地引用程式碼或符號。</li>
-                                <li><span class="font-semibold">清晰描述問題和你的意圖。</span></li>
-                            </ul>
-                            <p class="text-sm mb-1">例如：「@Code 這段程式碼執行時出現了 `IndexError`，我希望它能遍歷列表中的所有元素並印出來，請問哪裡寫錯了？」</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 6 for Week 4: 批判性思考 -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">與 Cursor AI 協作的進階技巧：批判性思考</h4>
-                            <p class="text-sm mb-1">Cursor 提供的建議和程式碼非常有幫助，但它不一定是完美的或唯一的解決方案。我們要學會：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">理解 AI 的建議：</span>它為什麼這麼寫？背後的邏輯是什麼？不清楚就追問！</li>
-                                <li><span class="font-semibold">判斷是否適用：</span>這個建議真的適合我目前的需求嗎？有沒有其他更好的方法？</li>
-                                <li><span class="font-semibold">適時修改調整：</span>AI 的產出是起點，不是終點。我們可能需要對它生成的程式碼進行修改或優化。</li>
-                            </ul>
-                            <p class="text-sm mt-2">記住：AI 是你的助手，最終的決定權和理解責任還是在你身上！</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 7 for Week 4: 專案開發時間 (活動) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.1 Cursor 專案開發衝刺！</h3>
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">衝刺第一階段：搭建骨架</h3>
                         <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">專案開發時間</h4>
-                            <p class="text-sm">同學們依照自己上週的規劃，開始動手實作專案！老師和 Cursor 會隨時提供協助。遇到問題時，先試著自己思考和解決，再向 Cursor 或老師請教。</p>
-                            <p class="text-sm mt-2">保持專注，享受創造的過程！</p>
+                            <h4 class="text-md font-semibold text-green-700 mb-2">目標</h4>
+                             <p>完成所有 GUI 元件的排版。此刻，按鈕可能還沒有功能，但整個 App 的「外觀」和「版面」已經成形。</p>
+                            <p class="mt-2"><b>AI 協作提示：</b>如果不確定如何排版，可以問 AI：「請用 tkinter 的 `grid` 方法，幫我設計一個兩行兩列的佈局。」</p>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 8 for Week 4: 4.2 軟體工程概念：測試與品質保證 (Intro) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
-                        <p class="text-gray-700 p-4 text-lg">寫完程式只是第一步，如何確保程式的品質，讓它能正確、穩定地運作，也非常重要。「測試」就是保證程式品質的關鍵手段！</p>
-                        <img src="https://placehold.co/600x150/f87171/white?text=程式測試與品質保證示意圖" alt="程式測試與品質保證示意圖" class="my-2 rounded-md shadow-sm mx-auto">
-                    </div>
-                </div>
-                <!-- Slide 9 for Week 4: Why test? -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">為什麼需要測試？</h4>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><span class="font-semibold">確保功能正確：</span>驗證程式是否按照預期的方式運作。</li>
-                                <li><span class="font-semibold">及早發現錯誤：</span>越早發現錯誤，修復的成本就越低。</li>
-                                <li><span class="font-semibold">提升程式碼品質：</span>測試過程可以促使我們思考各種邊界情況和潛在問題。</li>
-                                <li><span class="font-semibold">方便重構與維護：</span>有了測試的保護，我們可以更放心地修改或重構程式碼，不用擔心改壞了不知道。</li>
-                                <li><span class="font-semibold">提供信心：</span>一套好的測試能讓我們對程式的穩定性更有信心。</li>
-                            </ul>
+                
+                <!-- Slide 4: Sprint Stage 2 -->
+                 <div class="slide">
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">衝刺第二階段：注入靈魂</h3>
+                         <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">目標</h4>
+                            <p>實現最核心的功能。例如，迷因產生器要能成功把文字畫到圖片上；點擊遊戲要能正確計分。</p>
+                            <p class="mt-2"><b>AI 協作提示：</b>卡關時，練習具體提問！選取你的程式碼，問 AI：「我希望點擊這個按鈕後，圖片會換掉，但我這段程式碼沒反應，問題在哪？」</p>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 10 for Week 4: Types of tests -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">測試的種類 (概念性介紹)</h4>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><span class="font-semibold">單元測試 (Unit Testing)：</span>針對程式中最小的可測試單元 (例如：一個函式、一個類別的方法) 進行測試。這是我們最常接觸到的測試類型。</li>
-                                <li><span class="font-semibold">整合測試 (Integration Testing)：</span>測試多個模組或元件組合在一起時是否能正常協作。</li>
-                                <li><span class="font-semibold">系統測試 (System Testing)：</span>對整個系統進行測試，確保所有部分都能如預期般一起運作。</li>
-                                <li><span class="font-semibold">使用者驗收測試 (User Acceptance Testing, UAT)：</span>由最終使用者來測試程式是否符合他們的需求。</li>
-                            </ul>
-                            <p class="text-sm mt-1">在這堂課中，我們主要關注單元測試的概念。</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 11 for Week 4: Designing test cases (Part 1) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">如何為你的函式設計簡單的測試案例？ (Part 1)</h4>
-                            <p class="text-sm mb-1">一個好的測試案例應該包含：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">測試的輸入 (Input)：</span>你會給函式什麼樣的參數？</li>
-                                <li><span class="font-semibold">預期的輸出 (Expected Output)：</span>在給定輸入後，你期望函式回傳什麼結果？</li>
-                                <li><span class="font-semibold">實際的輸出 (Actual Output)：</span>函式實際回傳了什麼？ (透過執行函式得到)</li>
-                                <li><span class="font-semibold">斷言 (Assertion)：</span>比較預期輸出和實際輸出是否一致。如果不一致，測試就失敗。</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 12 for Week 4: Designing test cases (Part 2) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
-                        <div class="content-box">
-                             <h4 class="text-md font-semibold">如何為你的函式設計簡單的測試案例？ (Part 2)</h4>
-                            <p class="text-sm mb-1">思考各種情況：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">正常情況 (Happy Path)：</span>最常見、最典型的輸入，函式應該能正確處理。</li>
-                                <li><span class="font-semibold">邊界情況 (Boundary Cases)：</span>例如最小值、最大值、空字串、空列表、0 等。這些地方常常是 bug 的溫床。</li>
-                                <li><span class="font-semibold">錯誤情況 (Error Cases)：</span>不合法的輸入，期望程式能正確處理 (例如：回傳特定錯誤碼、引發預期的異常)。</li>
-                            </ul>
-                            <p class="text-sm mt-2">你可以請 Cursor 協助你思考測試案例：「我有一個函式 `def calculate_discount(price, percentage): ...`，請幫我建議一些測試案例，包含正常、邊界和錯誤情況。」</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 13 for Week 4: Activity: Write tests (Removed Gemini Feature) -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.2 軟體工程概念：測試與品質保證</h3>
+
+                <!-- Slide 5: Sprint Stage 3 -->
+                 <div class="slide">
+                     <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">衝刺第三階段：細節打磨</h3>
                         <div class="activity-box">
-                            <h4 class="text-md font-semibold text-green-700 mb-2">活動：為你的專案寫測試！</h4>
-                            <p class="text-sm mb-1">針對你期末專案中的至少一個核心函式：</p>
-                            <ol class="list-decimal list-inside space-y-1 text-xs">
-                                <li>思考並寫下至少 3-5 個測試案例 (包含正常、邊界、錯誤情況)。</li>
-                                <li>嘗試手動執行這些測試案例，看看函式是否如預期運作。</li>
-                                <li>(進階) 如果學有餘力，可以和 Cursor 一起探索 Python 的 `unittest` 或 `pytest` 等測試框架，學習如何撰寫自動化的測試程式碼。 (例如，問 Cursor：「如何使用 Python 的 unittest 模組為這個函式寫測試？」)</li>
-                            </ol>
+                            <h4 class="text-md font-semibold text-green-700 mb-2">目標</h4>
+                            <p>優化使用者體驗，例如調整字體大小、顏色，或加入一些友善的提示訊息，讓你的 App 變得更漂亮、更好用。</p>
+                             <p class="mt-2"><b>AI 協作提示：</b>問 AI「如何更改 tkinter 按鈕的背景顏色？」或「如何讓標籤的字體變大一點？」</p>
                         </div>
                     </div>
                 </div>
-                <!-- Slide 14 for Week 4: 4.3 成果展示、回顧與展望 (Intro) -->
+
+                <!-- Slide 6: QA Intro -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
-                        <p class="text-gray-700 p-4 text-lg">恭喜大家完成了四周的課程和期末專案！現在是時候展示我們的學習成果，並分享這段旅程中的點點滴滴了。</p>
-                        <img src="https://placehold.co/600x200/10b981/white?text=成果發表會示意圖" alt="成果發表會示意圖" class="my-2 rounded-md shadow-sm mx-auto">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">4.2 應用程式品保：為你的 App "體檢"</h3>
+                         <p class="text-gray-700 p-4 text-lg text-center">專業的軟體不只看功能，更看重品質。現在我們要學習如何找出自己程式中的瑕疵，讓它更穩定！</p>
+                         
                     </div>
                 </div>
-                <!-- Slide 15 for Week 4: Project showcase, sharing experiences -->
+
+                <!-- Slide 7: QA Practice 1 -->
+                 <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">練習1：程式強健度 (Robustness) 測試</h3>
+                        <div class="activity-box">
+                             <h4 class="text-md font-semibold text-green-700 mb-2">任務：故意玩壞它！</h4>
+                             <p>試著做一些「不正常操作」。例如，在迷因產生器中不選擇任何圖片就按下「產生」按鈕。看看你的 App 會不會崩潰 (Crash)？</p>
+                            <h4 class="text-md font-semibold text-green-700 mt-4 mb-2">AI 協作</h4>
+                            <p>如果程式崩潰了，告訴 AI：<br><span class="highlight">「如何在我點擊按鈕時，先檢查使用者是否已經選擇了圖片？如果沒有，就跳出一個錯誤提示視窗。」</span><br>AI 會引導你使用 `tkinter.messagebox` 來優雅地處理錯誤。</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Slide 8: QA Practice 2 -->
                 <div class="slide">
                     <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">練習2：AI 輔助思考極端情況</h3>
+                         <div class="activity-box">
+                             <h4 class="text-md font-semibold text-green-700 mb-2">任務：請 AI 當你的測試工程師</h4>
+                             <p>對於你的專案，問 AI：<br><span class="highlight">「我做了一個[你的專案名稱]，請幫我設想幾個使用者可能會不小心讓它出錯的『極端測試情況』(Edge Cases)。」</span></p>
+                            <p class="mt-2">看看 AI 提出的建議，你是否都有考慮到？試著根據 AI 的建議來加強你的程式。</p>
                         </div>
-                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
+                    </div>
+                </div>
+
+                 <!-- Slide 9: QA Practice 3 -->
+                 <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">練習3：AI 程式碼健康檢查</h3>
+                         <div class="activity-box">
+                             <h4 class="text-md font-semibold text-green-700 mb-2">任務：請 AI 幫你審查程式碼</h4>
+                             <p>當你的專案功能大致完成後，選取所有程式碼，然後對 AI 下達指令：<br><span class="highlight">「請幫我審查這份程式碼，在複雜的地方加上註解，並確保它符合 PEP 8 風格指南。」</span></p>
+                            <p class="mt-2">這是一個非常專業的開發習慣，可以讓你的程式碼變得更整潔、更易於他人閱讀！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 10: Showcase Intro -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">4.3 App Showcase！成果發表會</h3>
+                         <p class="text-gray-700 p-4 text-lg text-center">恭喜你完成了專案！現在，是時候向大家展示你的學習成果，分享這段旅程中的創作與心得了！</p>
+                         
+                    </div>
+                </div>
+
+                <!-- == NEW SLIDE INSERTED HERE == -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">特別加碼：一鍵變身網頁版！</h3>
                         <div class="content-box">
-                            <h4 class="text-md font-semibold">專案成果展示與分享</h4>
-                            <p class="text-sm mb-1">每位同學 (或小組) 將有機會上台：</p>
+                            <p class="mb-2">你以為你的 App 只能在自己電腦上跑嗎？AI 還能幫我們做一件更酷的事：<span class="highlight">把它變成一個真正的網站！</span></p>
+                            <p class="text-sm">即使我們只學了 Python 和 `tkinter`，完全不懂網頁三劍客 (HTML, CSS, JavaScript)，我們依然可以讓 AI 幫我們完成這個魔法般的轉換。</p>
+                            
+                        </div>
+                        <div class="activity-box">
+                            <h4 class="text-md font-semibold text-green-700 mb-2">魔法詠唱咒語 (AI Prompt)</h4>
+                            <p class="text-sm">選取你專案中所有的 `tkinter` 程式碼，然後對 Cursor 的 AI 說：</p>
+                            <pre class="code-snippet"><code>「請將這個 tkinter 應用程式，改寫成一個單一 HTML 檔案的網頁應用程式。請使用 Tailwind CSS 來美化外觀，並將所有的 Python 邏輯轉換成 JavaScript。」</code></pre>
+                            <p class="text-sm mt-2">AI 就會為你生成一個完整的網頁，讓任何人只要有瀏覽器就能使用你的作品！這也是你們可以在成果發表會上展示的超酷亮點！</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Slide 11: Showcase Guide (Now Slide 12) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                        <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">我的開發故事：分享指南</h3>
+                        <div class="content-box">
+                            <p class="mb-2">每位同學上台分享時，可以包含以下幾點：</p>
+                            <ul class="list-decimal list-inside space-y-2 text-sm">
+                                <li><b>App Demo：</b>實際操作你的 App，展示它的核心功能。</li>
+                                <li><b>開發歷程：</b>分享你卡關最久的地方，以及你最終是如何解決的。</li>
+                                <li><b class="text-blue-600">我的 AI 神隊友：</b>分享一個你與 Cursor 協作最成功的例子。你是怎麼問的？AI 給了你什麼關鍵的幫助？</li>
+                                <li><b>未來展望：</b>如果還有時間，你最想為你的 App 添加什麼新功能？</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 12: Course Review (Now Slide 13) -->
+                 <div class="slide">
+                    <div class="slide-content-wrapper">
+                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">課程總結</h3>
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                             <p class="mb-2">回顧這四週，我們一起：</p>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                 <li>從 Python 基礎出發，掌握了軟體工程的核心概念。</li>
+                                <li>學會了如何像專家一樣，向 AI 精準提問來解決問題。</li>
+                                <li>精通了專業 AI 開發工具 Cursor 的使用技巧。</li>
+                                <li>從零到有，親手打造了一個屬於自己的 GUI 應用程式！</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 13: Future Outlook (Now Slide 14) -->
+                <div class="slide">
+                    <div class="slide-content-wrapper">
+                         <div class="slide-internal-header"><img src="https://telearn.best/images/logo-light.png" alt="Telearn Logo" class="slide-internal-logo" onerror="this.onerror=null;this.src='https://placehold.co/100x24/ffffff/3b82f6?text=Telearn';"><span class="slide-internal-text">得能教育 Telearn</span></div>
+                        <h3 class="slide-title">未來展望與鼓勵</h3>
+                        <div class="content-box">
+                             <p class="text-sm mt-2 font-semibold">程式設計的世界廣闊無垠，AI 的發展也日新月異。希望這次課程能為大家打開一扇窗，鼓勵大家在未來：</p>
                             <ul class="list-disc list-inside ml-4 space-y-1 text-sm">
-                                <li><span class="font-semibold">展示你的專案：</span>實際操作你的程式，讓大家看看它能做什麼。</li>
-                                <li><span class="font-semibold">說明設計思路：</span>你是如何規劃和設計這個專案的？</li>
-                                <li><span class="font-semibold">分享如何利用 Cursor：</span>在開發過程中，Cursor 在哪些方面幫助了你？你是如何與它協作的？</li>
-                                <li><span class="font-semibold">分享遇到的挑戰與解決方案：</span>遇到了什麼困難？你是如何克服的？</li>
-                                <li><span class="font-semibold">未來展望：</span>如果還有時間，你會想為這個專案添加什麼新功能？</li>
-                            </ul>
-                            <p class="text-sm mt-2">這是一個互相學習、互相欣賞的好機會！</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 16 for Week 4: Course summary -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">課程總結</h4>
-                            <p class="text-sm mb-1">回顧這四週，我們一起：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li>認識了 ChatGPT、Gemini、Claude 等 AI 模型，並學習了與 ChatGPT 互動的技巧。</li>
-                                <li>在前兩週，我們以 ChatGPT 的概念為輔助，深化了 Python 技能。</li>
-                                <li>在後兩週，我們深入學習了 Cursor，並用它完成了期末專案。</li>
-                                <li>學習了軟體工程的基本概念，如可讀性、模組化、測試、版本控制。</li>
-                                <li>提升了問題解決和與 AI 協作的能力。</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 17 for Week 4: Future outlook and encouragement -->
-                <div class="slide">
-                    <div class="slide-content-wrapper">
-                        <div class="slide-internal-header">
-                            <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="slide-internal-logo">
-                            <span class="slide-internal-text">得能教育 Telearn</span>
-                        </div>
-                        <h3 class="slide-title">4.3 成果展示、回顧與展望</h3>
-                        <div class="content-box">
-                            <h4 class="text-md font-semibold">未來展望與鼓勵</h4>
-                            <p class="text-sm mt-2 font-semibold">程式設計的世界廣闊無垠，AI 的發展也日新月異。希望這次課程能為大家打開一扇窗，激發你對程式設計和 AI 的興趣，鼓勵大家在未來：</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1 text-xs">
-                                <li><span class="font-semibold">持續學習：</span>不斷探索新的技術和工具，Python 和 AI 領域都有學不完的新東西！</li>
-                                <li><span class="font-semibold">動手實作：</span>用程式解決生活中的問題，或者創造一些有趣的小作品、小遊戲。</li>
-                                <li><span class="font-semibold">參與社群：</span>網路上有很多程式設計社群和論壇，可以和別人交流學習。</li>
+                                <li><span class="font-semibold">持續學習：</span>不斷探索新的技術和工具。</li>
+                                <li><span class="font-semibold">動手實作：</span>用程式解決生活中的問題，或創造有趣的小遊戲。</li>
+                                <li><span class="font-semibold">參與社群：</span>和別人交流學習，分享你的作品。</li>
                                 <li><span class="font-semibold">保持好奇心，擁抱變化！</span></li>
                             </ul>
-                            <p class="text-sm mt-3 text-center font-bold text-blue-600">Happy Coding! 祝大家程式設計愉快！</p>
+                            <p class="text-lg mt-4 text-center font-bold text-blue-600">Happy Coding! 祝大家程式設計愉快！</p>
                         </div>
                     </div>
                 </div>
