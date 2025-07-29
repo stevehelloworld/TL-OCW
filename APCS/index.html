@@ -642,8 +642,12 @@
             }
 
             function handleNavClick(e) {
-                e.preventDefault();
                 const target = e.currentTarget;
+                // 若是 .html 結尾的連結（如 test.html），讓瀏覽器正常跳轉
+                if (target.getAttribute('href') && target.getAttribute('href').endsWith('.html')) {
+                    return;
+                }
+                e.preventDefault();
                 const targetPageId = target.dataset.page;
 
                 if (target.classList.contains('parent-link')) {
