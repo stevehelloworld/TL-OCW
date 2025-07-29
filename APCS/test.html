@@ -67,6 +67,10 @@
     <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
 
         <header class="text-center mb-8">
+            <div class="flex justify-center items-center gap-4 mb-4">
+                <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="h-12">
+                <span class="text-2xl font-bold text-slate-700">得能教育 Telearn</span>
+            </div>
             <h1 class="text-3xl md:text-4xl font-bold text-slate-900">APCS 程式識讀</h1>
             <p class="text-lg text-slate-600 mt-2">互動模擬測驗與分析平台</p>
         </header>
@@ -118,7 +122,10 @@
 
             <div id="results-view" class="hidden">
                 <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
-                    <h2 class="text-3xl font-bold text-center mb-2">測驗完成！</h2>
+                                        <div class="flex justify-center items-center gap-4 mb-2">
+                        <h2 class="text-3xl font-bold">測驗完成！</h2>
+                        <button id="retake-quiz-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-base">重新測驗</button>
+                    </div>
                     <p class="text-center text-slate-600 mb-8">這是您的測驗結果分析。</p>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -222,7 +229,7 @@
                 { topic: "基礎演算法", question: "以下程式碼片段最符合哪種排序演算法的核心邏輯？", code: "for i in range(len(a_list) - 1):\n    min_idx = i\n    for j in range(i + 1, len(a_list)):\n        if a_list[j] < a_list[min_idx]:\n            min_idx = j\n    a_list[i], a_list[min_idx] = a_list[min_idx], a_list[i]", options: ["選擇排序", "插入排序", "氣泡排序", "合併排序"], answer: 0, explanation: "此程式碼的邏輯是：外層迴圈遍歷串列，內層迴圈在未排序的部分中尋找最小元素的索引 (`min_idx`)，然後將找到的最小元素與未排序部分的開頭交換。這是選擇排序的典型實現。" },
                 { topic: "資料型態與表達式", question: "執行以下程式碼後，輸出為何？", code: "a = 5\na = a + 1\na += 1\nprint(a)", options: ["5", "6", "7", "8"], answer: 2, explanation: "1. `a` 初始化為 5。\n2. `a = a + 1` 使 `a` 變成 6。\n3. `a += 1` (加法賦值) 使 `a` 變成 7。\n最終 `print` 印出 7。" },
                 { topic: "遞迴", question: "在以下的遞迴函式 `power` 中，哪一行是「遞迴步驟」（Recursive Step）？", code: "def power(base, exp):\n    if exp == 0: # line 1\n        return 1 # line 2\n    else:\n        return base * power(base, exp - 1) # line 4", options: ["line 1", "line 2", "line 4", "沒有遞迴步驟"], answer: 2, explanation: "遞迴步驟是指函式呼叫自己的那一行程式碼，並且通常會使問題的規模變小，以趨近終止條件。`return base * power(base, exp - 1)` 呼叫了 `power` 函式自身，並且參數 `exp` 變小了，因此 line 4 是遞迴步驟。" },
-                { topic: "控制結構", question: "執行以下程式碼後，變數 `count` 的值為何？", code: "n = 10\ncount = 0\nwhile n > 1:\n    n = n - 3\n    count += 1\nprint(count)", options: ["2", "3", "4", "5"], answer: 2, explanation: "迴圈追蹤：\n1. n=10, count=0. 10>1, n=7, count=1.\n2. n=7, count=1. 7>1, n=4, count=2.\n3. n=4, count=2. 4>1, n=1, count=3.\n4. n=1, count=3. 1>1 為假，迴圈結束。最終 count 為 3。" },
+                { topic: "控制結構", question: "執行以下程式碼後，變數 `count` 的值為何？", code: "n = 10\ncount = 0\nwhile n > 1:\n    n = n - 3\n    count += 1\nprint(count)", options: ["2", "3", "4", "5"], answer: 1, explanation: "迴圈追蹤：\n1. n=10, count=0. 10>1, n=7, count=1.\n2. n=7, count=1. 7>1, n=4, count=2.\n3. n=4, count=2. 4>1, n=1, count=3.\n4. n=1, count=3. 1>1 為假，迴圈結束。最終 count 為 3。" },
                 { topic: "陣列與串列", question: "以下函式 `sum_list` 的功能為何？", code: "def sum_list(a_list):\n    total = 0\n    for item in a_list:\n        total += item\n    return total", options: ["找尋串列中的最小值", "找尋串列中的最大值", "計算串列元素的總和", "計算串列元素的平均值"], answer: 2, explanation: "函式初始化 `total` 為 0，然後遍歷串列中的每一個元素，並將其值累加到 `total` 中。最後回傳 `total`。這個過程是計算串列所有元素的總和。" },
                 { topic: "基礎演算法", question: "對於一個已排序的串列，使用二分搜尋法比線性搜尋法更快的主要原因是什麼？", code: null, options: ["二分搜尋的程式碼更短", "二分搜尋每次比較都能排除一半的元素", "線性搜尋需要更多的記憶體", "二分搜尋不需要迴圈"], answer: 1, explanation: "二分搜尋法的高效率來自其「分治」策略。每次將中間元素與目標值比較後，無論結果如何，都可以確定地排除掉一半不可能包含目標的元素，從而迅速縮小搜尋範圍。" },
                 { topic: "函式與作用域", question: "以下程式碼片段的輸出結果為何？", code: "a = 10\ndef func():\n    a = 20\n    print(a, end=\" \")\n\nfunc()\nprint(a)", options: ["10 10", "20 10", "20 20", "10 20"], answer: 1, explanation: "在 `func` 函式內部，`a = 20` 建立了一個新的區域變數 `a`，它與函式外的全域變數 `a` 是不同的。因此 `func` 內部印出的 `a` 是 20。函式執行完畢後，回到主程式，`print(a)` 存取的是全域變數 `a`，其值從未改變，仍然是 10。" },
@@ -255,7 +262,7 @@
         
         const correctAnswersKey = {
             c: [0, 1, 2, 3, 3, 0, 1, 0, 1, 0, 0, 1, 1, 1, 3, 1, 1, 0, 3, 1, 2, 1, 1, 0, 1, 1, 0, 2, 0, 0, 1, 1, 0, 2, 2, 1, 1, 2],
-            python: [1, 1, 1, 3, 3, 0, 2, 1, 1, 1, 1, 0, 1, 0, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 0, 2, 0, 0, 1, 1, 0, 2, 2, 1, 1, 2, 0]
+            python: [1, 1, 1, 3, 3, 0, 2, 1, 1, 1, 1, 0, 1, 0, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 0, 2, 0, 0, 1, 1, 0, 2, 2, 1, 1, 2, 0]
         };
 
         let currentLanguage = '';
@@ -275,6 +282,7 @@
         const previousQuestionBtn = document.getElementById('previous-question');
         const overviewBtn = document.getElementById('overview-btn');
         const submitQuizBtn = document.getElementById('submit-quiz-btn');
+        const retakeQuizBtn = document.getElementById('retake-quiz-btn');
 
         startCBtn.addEventListener('click', () => startQuiz('c'));
         startPythonBtn.addEventListener('click', () => startQuiz('python'));
@@ -282,6 +290,10 @@
         previousQuestionBtn.addEventListener('click', goToPreviousQuestion);
         overviewBtn.addEventListener('click', showOverview);
         submitQuizBtn.addEventListener('click', showResults);
+        retakeQuizBtn.addEventListener('click', () => {
+            resultsView.classList.add('hidden');
+            welcomeView.classList.remove('hidden');
+        });
 
         function startQuiz(language) {
             currentLanguage = language;
@@ -455,8 +467,10 @@
                 }
 
                 const isCorrect = userAnswers[i] === correctKey[i];
-                const userAnswerText = userAnswers[i] === undefined || userAnswers[i] === -1 ? '未作答' : String.fromCharCode(65 + userAnswers[i]);
-                const correctAnswerText = String.fromCharCode(65 + correctKey[i]);
+                const userAnswerText = userAnswers[i] === undefined || userAnswers[i] === -1 
+                    ? '未作答' 
+                    : `(${String.fromCharCode(65 + userAnswers[i])}) ${q.options[userAnswers[i]].replace(/`/g, '')}`;
+                const correctAnswerText = `(${String.fromCharCode(65 + correctKey[i])}) ${q.options[correctKey[i]].replace(/`/g, '')}`;
 
                 const reviewItem = document.createElement('div');
                 reviewItem.className = `border rounded-lg p-4 ${isCorrect? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式排序演算法視覺化工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Warm Neutrals & Sky Blue -->
+    <!-- Application Structure Plan: A single-page application with a clear, three-part structure. 1) A top header serves as the global control panel for generating data, adjusting array size, and controlling animation speed. This provides consistent control regardless of the selected algorithm. 2) The central, largest area is the visualization canvas, where the sorting animations are displayed as bars. This is the primary focal point. 3) A bottom panel contains tabbed navigation to switch between different views: Algorithm Selection, a detailed Description/Complexity analysis, and a Code Viewer. The Code Viewer itself has sub-tabs for C++ and Python. This structure was chosen because it logically separates global controls from context-specific information, preventing UI clutter. It allows the user to focus on the visualization while having all relevant theoretical information (description, complexity, code) immediately accessible without scrolling or leaving the main view, creating a seamless and efficient learning workflow. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Sorting Process -> Goal: Inform/Compare -> Viz/Presentation: Animated vertical HTML bars with color-coded states (default, comparing, swapping, sorted). -> Interaction: User triggers animation with a "Sort" button; speed is controlled by a slider. -> Justification: This is the most intuitive and universally understood method for visualizing sorting, clearly showing value comparisons and element movements. -> Library/Method: Vanilla JS with async/await for animation logic, CSS transitions for smoothness.
+        - Report Info: Algorithm Selection -> Goal: Organize/Navigate -> Viz/Presentation: A group of styled buttons for the four algorithms. -> Interaction: Click to change the active algorithm, which updates all contextual panels. -> Justification: Buttons are more direct and visually scannable than a dropdown for a small, fixed set of choices. -> Library/Method: HTML/Tailwind/JS.
+        - Report Info: Algorithm Details (Description, Complexity) -> Goal: Inform -> Viz/Presentation: Formatted text block and an HTML table. -> Interaction: Content updates dynamically when a new algorithm is selected. -> Justification: Clear, structured text and a table are the most effective ways to present theoretical information. -> Library/Method: HTML/Tailwind/JS.
+        - Report Info: C++/Python Code -> Goal: Inform/Compare -> Viz/Presentation: A `<pre><code>` block with a code-editor-like theme and sub-tabs for language selection. -> Interaction: Content updates based on selected algorithm and language tab. -> Justification: This is the semantic and standard way to display code, and tabbing between languages allows for direct comparison of syntax and structure. -> Library/Method: HTML/Tailwind/JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. 
+    -->
+    <style>
+        :root {
+            --bar-default-color: #38bdf8; /* sky-400 */
+            --bar-compare-color: #facc15; /* yellow-400 */
+            --bar-swap-color: #ef4444;    /* red-500 */
+            --bar-sorted-color: #10b981;  /* emerald-500 */
+            --font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .control-panel, .info-panel {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .bar {
+            background-color: var(--bar-default-color);
+            transition: height 0.3s ease, background-color 0.3s ease;
+            margin: 0 1px;
+            flex-grow: 1;
+            flex-basis: 0; /* FIX: Ensure bars grow from a zero basis for stability */
+        }
+        .tab-btn {
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .tab-btn.active {
+            background-color: #0284c7; /* sky-600 */
+            color: white;
+        }
+        .tab-btn:not(.active):hover {
+            background-color: #f0f9ff; /* sky-50 */
+        }
+        .code-block {
+            background-color: #1e293b; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', 'Consolas', monospace;
+        }
+        .control-btn {
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .control-btn:hover {
+            background-color: #0ea5e9; /* sky-500 */
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        .control-btn:disabled {
+            background-color: #94a3b8; /* slate-400 */
+            cursor: not-allowed;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0284c7;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #0284c7;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 gap-4">
+
+    <header class="control-panel p-4 w-full max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button id="generate-btn" class="control-btn w-full sm:w-auto bg-sky-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">產生新陣列</button>
+                <button id="sort-btn" class="control-btn w-full sm:w-auto bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">開始排序</button>
+            </div>
+            <div class="flex flex-col col-span-1 md:col-span-2 gap-4">
+                <div class="flex items-center gap-4">
+                    <label for="size-slider" class="text-sm font-medium text-slate-700 whitespace-nowrap">陣列大小:</label>
+                    <input id="size-slider" type="range" min="10" max="100" value="50" class="slider w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <span id="size-value" class="text-sm font-semibold text-slate-800 w-8 text-center">50</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label for="speed-slider" class="text-sm font-medium text-slate-700 whitespace-nowrap">動畫速度:</label>
+                    <input id="speed-slider" type="range" min="1" max="100" value="50" class="slider w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <span id="speed-value" class="text-sm font-semibold text-slate-800 w-8 text-center">50</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="canvas-container" class="flex-grow w-full max-w-7xl mx-auto flex items-end justify-center border-2 border-slate-200 bg-white rounded-lg p-4 min-h-[40vh]">
+    </main>
+
+    <footer class="info-panel w-full max-w-7xl mx-auto p-4">
+        <div class="flex flex-col lg:flex-row gap-4">
+            <!-- Algorithm Selection and Info -->
+            <div class="w-full lg:w-1/3">
+                <h3 class="text-lg font-bold text-slate-800 mb-2">選擇演算法</h3>
+                <div id="algo-selector" class="grid grid-cols-2 gap-2">
+                    <button class="tab-btn p-2 rounded-md text-slate-700 font-semibold border border-slate-200" data-algo="bubble">氣泡排序</button>
+                    <button class="tab-btn p-2 rounded-md text-slate-700 font-semibold border border-slate-200" data-algo="insertion">插入排序</button>
+                    <button class="tab-btn p-2 rounded-md text-slate-700 font-semibold border border-slate-200" data-algo="selection">選擇排序</button>
+                    <button class="tab-btn p-2 rounded-md text-slate-700 font-semibold border border-slate-200" data-algo="merge">合併排序</button>
+                </div>
+                <div id="info-content" class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 h-64 overflow-y-auto">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+            <!-- Code Viewer -->
+            <div class="w-full lg:w-2/3">
+                 <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-lg font-bold text-slate-800">程式碼實作</h3>
+                    <div id="lang-selector" class="flex gap-2">
+                        <button class="tab-btn text-sm px-3 py-1 rounded-md text-slate-700 font-semibold border border-slate-200" data-lang="cpp">C++</button>
+                        <button class="tab-btn text-sm px-3 py-1 rounded-md text-slate-700 font-semibold border border-slate-200" data-lang="python">Python</button>
+                    </div>
+                </div>
+                <div id="code-viewer" class="code-block p-4 h-[19.5rem] overflow-y-auto">
+                    <pre><code id="code-content"></code></pre>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>
+const ALGO_DATA = {
+    bubble: {
+        name: '氣泡排序 (Bubble Sort)',
+        description: '氣泡排序是一種簡單的排序演算法。它重複地走訪過要排序的數列，一次比較兩個元素，如果他們的順序錯誤就把他們交換過來。走訪數列的工作是重複地進行直到沒有任何元素需要交換，也就是說該數列已經排序完成。',
+        complexity: {
+            best: 'O(n)',
+            average: 'O(n²)',
+            worst: 'O(n²)',
+            space: 'O(1)'
+        },
+        code: {
+            cpp: `void bubbleSort(std::vector<int>& arr) {
+    int n = arr.size();
+    bool swapped;
+    for (int i = 0; i < n - 1; i++) {
+        swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                std::swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}`,
+            python: `def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        swapped = False
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                swapped = True
+        if not swapped:
+            break`
+        }
+    },
+    insertion: {
+        name: '插入排序 (Insertion Sort)',
+        description: '插入排序的作法是，每次從「未排序」部分取出第一個元素，並將其插入到「已排序」部分的正確位置。它會維持一個已排序的子陣列，並逐一將剩餘元素插入其中。對於小型或近乎排序的資料，此演算法效率很高。',
+        complexity: {
+            best: 'O(n)',
+            average: 'O(n²)',
+            worst: 'O(n²)',
+            space: 'O(1)'
+        },
+        code: {
+            cpp: `void insertionSort(std::vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}`,
+            python: `def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and key < arr[j]:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key`
+        }
+    },
+    selection: {
+        name: '選擇排序 (Selection Sort)',
+        description: '選擇排序的作法是，在每一輪中從待排序的資料元素中，選出最小（或最大）的一個元素，將其與待排序部分的第一个元素交換位置。它的主要優點是交換次數少，最多為 O(n) 次。',
+        complexity: {
+            best: 'O(n²)',
+            average: 'O(n²)',
+            worst: 'O(n²)',
+            space: 'O(1)'
+        },
+        code: {
+            cpp: `void selectionSort(std::vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        int min_idx = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
+            }
+        }
+        if (min_idx != i) {
+            std::swap(arr[min_idx], arr[i]);
+        }
+    }
+}`,
+            python: `def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]`
+        }
+    },
+    merge: {
+        name: '合併排序 (Merge Sort)',
+        description: '合併排序是建立在分治法 (Divide and Conquer) 上的排序演算法。它將陣列遞迴地分成兩半，直到每個子陣列只剩一個元素，然後再將這些子陣列兩兩合併成已排序的陣列。它的時間複雜度穩定在 O(n log n)，但需要額外的 O(n) 空間。',
+        complexity: {
+            best: 'O(n log n)',
+            average: 'O(n log n)',
+            worst: 'O(n log n)',
+            space: 'O(n)'
+        },
+        code: {
+            cpp: `void merge(std::vector<int>& arr, int l, int m, int r) {
+    int n1 = m - l + 1;
+    int n2 = r - m;
+    std::vector<int> L(n1), R(n2);
+    for (int i = 0; i < n1; i++) L[i] = arr[l + i];
+    for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];
+    int i = 0, j = 0, k = l;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) arr[k++] = L[i++];
+        else arr[k++] = R[j++];
+    }
+    while (i < n1) arr[k++] = L[i++];
+    while (j < n2) arr[k++] = R[j++];
+}
+
+void mergeSort(std::vector<int>& arr, int l, int r) {
+    if (l >= r) return;
+    int m = l + (r - l) / 2;
+    mergeSort(arr, l, m);
+    mergeSort(arr, m + 1, r);
+    merge(arr, l, m, r);
+}`,
+            python: `def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr) // 2
+        L = arr[:mid]
+        R = arr[mid:]
+        merge_sort(L)
+        merge_sort(R)
+        i = j = k = 0
+        while i < len(L) and j < len(R):
+            if L[i] <= R[j]:
+                arr[k] = L[i]
+                i += 1
+            else:
+                arr[k] = R[j]
+                j += 1
+            k += 1
+        while i < len(L):
+            arr[k] = L[i]
+            i += 1
+            k += 1
+        while j < len(R):
+            arr[k] = R[j]
+            j += 1
+            k += 1`
+        }
+    }
+};
+
+class SortingVisualizer {
+    constructor() {
+        this.canvas = null;
+        this.generateBtn = null;
+        this.sortBtn = null;
+        this.sizeSlider = null;
+        this.speedSlider = null;
+        this.sizeValue = null;
+        this.speedValue = null;
+        this.algoSelector = null;
+        this.langSelector = null;
+        this.infoContent = null;
+        this.codeContent = null;
+
+        this.array = [];
+        this.size = 50;
+        this.speed = 50;
+        this.isSorting = false;
+        this.currentAlgo = 'bubble';
+        this.currentLang = 'cpp';
+    }
+
+    init() {
+        this.canvas = document.getElementById('canvas-container');
+        this.generateBtn = document.getElementById('generate-btn');
+        this.sortBtn = document.getElementById('sort-btn');
+        this.sizeSlider = document.getElementById('size-slider');
+        this.speedSlider = document.getElementById('speed-slider');
+        this.sizeValue = document.getElementById('size-value');
+        this.speedValue = document.getElementById('speed-value');
+        this.algoSelector = document.getElementById('algo-selector');
+        this.langSelector = document.getElementById('lang-selector');
+        this.infoContent = document.getElementById('info-content');
+        this.codeContent = document.getElementById('code-content');
+
+        this.generateBtn.addEventListener('click', () => this.generateArray());
+        this.sortBtn.addEventListener('click', () => this.sort());
+        this.sizeSlider.addEventListener('input', (e) => this.updateSize(e.target.value));
+        this.speedSlider.addEventListener('input', (e) => this.updateSpeed(e.target.value));
+        
+        this.algoSelector.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON' && !this.isSorting) {
+                this.setAlgorithm(e.target.dataset.algo);
+            }
+        });
+
+        this.langSelector.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                this.setLanguage(e.target.dataset.lang);
+            }
+        });
+
+        this.updateSize(this.sizeSlider.value);
+        this.updateSpeed(this.speedSlider.value);
+        this.setAlgorithm(this.currentAlgo);
+        this.setLanguage(this.currentLang);
+    }
+
+    updateSize(value) {
+        this.size = parseInt(value);
+        this.sizeValue.textContent = this.size;
+        this.generateArray();
+    }
+
+    updateSpeed(value) {
+        this.speed = parseInt(value);
+        this.speedValue.textContent = this.speed;
+    }
+    
+    getDelay() {
+        return 201 - (this.speed * 2);
+    }
+
+    generateArray() {
+        if (this.isSorting) return;
+        this.array = [];
+        for (let i = 0; i < this.size; i++) {
+            this.array.push(Math.floor(Math.random() * 95) + 5);
+        }
+        this.renderArray();
+    }
+
+    renderArray(highlights = {}) {
+        if (!this.canvas) return;
+        this.canvas.innerHTML = '';
+        this.array.forEach((value, index) => {
+            const bar = document.createElement('div');
+            bar.style.height = `${value}%`;
+            bar.classList.add('bar');
+            if (highlights.compare && highlights.compare.includes(index)) {
+                bar.style.backgroundColor = 'var(--bar-compare-color)';
+            } else if (highlights.swap && highlights.swap.includes(index)) {
+                bar.style.backgroundColor = 'var(--bar-swap-color)';
+            } else if (highlights.sorted && highlights.sorted.includes(index)) {
+                bar.style.backgroundColor = 'var(--bar-sorted-color)';
+            }
+            this.canvas.appendChild(bar);
+        });
+    }
+
+    setAlgorithm(algo) {
+        this.currentAlgo = algo;
+        this.updateUI();
+    }
+    
+    setLanguage(lang) {
+        this.currentLang = lang;
+        this.updateUI();
+    }
+
+    updateUI() {
+        Array.from(this.algoSelector.children).forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.algo === this.currentAlgo);
+        });
+        
+        Array.from(this.langSelector.children).forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === this.currentLang);
+        });
+
+        const algoData = ALGO_DATA[this.currentAlgo];
+        
+        this.infoContent.innerHTML = `
+            <h4 class="font-bold text-md mb-2 text-slate-700">${algoData.name}</h4>
+            <p class="text-sm text-slate-600 mb-4">${algoData.description}</p>
+            <table class="w-full text-sm text-left text-slate-600">
+                <tbody>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-1 font-medium">最佳時間</td><td class="text-right">${algoData.complexity.best}</td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-1 font-medium">平均時間</td><td class="text-right">${algoData.complexity.average}</td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-1 font-medium">最差時間</td><td class="text-right">${algoData.complexity.worst}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-1 font-medium">空間複雜度</td><td class="text-right">${algoData.complexity.space}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+        
+        this.codeContent.textContent = algoData.code[this.currentLang];
+    }
+
+    toggleControls(disabled) {
+        this.isSorting = disabled;
+        this.generateBtn.disabled = disabled;
+        this.sortBtn.disabled = disabled;
+        this.sizeSlider.disabled = disabled;
+        this.algoSelector.querySelectorAll('button').forEach(b => b.disabled = disabled);
+    }
+
+    async sort() {
+        this.toggleControls(true);
+        const animations = this.getAnimations();
+        const bars = Array.from(this.canvas.children);
+        
+        for (const animation of animations) {
+            const { type, indices, value, values } = animation;
+            
+            if (type === 'compare_start') {
+                if (bars[indices[0]]) bars[indices[0]].style.backgroundColor = 'var(--bar-compare-color)';
+                if (bars[indices[1]]) bars[indices[1]].style.backgroundColor = 'var(--bar-compare-color)';
+            } else if (type === 'compare_end') {
+                if (bars[indices[0]]) bars[indices[0]].style.backgroundColor = 'var(--bar-default-color)';
+                if (bars[indices[1]]) bars[indices[1]].style.backgroundColor = 'var(--bar-default-color)';
+            } else if (type === 'swap') {
+                if (bars[indices[0]]) bars[indices[0]].style.backgroundColor = 'var(--bar-swap-color)';
+                if (bars[indices[1]]) bars[indices[1]].style.backgroundColor = 'var(--bar-swap-color)';
+                
+                if (bars[indices[0]] && bars[indices[1]]) {
+                    [bars[indices[0]].style.height, bars[indices[1]].style.height] = [`${values[0]}%`, `${values[1]}%`];
+                }
+            } else if (type === 'overwrite') {
+                if (bars[indices]) {
+                    bars[indices].style.backgroundColor = 'var(--bar-swap-color)';
+                    bars[indices].style.height = `${value}%`;
+                }
+            } else if (type === 'set_sorted') {
+                if (bars[indices]) {
+                    bars[indices].style.backgroundColor = 'var(--bar-sorted-color)';
+                }
+            }
+            await this.sleep(this.getDelay());
+        }
+        
+        for (const bar of bars) {
+            bar.style.backgroundColor = 'var(--bar-sorted-color)';
+        }
+
+        this.toggleControls(false);
+    }
+
+    getAnimations() {
+        const arrayCopy = [...this.array];
+        switch(this.currentAlgo) {
+            case 'bubble': return this.getBubbleSortAnimations(arrayCopy);
+            case 'insertion': return this.getInsertionSortAnimations(arrayCopy);
+            case 'selection': return this.getSelectionSortAnimations(arrayCopy);
+            case 'merge': return this.getMergeSortAnimations(arrayCopy);
+            default: return [];
+        }
+    }
+    
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    getBubbleSortAnimations(arr) {
+        const animations = [];
+        const n = arr.length;
+        for (let i = 0; i < n - 1; i++) {
+            let swapped = false;
+            for (let j = 0; j < n - i - 1; j++) {
+                animations.push({ type: 'compare_start', indices: [j, j + 1] });
+                if (arr[j] > arr[j + 1]) {
+                    swapped = true;
+                    animations.push({ type: 'swap', indices: [j, j + 1], values: [arr[j + 1], arr[j]] });
+                    [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                }
+                animations.push({ type: 'compare_end', indices: [j, j + 1] });
+            }
+            animations.push({ type: 'set_sorted', indices: n - 1 - i });
+            if (!swapped) break;
+        }
+        for (let i = 0; i < arr.length; i++) {
+            if (!animations.some(a => a.type === 'set_sorted' && a.indices === i)) {
+                 animations.push({ type: 'set_sorted', indices: i });
+            }
+        }
+        return animations;
+    }
+
+    getSelectionSortAnimations(arr) {
+        const animations = [];
+        const n = arr.length;
+        for (let i = 0; i < n - 1; i++) {
+            let minIdx = i;
+            for (let j = i + 1; j < n; j++) {
+                animations.push({ type: 'compare_start', indices: [minIdx, j] });
+                animations.push({ type: 'compare_end', indices: [minIdx, j] });
+                if (arr[j] < arr[minIdx]) {
+                    minIdx = j;
+                }
+            }
+            animations.push({ type: 'swap', indices: [i, minIdx], values: [arr[minIdx], arr[i]] });
+            [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+            animations.push({ type: 'set_sorted', indices: i });
+        }
+        animations.push({ type: 'set_sorted', indices: n - 1 });
+        return animations;
+    }
+
+    getInsertionSortAnimations(arr) {
+        const animations = [];
+        const n = arr.length;
+        for (let i = 1; i < n; i++) {
+            let key = arr[i];
+            let j = i - 1;
+            animations.push({ type: 'compare_start', indices: [i, j] });
+            animations.push({ type: 'compare_end', indices: [i, j] });
+            while (j >= 0 && arr[j] > key) {
+                animations.push({ type: 'overwrite', indices: j + 1, value: arr[j] });
+                arr[j + 1] = arr[j];
+                j--;
+                if (j >= 0) {
+                    animations.push({ type: 'compare_start', indices: [i, j] });
+                    animations.push({ type: 'compare_end', indices: [i, j] });
+                }
+            }
+            animations.push({ type: 'overwrite', indices: j + 1, value: key });
+            arr[j + 1] = key;
+        }
+        return animations;
+    }
+
+    getMergeSortAnimations(arr) {
+        const animations = [];
+        if (arr.length <= 1) return animations;
+        const auxiliaryArray = arr.slice();
+        this.mergeSortHelper(arr, 0, arr.length - 1, auxiliaryArray, animations);
+        return animations;
+    }
+
+    mergeSortHelper(mainArray, startIdx, endIdx, auxiliaryArray, animations) {
+        if (startIdx === endIdx) return;
+        const middleIdx = Math.floor((startIdx + endIdx) / 2);
+        this.mergeSortHelper(auxiliaryArray, startIdx, middleIdx, mainArray, animations);
+        this.mergeSortHelper(auxiliaryArray, middleIdx + 1, endIdx, mainArray, animations);
+        this.doMerge(mainArray, startIdx, middleIdx, endIdx, auxiliaryArray, animations);
+    }
+    
+    doMerge(mainArray, startIdx, middleIdx, endIdx, auxiliaryArray, animations) {
+        let k = startIdx;
+        let i = startIdx;
+        let j = middleIdx + 1;
+        while (i <= middleIdx && j <= endIdx) {
+            animations.push({ type: 'compare_start', indices: [i, j] });
+            animations.push({ type: 'compare_end', indices: [i, j] });
+            if (auxiliaryArray[i] <= auxiliaryArray[j]) {
+                animations.push({ type: 'overwrite', indices: k, value: auxiliaryArray[i] });
+                mainArray[k++] = auxiliaryArray[i++];
+            } else {
+                animations.push({ type: 'overwrite', indices: k, value: auxiliaryArray[j] });
+                mainArray[k++] = auxiliaryArray[j++];
+            }
+        }
+        while (i <= middleIdx) {
+            animations.push({ type: 'compare_start', indices: [i, i] });
+            animations.push({ type: 'compare_end', indices: [i, i] });
+            animations.push({ type: 'overwrite', indices: k, value: auxiliaryArray[i] });
+            mainArray[k++] = auxiliaryArray[i++];
+        }
+        while (j <= endIdx) {
+            animations.push({ type: 'compare_start', indices: [j, j] });
+            animations.push({ type: 'compare_end', indices: [j, j] });
+            animations.push({ type: 'overwrite', indices: k, value: auxiliaryArray[j] });
+            mainArray[k++] = auxiliaryArray[j++];
+        }
+    }
+}
+
+// FIX: Wrap the initialization in a DOMContentLoaded event listener.
+// This is the standard and most robust way to ensure the script
+// runs only after the entire HTML document has been loaded and parsed.
+window.addEventListener('DOMContentLoaded', () => {
+    new SortingVisualizer().init();
+});
+</script>
+
+</body>
+</html>
