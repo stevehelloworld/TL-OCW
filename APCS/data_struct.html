@@ -452,7 +452,7 @@ int pop() {
                     this.type = type;
                     this.elements = [];
                     this.pointers = {};
-                    this.maxSize = this.type === 'CircularQueue' ? 8 : 12;
+                    this.maxSize = this.type === 'CircularQueue' ? 8 : 10;
                     this.init();
                 }
 
@@ -462,8 +462,8 @@ int pop() {
                         this.pointers.top = this.createPointer('TOP', { right: '20px', top: '430px' });
                     }
                     if (this.type === 'Queue' || this.type === 'Deque') {
-                        this.pointers.front = this.createPointer('FRONT', { left: '10px', top: '10px' });
-                        this.pointers.rear = this.createPointer('REAR', { right: '10px', top: '10px' });
+                        this.pointers.front = this.createPointer('FRONT', { left: 'calc(100% - 70px)', top: '160px', opacity: 0 });
+                        this.pointers.rear = this.createPointer('REAR', { left: 'calc(100% - 70px)', top: '270px', opacity: 0 });
                     }
                     if (this.type === 'CircularQueue') {
                         this.pointers.front = this.createPointer('F', { left: '10px', top: '10px', display: 'none' });
@@ -586,12 +586,16 @@ int pop() {
                     const node = this.createNode(value);
                     this.elements.push(node);
 
+                    const rearPositionX = `calc(100% - ${this.elements.length * 70}px)`;
+
                     gsap.set(node, { top: '200px', left: '100%', opacity: 0 });
                     const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
-                    tl.to(node, { left: `calc(100% - ${this.elements.length * 70}px)`, opacity: 1, duration: 0.5 });
+                    tl.to(node, { left: rearPositionX, opacity: 1, duration: 0.5 });
                     
+                    tl.to(this.pointers.rear, { left: rearPositionX, opacity: 1, duration: 0.5 }, "-=0.5");
+
                     if (this.elements.length === 1) {
-                         tl.to(this.pointers.front, { left: `calc(100% - 70px - 10px)`, duration: 0.5 }, "-=0.5");
+                        tl.to(this.pointers.front, { opacity: 1, duration: 0.5 }, "-=0.5");
                     }
                 }
 
@@ -616,9 +620,11 @@ int pop() {
                     });
                     
                     if (this.elements.length > 0) {
-                        tl.to(this.pointers.front, { left: `calc(100% - 70px - 10px)`, duration: 0.5 }, "-=0.5");
+                        const rearPositionX = `calc(100% - ${this.elements.length * 70}px)`;
+                        tl.to(this.pointers.rear, { left: rearPositionX, duration: 0.5 }, "-=0.5");
                     } else {
-                        gsap.to(this.pointers.front, { left: `10px`, duration: 0.5 });
+                        gsap.to(this.pointers.front, { opacity: 0, duration: 0.5 });
+                        gsap.to(this.pointers.rear, { opacity: 0, duration: 0.5 });
                     }
                 }
                 
