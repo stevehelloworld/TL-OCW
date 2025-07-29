@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APCS 程式識讀模擬測驗</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; }
+       .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+       .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+       .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+       .option-btn.selected {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+       .nav-btn.active {
+            background-color: #1d4ed8;
+            color: white;
+        }
+       .explanation {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+       .explanation.show {
+            max-height: 1000px;
+        }
+       .chart-container {
+            position: relative;
+            margin: auto;
+            height: 320px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .bar-chart-container {
+            position: relative;
+            margin: auto;
+            height: 400px;
+            width: 100%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">APCS 程式識讀</h1>
+            <p class="text-lg text-slate-600 mt-2">互動模擬測驗與分析平台</p>
+        </header>
+
+        <main>
+            <div id="welcome-view">
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                    <h2 class="text-2xl font-bold mb-4">歡迎來到 APCS 模擬測驗</h2>
+                    <p class="text-slate-600 mb-6 max-w-2xl mx-auto">本平台根據最新的 APCS 程式識讀題綱要設計，旨在提供一個兼具評量與學習功能的綜合性資源。請選擇您偏好的程式語言以開始測驗。</p>
+                    <div class="flex justify-center gap-4">
+                        <button id="start-c" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors text-lg">C 語言</button>
+                        <button id="start-python" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors text-lg">Python</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-view" class="hidden">
+                 <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 id="question-counter" class="text-xl font-bold">問題 1 / 40</h2>
+                        <div id="language-indicator" class="px-3 py-1 rounded-full text-sm font-semibold"></div>
+                    </div>
+                    <div id="question-content" class="mb-6">
+                        <p id="question-text" class="text-lg mb-4"></p>
+                        <div id="code-container" class="code-block"></div>
+                    </div>
+                    <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    </div>
+                    <div class="mt-8 flex justify-between items-center">
+                        <button id="previous-question" class="bg-slate-300 text-slate-800 font-bold py-2 px-6 rounded-lg hover:bg-slate-400 transition-colors">上一題</button>
+                        <button id="overview-btn" class="bg-slate-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-slate-600 transition-colors">總覽</button>
+                        <button id="next-question" class="bg-slate-800 text-white font-bold py-2 px-6 rounded-lg hover:bg-slate-900 transition-colors">下一題</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="overview-view" class="hidden">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-center mb-6">測驗總覽</h2>
+                    <p class="text-center text-slate-600 mb-8">點擊題號可以跳轉至該題。完成所有題目後，點擊下方按鈕提交您的答案。</p>
+                    <div id="overview-grid" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-3 mb-8">
+                        <!-- Question status buttons will be generated here -->
+                    </div>
+                    <div class="text-center">
+                        <button id="submit-quiz-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors">交卷</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results-view" class="hidden">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <h2 class="text-3xl font-bold text-center mb-2">測驗完成！</h2>
+                    <p class="text-center text-slate-600 mb-8">這是您的測驗結果分析。</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                        <div class="lg:col-span-1 flex flex-col items-center justify-center bg-slate-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-bold mb-4">總分</h3>
+                            <div class="chart-container">
+                                <canvas id="score-chart"></canvas>
+                            </div>
+                            <p id="score-text" class="text-4xl font-bold mt-4"></p>
+                            <p id="score-percentage" class="text-lg text-slate-600"></p>
+                        </div>
+                        <div class="lg:col-span-2 bg-slate-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-bold mb-4">各主題表現</h3>
+                            <div id="topic-performance" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-center border-b border-slate-200 mb-6">
+                            <button data-tab="review" class="nav-btn py-2 px-4 font-semibold text-slate-600 border-b-2 border-transparent hover:border-blue-500 hover:text-blue-600 transition-colors">答案總覽</button>
+                            <button data-tab="explorer" class="nav-btn py-2 px-4 font-semibold text-slate-600 border-b-2 border-transparent hover:border-blue-500 hover:text-blue-600 transition-colors">主題探索</button>
+                        </div>
+
+                        <div id="review-tab" class="tab-content">
+                             <h3 class="text-2xl font-bold mb-4">答案與解析</h3>
+                            <div id="review-container" class="space-y-4"></div>
+                        </div>
+
+                        <div id="explorer-tab" class="tab-content hidden">
+                            <h3 class="text-2xl font-bold mb-4">主題探索與分析</h3>
+                            <p class="text-slate-600 mb-6">點擊下方主題按鈕，篩選相關問題進行集中複習。圖表顯示了此模擬測驗的題目分佈，幫助您了解各主題的權重。</p>
+                            <div class="bar-chart-container mb-8">
+                                <canvas id="topic-distribution-chart"></canvas>
+                            </div>
+                            <div id="topic-filters" class="flex flex-wrap justify-center gap-2 mb-6"></div>
+                            <div id="explorer-container" class="space-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const quizData = {
+            c: [
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，變數 `c` 的值為何？", code: `#include <stdio.h>\nint main() {\n    int a = 10, b = 4;\n    double c = a / b;\n    printf("%.1f\n", c);\n    return 0;\n}`, options: ["2.0", "2.5", "3.0", "編譯錯誤"], answer: 0, explanation: "在C語言中，兩個 `int` 型別進行 `/` 運算會執行「整數除法」，`10 / 4` 的結果是 `2`，小數部分被捨去。然後整數 `2` 被轉換為 `double` 型別並賦值給 `c`，所以 `c` 的值是 `2.0`。" },
+                { topic: "控制結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int i = 0, sum = 0;\n    while (i < 10) {\n        i++;\n        if (i % 2 == 0) continue;\n        sum += i;\n    }\n    printf("%d\n", sum);\n    return 0;\n}`, options: ["20", "25", "30", "55"], answer: 1, explanation: "迴圈計算1到10之間所有奇數的和。`i` 的值會是 1, 2,..., 10。當 `i` 是偶數時，`continue` 會跳過 `sum += i`。因此，`sum` 累加了 1 + 3 + 5 + 7 + 9，結果為 25。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int arr[] = {10, 20, 30, 40, 50};\n    int *p = arr + 1;\n    printf("%d\n", *(p + 2));\n    return 0;\n}`, options: ["20", "30", "40", "50"], answer: 2, explanation: "指標 `p` 初始化為 `arr + 1`，指向 `arr` 的第二個元素 (20)。`p + 2` 則指向 `p` 之後的第二個元素，也就是 `arr[1+2] = arr[3]`，其值為 40。`*(p + 2)` 取出該位置的值，因此輸出 40。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nvoid func(int arr[]) {\n    arr[0] = 99;\n}\nint main() {\n    int my_arr[] = {5, 10, 15};\n    func(my_arr);\n    printf("%d\n", my_arr[0]);\n    return 0;\n}`, options: ["5", "10", "15", "99"], answer: 3, explanation: "在C語言中，將陣列傳遞給函式時，實際上传遞的是指向陣列第一個元素的指標。因此，在函式內部對陣列的修改會直接影響到原始陣列。`arr[0] = 99` 修改了 `my_arr` 的第一個元素。" },
+                { topic: "遞迴", question: "執行 `func(3)` 後，回傳值為何？", code: `int func(int n) {\n    if (n <= 1) {\n        return 1;\n    }\n    return n + func(n - 1);\n}`, options: ["3", "4", "5", "6"], answer: 3, explanation: "遞迴追蹤：\nfunc(3) = 3 + func(2)\nfunc(2) = 2 + func(1)\nfunc(1) = 1 (基本情況)\n回代：func(2) = 2 + 1 = 3, func(3) = 3 + 3 = 6。" },
+                { topic: "基礎資料結構", question: "一個空的堆疊（Stack）經過 `push(A)`, `push(B)`, `push(C)`, `pop()`, `push(D)` 操作後，堆疊由頂到底的元素順序為何？", code: null, options: ["D, B, A", "C, B, A", "A, B, D", "D, A, B"], answer: 0, explanation: "堆疊是後進先出（LIFO）。\n1. `push(A)`: [A]\n2. `push(B)`: [A, B]\n3. `push(C)`: [A, B, C] (C在頂)\n4. `pop()`: 彈出 C，堆疊為 [A, B]\n5. `push(D)`: [A, B, D] (D在頂)\n由頂到底為 D, B, A。" },
+                { topic: "基礎演算法", question: "對於一個已排序的陣列，使用二分搜尋法尋找一個不存在的元素，其最壞情況下的時間複雜度為何？", code: null, options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"], answer: 1, explanation: "二分搜尋法的核心是每次都將搜尋範圍減半。即使元素不存在，這個過程也會持續進行直到搜尋範圍為空。對於一個大小為 N 的陣列，大約需要 log₂(N) 次比較才能將範圍縮小至零，因此時間複雜度為 O(log N)。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，變數 `y` 的值為何？", code: `#include <stdio.h>\nint main() {\n    int x = 0, y = 5;\n    if (x > 0 && y++ > 1) {\n        // do nothing\n    }\n    printf("%d\n", y);\n    return 0;\n}`, options: ["5", "6", "1", "0"], answer: 0, explanation: "此題測驗邏輯運算子 `&&` 的「短路求值」特性。當 `&&` 左邊的表達式 `x > 0` 為假時，整個表達式的結果就已經確定為假，因此右邊的表達式 `y++ > 1` 將不會被執行。所以 `y` 的值保持為 5。" },
+                { topic: "控制結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int sum = 0;\n    for (int i = 0; i < 5; i++) {\n        for (int j = i; j < 5; j++) {\n            sum++;\n        }\n    }\n    printf("%d\n", sum);\n    return 0;\n}`, options: ["10", "15", "20", "25"], answer: 1, explanation: "追蹤巢狀迴圈：\ni=0: j 從 0 到 4 (5次)\ni=1: j 從 1 到 4 (4次)\ni=2: j 從 2 到 4 (3次)\ni=3: j 從 3 到 4 (2次)\ni=4: j 從 4 到 4 (1次)\n總和 sum = 5 + 4 + 3 + 2 + 1 = 15。" },
+                { topic: "遞迴", question: "執行 `func(12)` 後，輸出為何？", code: `#include <stdio.h>\nvoid func(int n) {\n    if (n == 0) return;\n    func(n / 2);\n    printf("%d", n % 2);\n}\nint main() {\n    func(12);\n    printf("\n");\n    return 0;\n}`, options: ["1100", "0011", "12", "6310"], answer: 0, explanation: "此遞迴函式的功能是將十進位數字轉換為其二進位表示。`printf` 在遞迴呼叫之後，所以是後序處理，會從最低位元開始印出。\nfunc(12) -> func(6) -> func(3) -> func(1) -> func(0)\nfunc(0) 回傳\nfunc(1) 印出 1%2 = 1\nfunc(3) 印出 3%2 = 1\nfunc(6) 印出 6%2 = 0\nfunc(12) 印出 12%2 = 0\n組合起來是 1100。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，陣列 `arr` 的內容為何？", code: `#include <stdio.h>\nint main() {\n    int arr[5] = {10, 20, 30};\n    printf("%d %d\n", arr[2], arr[3]);\n    return 0;\n}`, options: ["30 0", "30 (垃圾值)", "0 0", "編譯錯誤"], answer: 0, explanation: "在C語言中，如果陣列初始化時提供的元素數量少於陣列大小，剩餘的元素會被自動初始化為0。因此 `arr` 的內容是 `{10, 20, 30, 0, 0}`。`arr[2]` 是 30，`arr[3]` 是 0。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint x = 5;\nvoid func() {\n    static int x = 10;\n    x++;\n    printf("%d ", x);\n}\nint main() {\n    printf("%d ", x);\n    func();\n    func();\n    printf("%d\n", x);\n    return 0;\n}`, options: ["5 10 11 5", "5 11 12 5", "5 11 12 12", "5 10 10 5"], answer: 1, explanation: "`main` 中的 `x` 是全域變數。`func` 中的 `x` 是靜態區域變數，只初始化一次並在函式呼叫間保持其值。\n1. `main` 印出全域 `x` (5)。\n2. 第一次呼叫 `func`，靜態 `x` 初始化為10，++後變11，印出11。\n3. 第二次呼叫 `func`，靜態 `x` 從11開始，++後變12，印出12。\n4. 回到 `main`，再次印出全域 `x` (5)。" },
+                { topic: "基礎資料結構", question: "一個空的佇列（Queue）經過 `enqueue(A)`, `enqueue(B)`, `dequeue()`, `enqueue(C)`, `enqueue(D)` 操作後，佇列由前到後的元素順序為何？", code: null, options: ["A, B, C, D", "B, C, D", "A, B, D", "D, C, B"], answer: 1, explanation: "佇列是先進先出（FIFO）。\n1. `enqueue(A)`: [A]\n2. `enqueue(B)`: [A, B]\n3. `dequeue()`: 移除 A，佇列為 [B]\n4. `enqueue(C)`: [B, C]\n5. `enqueue(D)`: [B, C, D]\n由前到後為 B, C, D。" },
+                { topic: "基礎演算法", question: "以下程式碼片段最符合哪種排序演算法的核心邏輯？", code: `for (int i = 1; i < n; i++) {\n    int key = arr[i];\n    int j = i - 1;\n    while (j >= 0 && arr[j] > key) {\n        arr[j + 1] = arr[j];\n        j = j - 1;\n    }\n    arr[j + 1] = key;\n}`, options: ["選擇排序", "插入排序", "氣泡排序", "合併排序"], answer: 1, explanation: "此程式碼從第二個元素開始，依序將每個元素 (`key`) 插入到其前面已排序好的子陣列中的正確位置。`while` 迴圈負責將比 `key` 大的元素向右移動以騰出空間。這是插入排序的典型實現。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int a = 5;\n    printf("%d %d\n", a++, ++a);\n    return 0;\n}`, options: ["5 6", "6 7", "5 7", "未定義行為"], answer: 3, explanation: "在C語言的同一個 `printf` 函式呼叫中，對同一個變數 `a` 進行多次帶有副作用的運算 (`a++` 和 `++a`)，其求值順序是未被標準定義的。不同的編譯器可能會產生不同的結果，這屬於「未定義行為」(Undefined Behavior)。" },
+                { topic: "遞迴", question: "執行 `func(2, 3)` 後，回傳值為何？", code: `int func(int a, int b) {\n    if (b == 0) return 1;\n    if (b % 2 == 0) {\n        int half = func(a, b / 2);\n        return half * half;\n    } else {\n        return a * func(a, b - 1);\n    }\n}`, options: ["6", "8", "9", "12"], answer: 1, explanation: "此函式計算 a 的 b 次方。\nfunc(2, 3) = 2 * func(2, 2)\nfunc(2, 2) = func(2, 1) * func(2, 1)\nfunc(2, 1) = 2 * func(2, 0)\nfunc(2, 0) = 1\n回代：func(2, 1) = 2 * 1 = 2。\nfunc(2, 2) = 2 * 2 = 4。\nfunc(2, 3) = 2 * 4 = 8。" },
+                { topic: "控制結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int n = 5, sum = 0;\n    for (int i = 1; i <= n; i++) {\n        for (int j = 1; j <= i; j++) {\n            sum++;\n        }\n    }\n    printf("%d\n", sum);\n    return 0;\n}`, options: ["10", "15", "20", "25"], answer: 1, explanation: "此程式碼計算 1 + 2 +... + n 的和。\ni=1: j 跑1次\ni=2: j 跑2次\ni=3: j 跑3次\ni=4: j 跑4次\ni=5: j 跑5次\n總和 sum = 1 + 2 + 3 + 4 + 5 = 15。" },
+                { topic: "陣列與串列", question: "以下程式碼片段的輸出結果為何？", code: `#include <stdio.h>\nint main() {\n    int arr[] = {1, 2, 3, 4, 5};\n    int *p = arr;\n    printf("%d\n", *p++);\n    return 0;\n}`, options: ["1", "2", "陣列的位址", "編譯錯誤"], answer: 0, explanation: "後置遞增運算子 `++` 的優先級高於解參考運算子 `*`，但其副作用（將 `p` 的值加1）發生在整個表達式求值之後。因此，`*p++` 的求值順序是：1. 取出 `p` 目前指向的值 (即 `arr[0]` 的值 `1`) 作為表達式的結果。2. 將指標 `p` 移動到下一個位置。所以 `printf` 印出的是 `1`。" },
+                { topic: "基礎演算法", question: "對於一個有 `N` 個未排序元素的陣列，使用選擇排序法（Selection Sort）進行排序，其時間複雜度為何？", code: null, options: ["O(1)", "O(log N)", "O(N log N)", "O(N^2)"], answer: 3, explanation: "選擇排序法包含兩層巢狀迴圈。外層迴圈執行 N-1 次，內層迴圈在最壞情況下也執行約 N 次。總比較次數約為 N * N，因此時間複雜度為 O(N^2)。" },
+                { topic: "函式與作用域", question: "以下程式碼片段的輸出結果為何？", code: `#include <stdio.h>\nint main() {\n    int a = 10;\n    if (1) {\n        int a = 20;\n        printf("%d ", a);\n    }\n    printf("%d\n", a);\n    return 0;\n}`, options: ["10 10", "20 10", "20 20", "10 20"], answer: 1, explanation: "在 `if` 區塊內，`int a = 20;` 宣告了一個新的、只在該區塊內有效的區域變數 `a`，它遮蔽了外層的 `a`。因此區塊內印出 20。離開 `if` 區塊後，這個區域變數被銷毀，`printf` 存取的是外層的 `a`，其值仍為 10。" },
+                { topic: "基礎資料結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nstruct Point { int x, y; };\nint main() {\n    struct Point p1 = {3, 4};\n    struct Point *p2 = &p1;\n    p2->x = 5;\n    printf("%d\n", p1.x);\n    return 0;\n}`, options: ["3", "4", "5", "未定義"], answer: 2, explanation: "指標 `p2` 儲存了結構體 `p1` 的記憶體位址。`p2->x = 5;` 是透過指標修改其指向的結構體成員 `x` 的值。因為 `p2` 指向 `p1`，所以 `p1.x` 的值也被改成了 5。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int a = 7, b = 2;\n    printf("%d %d\n", a / b, a % b);\n    return 0;\n}`, options: ["3.5 1", "3 1", "3.0 1", "4 1"], answer: 1, explanation: "在C語言中，`a / b` 當 `a` 和 `b` 都是整數時，執行整數除法，`7 / 2` 結果為 3。`a % b` 是取餘數運算，`7 % 2` 結果為 1。" },
+                { topic: "遞迴", question: "以下遞迴函式 `func` 的功能為何？", code: `int func(int n) {\n    if (n < 10) return n;\n    return func(n / 10) + n % 10;\n}`, options: ["計算 n 的位數", "計算 n 的所有位數總和", "反轉 n 的位數", "計算 n 的階乘"], answer: 1, explanation: "此函式遞迴地將數字 `n` 分解。`n % 10` 取出個位數，`n / 10` 去掉個位數。函式將每一位的數字累加起來，因此功能是計算 n 的所有位數總和。例如 `func(123) = func(12) + 3 = (func(1) + 2) + 3 = 1 + 2 + 3 = 6`。" },
+                { topic: "控制結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int a = 10, b = 20;\n    if (a > 5 || b++ > 10) {\n        printf("OK\n");\n    }\n    printf("%d\n", b);\n    return 0;\n}`, options: ["OK\n20", "OK\n21", "20", "21"], answer: 0, explanation: "此題測驗邏輯運算子 `||` (OR) 的「短路求值」特性。當 `||` 左邊的表達式 `a > 5` 為真時，整個 `||` 表達式的結果就已經確定為真，因此右邊的表達式 `b++ > 10` 將不會被執行。所以 `b` 的值保持為 20。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，陣列 `arr` 的內容為何？", code: `#include <stdio.h>\nvoid func(int arr[]) {\n    int temp = arr[0];\n    arr[0] = arr[1];\n    arr[1] = temp;\n}\nint main() {\n    int arr[] = {10, 20};\n    func(arr);\n    printf("%d %d\n", arr[0], arr[1]);\n    return 0;\n}`, options: ["10 20", "20 10", "10 10", "20 20"], answer: 1, explanation: "陣列傳遞給函式是傳址。函式 `func` 的功能是交換陣列的前兩個元素。因此 `arr` 的內容從 `{10, 20}` 變成了 `{20, 10}`。" },
+                { topic: "基礎演算法", question: "以下程式碼片段是氣泡排序法的一部分，在第一輪外層迴圈 (`i=0`) 結束後，陣列 `arr` 的內容為何？", code: `int arr[] = {5, 1, 4, 2, 8};`, options: ["{1, 5, 4, 2, 8}", "{1, 4, 2, 5, 8}", "{1, 2, 4, 5, 8}", "{5, 1, 4, 2, 8}"], answer: 1, explanation: "氣泡排序的第一輪會將最大的元素「冒泡」到陣列的末尾。追蹤第一輪：\n初始: {5, 1, 4, 2, 8}\n比較 5, 1 -> 交換: {1, 5, 4, 2, 8}\n比較 5, 4 -> 交換: {1, 4, 5, 2, 8}\n比較 5, 2 -> 交換: {1, 4, 2, 5, 8}\n比較 5, 8 -> 不交換: {1, 4, 2, 5, 8}\n第一輪結束後，最大的元素 8 已經在正確的位置，但陣列尚未完全排序。" },
+                { topic: "函式與作用域", question: "以下程式碼片段的輸出結果為何？", code: `#include <stdio.h>\nint a = 1;\nvoid func(int a) {\n    a = a + 1;\n}\nint main() {\n    func(a);\n    printf("%d\n", a);\n    return 0;\n}`, options: ["1", "2", "編譯錯誤", "未定義"], answer: 0, explanation: "函式 `func` 的參數 `a` 是一個區域變數，它遮蔽了同名的全域變數。`func(a)` 是傳值呼叫，將全域 `a` 的值 (1) 複製給區域變數 `a`。函式內部對區域變數 `a` 的修改 `a = a + 1` 不會影響到全域變數 `a`。因此 `main` 函式中印出的 `a` 仍然是 1。" },
+                { topic: "遞迴", question: "執行 `func(4)` 後，回傳值為何？", code: `int func(int n) {\n    if (n < 2) return n;\n    return func(n - 1) + func(n - 2);\n}`, options: ["1", "2", "3", "4"], answer: 2, explanation: "這是費波那契數列的遞迴實現。\nfunc(4) = func(3) + func(2)\nfunc(3) = func(2) + func(1) = func(2) + 1\nfunc(2) = func(1) + func(0) = 1 + 0 = 1\n回代：func(3) = 1 + 1 = 2, func(4) = 2 + 1 = 3。" },
+                { topic: "基礎資料結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int queue[5];\n    int front = 0, rear = 0;\n    queue[rear++] = 10; // Enqueue 10\n    queue[rear++] = 20; // Enqueue 20\n    printf("%d ", queue[front++]); // Dequeue\n    queue[rear++] = 30; // Enqueue 30\n    printf("%d\n", queue[front++]); // Dequeue\n    return 0;\n}`, options: ["10 20", "20 10", "10 30", "20 30"], answer: 0, explanation: "此程式碼用陣列模擬佇列。\n1. Enqueue 10: queue={10,...}, rear=1\n2. Enqueue 20: queue={10, 20,...}, rear=2\n3. Dequeue: 印出 queue[0] (10), front 變為 1\n4. Enqueue 30: queue={10, 20, 30,...}, rear=3\n5. Dequeue: 印出 queue[1] (20), front 變為 2\n最終輸出 10 20。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，變數 `result` 的值為何？", code: `#include <stdio.h>\nint main() {\n    int a = 5, b = 3;\n    double c = 5.0;\n    int result = (a + c) / b;\n    printf("%d\n", result);\n    return 0;\n}`, options: ["3", "3.3", "4", "編譯錯誤"], answer: 0, explanation: "在運算式 `(a + c)` 中，整數 `a` (5) 會被自動提升為 `double` 型別與 `c` (5.0) 相加，結果為 `10.0`。接著 `10.0 / b` (3) 進行浮點數除法，結果為 `3.333...`。最後，將這個浮點數結果賦值給整數變數 `result` 時，小數部分會被無條件截斷，因此 `result` 的值為 `3`。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\n#include <string.h>\nint main() {\n    char str[] = "hello";\n    char *p = str;\n    *p = 'H';\n    printf("%s\n", str);\n    return 0;\n}`, options: ["hello", "Hello", "h", "H"], answer: 1, explanation: "指標 `p` 指向字串 `str` 的第一個字元。`*p = 'H'` 等同於 `str[0] = 'H'`，直接修改了原始字串的內容。因此，`str` 的內容變成了 \"Hello\"." },
+                { topic: "遞迴", question: "執行 `func(\"abc\")` 後，輸出為何？", code: `#include <stdio.h>\nvoid func(char *s) {\n    if (*s == '\0') return;\n    printf("%c", *s);\n    func(s + 1);\n    printf("%c", *s);\n}\nint main() {\n    func("abc");\n    printf("\n");\n    return 0;\n}`, options: ["abc", "abccba", "abcba", "aabbcc"], answer: 1, explanation: "追蹤執行：\nfunc(\"abc\") -> 印 'a', func(\"bc\")\n  func(\"bc\") -> 印 'b', func(\"c\")\n    func(\"c\") -> 印 'c', func(\"\")\n      func(\"\") -> return\n    func(\"c\") -> 印 'c'\n  func(\"bc\") -> 印 'b'\nfunc(\"abc\") -> 印 'a'\n組合起來是 abccba。" },
+                { topic: "控制結構", question: "下列程式碼片段的輸出結果為何？", code: `#include <stdio.h>\nint main() {\n    int i = 5;\n    do {\n        printf("%d ", i);\n        i--;\n    } while (i > 5);\n    printf("\n");\n    return 0;\n}`, options: ["5", "5 4 3 2 1", "沒有輸出", "無限迴圈"], answer: 0, explanation: "`do-while` 迴圈的特性是先執行一次迴圈主體，然後才檢查條件。程式會先印出 `i` 的初始值 5，然後 `i` 變成 4。此時檢查條件 `i > 5` (4 > 5) 為假，迴圈終止。因此只輸出 5。" },
+                { topic: "基礎演算法", question: "對於一個已排序的陣列 `arr = {10, 20, 30, 40, 50}`，使用二分搜尋法尋找 `35`，最後 `low` 和 `high` 指標的關係會是什麼？", code: null, options: ["low == high", "low < high", "low > high", "low == -1"], answer: 2, explanation: "追蹤二分搜尋：\n1. low=0, high=4, mid=2 (arr[2]=30)。30<35, low=3。\n2. low=3, high=4, mid=3 (arr[3]=40)。40>35, high=2。\n此時 `low` (3) 大於 `high` (2)，迴圈終止，表示找不到元素。" },
+                { topic: "陣列與串列", question: "以下程式碼片段的輸出為何？", code: `#include <stdio.h>\nint main() {\n    int arr[3][2] = {{1, 2}, {3, 4}, {5, 6}};\n    printf("%d\n", arr[2][0]);\n    return 0;\n}`, options: ["2", "4", "5", "6"], answer: 2, explanation: "當使用巢狀列表初始化二維陣列時，元素會依序填入。`arr[2]` 是 `{5, 6}`。因此，`arr[2][0]` 是 `arr` 第三列的第一個元素，即 5。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint func(int n) {\n    static int sum = 0;\n    sum += n;\n    return sum;\n}\nint main() {\n    func(1);\n    func(2);\n    printf("%d\n", func(3));\n    return 0;\n}`, options: ["3", "6", "5", "1"], answer: 1, explanation: "靜態區域變數 `sum` 只會被初始化一次為 0，並在函式呼叫之間保持其值。\n1. `func(1)`: sum = 0 + 1 = 1。回傳 1 (但未使用)。\n2. `func(2)`: sum = 1 + 2 = 3。回傳 3 (但未使用)。\n3. `func(3)`: sum = 3 + 3 = 6。回傳 6，並被 `printf` 印出。" },
+                { topic: "基礎資料結構", question: "執行以下程式碼後，輸出為何？", code: `#include <stdio.h>\nint main() {\n    int stack[5];\n    int top = -1;\n    stack[++top] = 1; // push 1\n    stack[++top] = 2; // push 2\n    stack[++top] = 3; // push 3\n    printf("%d ", stack[top--]); // pop and print\n    printf("%d\n", stack[top]); // peek\n    return 0;\n}`, options: ["3 3", "3 2", "2 1", "3 1"], answer: 1, explanation: "1. push 1, 2, 3 後，堆疊為 {1, 2, 3}，`top` 指向 3 (索引為2)。\n2. `printf(\"%d \", stack[top--])`: 後置遞減，先使用 `top` 的當前值 (2) 存取 `stack[2]` (值為3) 並印出，然後 `top` 才減為 1。\n3. `printf(\"%d\n\", stack[top])`: 此時 `top` 為 1，印出 `stack[1]` 的值，即 2。\n最終輸出 3 2。" },
+                { topic: "遞迴", question: "下列計算階乘的遞迴函式有什麼問題？", code: `int factorial_bug(int n) {\n    return n * factorial_bug(n - 1);\n}`, options: ["函式名稱不合法", "乘法運算錯誤", "缺少終止條件（base case）", "參數 `n` 應該是浮點數"], answer: 2, explanation: "一個遞迴函式必須有一個或多個「終止條件」（Base Case），即不再進行遞迴呼叫而直接回傳結果的條件。這個函式沒有任何終止條件，它會無限地呼叫自己 (`n-1`, `n-2`,...)，直到耗盡記憶體導致堆疊溢位（Stack Overflow）錯誤。" }
+            ],
+            python: [
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，變數 `c` 的值為何？", code: "a = 10\nb = 4\nc = a / b\nprint(c)", options: ["2.0", "2.5", "2", "程式會發生錯誤"], answer: 1, explanation: "在Python 3中，`/` 運算子執行的是「浮點數除法」（真除法）。`10 / 4` 的結果是 `2.5`。" },
+                { topic: "控制結構", question: "執行以下程式碼後，輸出為何？", code: "i = 0\nsum_val = 0\nwhile i < 10:\n    i += 1\n    if i % 2 == 0:\n        continue\n    sum_val += i\nprint(sum_val)", options: ["20", "25", "30", "55"], answer: 1, explanation: "迴圈計算1到10之間所有奇數的和。`i` 的值會是 1, 2,..., 10。當 `i` 是偶數時，`continue` 會跳過 `sum_val += i`。因此，`sum_val` 累加了 1 + 3 + 5 + 7 + 9，結果為 25。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，輸出為何？", code: "arr = [10, 20, 30, 40, 50]\nsub_arr = arr[1:4]\nprint(sub_arr[1])", options: ["20", "30", "40", "索引錯誤"], answer: 1, explanation: "串列切片 `arr[1:4]` 會產生一個新的串列，包含 `arr` 從索引 1 到索引 3 的元素，即 `[20, 30, 40]`。接著 `sub_arr[1]` 存取這個新串列的索引 1 的元素，即 30。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: "def func(a_list):\n    a_list[0] = 99\n\nmy_list = [5, 10, 15]\nfunc(my_list)\nprint(my_list[0])", options: ["5", "10", "15", "99"], answer: 3, explanation: "在Python中，串列 (list) 是可變物件。當將 `my_list` 傳遞給函式時，函式內的 `a_list` 和外部的 `my_list` 都指向同一個串列物件。因此，在函式內部修改串列的內容會影響到原始串列。" },
+                { topic: "遞迴", question: "執行 `func(3)` 後，回傳值為何？", code: "def func(n):\n    if n <= 1:\n        return 1\n    return n + func(n - 1)", options: ["3", "4", "5", "6"], answer: 3, explanation: "遞迴追蹤：\nfunc(3) = 3 + func(2)\nfunc(2) = 2 + func(1)\nfunc(1) = 1 (基本情況)\n回代：func(2) = 2 + 1 = 3, func(3) = 3 + 3 = 6。" },
+                { topic: "基礎資料結構", question: "一個空的堆疊（Stack）經過 `push(A)`, `push(B)`, `pop()` 操作後，堆疊頂端的元素為何？", code: null, options: ["A", "B", "C", "堆疊是空的"], answer: 0, explanation: "堆疊是後進先出（LIFO）。\n1. `push(A)`: [A]\n2. `push(B)`: [A, B] (B在頂)\n3. `pop()`: 彈出 B，堆疊為 [A]\n最終堆疊頂端是 A。" },
+                { topic: "基礎演算法", question: "對於一個有 `N` 個元素的串列，線性搜尋法在最壞情況下需要比較幾次？", code: null, options: ["1 次", "log N 次", "N 次", "N^2 次"], answer: 2, explanation: "線性搜尋法是從頭到尾逐一比較。在最壞的情況下（例如元素在最後一個位置，或元素不存在），需要比較完所有 N 個元素才能得出結論。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，變數 `result` 的值為何？", code: "x = 2\ny = 3\nz = 4\nresult = x + y * z\nprint(result)", options: ["9", "14", "20", "24"], answer: 1, explanation: "根據運算子優先序，乘法 `*` 的優先級高於加法 `+`。所以先計算 `y * z` (3 * 4 = 12)，然後再計算 `x + 12` (2 + 12 = 14)。" },
+                { topic: "控制結構", question: "執行以下程式碼後，總共會印出多少個 `#` 符號？", code: "for i in range(4):\n    print(\"#\", end=\"\")", options: ["3", "4", "5", "0"], answer: 1, explanation: "`range(4)` 會產生 0, 1, 2, 3 的序列，迴圈共執行 4 次。因此會印出 4 個 `#` 符號。" },
+                { topic: "遞迴", question: "執行 `func(4)` 後，回傳值為何？", code: "def func(n):\n    if n <= 1:\n        return n\n    return func(n - 1) + func(n - 2)", options: ["2", "3", "4", "5"], answer: 1, explanation: "這是費波那契數列的遞迴實現。\nfunc(4) = func(3) + func(2)\nfunc(3) = func(2) + func(1) = func(2) + 1\nfunc(2) = func(1) + func(0) = 1 + 0 = 1\n回代：func(3) = 1 + 1 = 2, func(4) = 2 + 1 = 3。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，輸出為何？", code: "matrix = [[1, 2], [8, 7]]\nprint(matrix[0][1])", options: ["1", "2", "8", "7"], answer: 1, explanation: "二維串列 `matrix[0]` 存取的是第 0 列（第一列） `[1, 2]`。 `matrix[0][1]` 存取這一列的第 1 行（第二行）的元素，其值為 2。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: "def func(a_list):\n    a_list = [7, 2, 8] # Re-assignment\n\nmy_list = [4, 3, 1]\nfunc(my_list)\nprint(my_list)", options: ["[4, 3, 1]", "[7, 2, 8]", "None", "語法錯誤"], answer: 0, explanation: "在函式內部，`a_list = [7, 2, 8]` 這行程式碼是將區域變數 `a_list` 重新指向一個全新的串列物件。它並沒有修改傳入的原始串列 `my_list`。因此 `my_list` 的內容保持不變。" },
+                { topic: "基礎資料結構", question: "一個空的佇列（Queue）經過 `enqueue(A)`, `enqueue(B)`, `dequeue()` 操作後，佇列前端的元素為何？", code: null, options: ["A", "B", "C", "佇列是空的"], answer: 1, explanation: "佇列是先進先出（FIFO）。\n1. `enqueue(A)`: [A]\n2. `enqueue(B)`: [A, B]\n3. `dequeue()`: 移除 A，佇列為 [B]\n最終佇列前端是 B。" },
+                { topic: "基礎演算法", question: "以下程式碼片段最符合哪種排序演算法的核心邏輯？", code: "for i in range(len(a_list) - 1):\n    min_idx = i\n    for j in range(i + 1, len(a_list)):\n        if a_list[j] < a_list[min_idx]:\n            min_idx = j\n    a_list[i], a_list[min_idx] = a_list[min_idx], a_list[i]", options: ["選擇排序", "插入排序", "氣泡排序", "合併排序"], answer: 0, explanation: "此程式碼的邏輯是：外層迴圈遍歷串列，內層迴圈在未排序的部分中尋找最小元素的索引 (`min_idx`)，然後將找到的最小元素與未排序部分的開頭交換。這是選擇排序的典型實現。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，輸出為何？", code: "a = 5\na = a + 1\na += 1\nprint(a)", options: ["5", "6", "7", "8"], answer: 2, explanation: "1. `a` 初始化為 5。\n2. `a = a + 1` 使 `a` 變成 6。\n3. `a += 1` (加法賦值) 使 `a` 變成 7。\n最終 `print` 印出 7。" },
+                { topic: "遞迴", question: "在以下的遞迴函式 `power` 中，哪一行是「遞迴步驟」（Recursive Step）？", code: "def power(base, exp):\n    if exp == 0: # line 1\n        return 1 # line 2\n    else:\n        return base * power(base, exp - 1) # line 4", options: ["line 1", "line 2", "line 4", "沒有遞迴步驟"], answer: 2, explanation: "遞迴步驟是指函式呼叫自己的那一行程式碼，並且通常會使問題的規模變小，以趨近終止條件。`return base * power(base, exp - 1)` 呼叫了 `power` 函式自身，並且參數 `exp` 變小了，因此 line 4 是遞迴步驟。" },
+                { topic: "控制結構", question: "執行以下程式碼後，變數 `count` 的值為何？", code: "n = 10\ncount = 0\nwhile n > 1:\n    n = n - 3\n    count += 1\nprint(count)", options: ["2", "3", "4", "5"], answer: 2, explanation: "迴圈追蹤：\n1. n=10, count=0. 10>1, n=7, count=1.\n2. n=7, count=1. 7>1, n=4, count=2.\n3. n=4, count=2. 4>1, n=1, count=3.\n4. n=1, count=3. 1>1 為假，迴圈結束。最終 count 為 3。" },
+                { topic: "陣列與串列", question: "以下函式 `sum_list` 的功能為何？", code: "def sum_list(a_list):\n    total = 0\n    for item in a_list:\n        total += item\n    return total", options: ["找尋串列中的最小值", "找尋串列中的最大值", "計算串列元素的總和", "計算串列元素的平均值"], answer: 2, explanation: "函式初始化 `total` 為 0，然後遍歷串列中的每一個元素，並將其值累加到 `total` 中。最後回傳 `total`。這個過程是計算串列所有元素的總和。" },
+                { topic: "基礎演算法", question: "對於一個已排序的串列，使用二分搜尋法比線性搜尋法更快的主要原因是什麼？", code: null, options: ["二分搜尋的程式碼更短", "二分搜尋每次比較都能排除一半的元素", "線性搜尋需要更多的記憶體", "二分搜尋不需要迴圈"], answer: 1, explanation: "二分搜尋法的高效率來自其「分治」策略。每次將中間元素與目標值比較後，無論結果如何，都可以確定地排除掉一半不可能包含目標的元素，從而迅速縮小搜尋範圍。" },
+                { topic: "函式與作用域", question: "以下程式碼片段的輸出結果為何？", code: "a = 10\ndef func():\n    a = 20\n    print(a, end=\" \")\n\nfunc()\nprint(a)", options: ["10 10", "20 10", "20 20", "10 20"], answer: 1, explanation: "在 `func` 函式內部，`a = 20` 建立了一個新的區域變數 `a`，它與函式外的全域變數 `a` 是不同的。因此 `func` 內部印出的 `a` 是 20。函式執行完畢後，回到主程式，`print(a)` 存取的是全域變數 `a`，其值從未改變，仍然是 10。" },
+                { topic: "基礎資料結構", question: "執行以下程式碼後，輸出為何？", code: "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\np1 = Point(3, 4)\np2 = p1\np2.x = 5\nprint(p1.x)", options: ["3", "4", "5", "未定義"], answer: 2, explanation: "在Python中，物件賦值 (`p2 = p1`) 是「參考賦值」。`p1` 和 `p2` 這兩個變數名稱都指向記憶體中同一個 `Point` 物件。因此，透過 `p2.x` 修改物件的屬性，也會影響到透過 `p1.x` 存取到的值。所以 `p1.x` 會變成 5。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，輸出為何？", code: "a = 7\nb = 2\nprint(a // b, a % b)", options: ["3.5 1", "3 1", "3.0 1", "4 1"], answer: 1, explanation: "在Python中，`//` 是整數除法運算子，`7 // 2` 結果為 3。`%` 是取餘數運算子，`7 % 2` 結果為 1。" },
+                { topic: "遞迴", question: "以下遞迴函式 `func` 的功能為何？", code: "def func(n):\n    if n < 10:\n        return n\n    return func(n // 10) + n % 10", options: ["計算 n 的位數", "計算 n 的所有位數總和", "反轉 n 的位數", "計算 n 的階乘"], answer: 1, explanation: "此函式遞迴地將數字 `n` 分解。`n % 10` 取出個位數，`n // 10` 去掉個位數。函式將每一位的數字累加起來，因此功能是計算 n 的所有位數總和。例如 `func(123) = func(12) + 3 = (func(1) + 2) + 3 = 1 + 2 + 3 = 6`。" },
+                { topic: "控制結構", question: "執行以下程式碼後，輸出為何？", code: "a = 10\nb = 20\nif a > 5 or b > 10:\n    b += 1\n    print(\"OK\")\nprint(b)", options: ["OK\n20", "OK\n21", "20", "21"], answer: 1, explanation: "此題測驗邏輯運算子 `or` 的「短路求值」特性。當 `or` 左邊的表達式 `a > 5` 為真時，整個 `if` 條件就已經確定為真，程式會直接進入 `if` 區塊執行，`b += 1` 使得 `b` 變成 21，並印出 \"OK\". 最後再印出 `b` 的最終值 21。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，串列 `arr` 的內容為何？", code: "def func(a_list):\n    a_list[0], a_list[1] = a_list[1], a_list[0]\n\narr = [5, 9]\nfunc(arr)\nprint(arr)", options: ["[5, 9]", "[9, 5]", "[10, 10]", "[20, 20]"], answer: 1, explanation: "串列是可變物件，傳遞給函式是傳參考。函式 `func` 使用元組賦值來交換串列的前兩個元素。因此 `arr` 的內容從 `[5, 9]` 變成了 `[9, 5]`。" },
+                { topic: "基礎演算法", question: "以下程式碼片段是氣泡排序法的一部分，在第一輪外層迴圈 (`i=0`) 結束後，串列 `a_list` 的內容為何？", code: "a_list = [5, 1, 4, 2, 8]", options: ["[1, 5, 4, 2, 8]", "[1, 4, 2, 5, 8]", "[1, 2, 4, 5, 8]", "[5, 1, 4, 2, 8]"], answer: 1, explanation: "氣泡排序的第一輪會將最大的元素「冒泡」到串列的末尾。追蹤第一輪：\n初始: [5, 1, 4, 2, 8]\n比較 5, 1 -> 交換: [1, 5, 4, 2, 8]\n比較 5, 4 -> 交換: [1, 4, 5, 2, 8]\n比較 5, 2 -> 交換: [1, 4, 2, 5, 8]\n比較 5, 8 -> 不交換: [1, 4, 2, 5, 8]\n第一輪結束後，最大的元素 8 已經在正確的位置，但串列尚未完全排序。" },
+                { topic: "函式與作用域", question: "以下程式碼片段的輸出結果為何？", code: "a = 1\ndef func(val):\n    val = val + 1\n\nfunc(a)\nprint(a)", options: ["1", "2", "語法錯誤", "None"], answer: 0, explanation: "整數 (int) 是不可變物件。`func(a)` 是傳值呼叫，將 `a` 的值 (1) 複製給區域變數 `val`。函式內部對 `val` 的修改 `val = val + 1` 不會影響到全域變數 `a`。因此 `main` 函式中印出的 `a` 仍然是 1。" },
+                { topic: "遞迴", question: "執行 `func(4)` 後，回傳值為何？", code: "def func(n):\n    if n < 2: return n\n    return func(n - 1) + func(n - 2)", options: ["1", "2", "3", "4"], answer: 2, explanation: "這是費波那契數列的遞迴實現。\nfunc(4) = func(3) + func(2)\nfunc(3) = func(2) + func(1) = func(2) + 1\nfunc(2) = func(1) + func(0) = 1 + 0 = 1\n回代：func(3) = 1 + 1 = 2, func(4) = 2 + 1 = 3。" },
+                { topic: "基礎資料結構", question: "執行以下程式碼後，輸出為何？", code: "from collections import deque\nqueue = deque()\nqueue.append(10) # Enqueue 10\nqueue.append(20) # Enqueue 20\nprint(queue.popleft(), end=\" \") # Dequeue\nqueue.append(30) # Enqueue 30\nprint(queue.popleft(), end=\"\") # Dequeue", options: ["10 20", "20 10", "10 30", "20 30"], answer: 0, explanation: "`deque` 用於實現佇列。\n1. Enqueue 10: queue=deque([10])\n2. Enqueue 20: queue=deque([10, 20])\n3. Dequeue: `popleft()` 移除並回傳最左邊的元素 10，印出 10。\n4. Enqueue 30: queue=deque([20, 30])\n5. Dequeue: `popleft()` 移除並回傳最左邊的元素 20，印出 20。\n最終輸出 10 20。" },
+                { topic: "資料型態與表達式", question: "執行以下程式碼後，變數 `result` 的值為何？", code: "a = 5\nb = 3\nc = 5.0\nresult = (a + c) / b\nprint(int(result))", options: ["3", "3.3", "4", "程式會發生錯誤"], answer: 0, explanation: "在運算式 `(a + c)` 中，整數 `a` (5) 與浮點數 `c` (5.0) 相加，結果為浮點數 `10.0`。接著 `10.0 / b` (3) 進行浮點數除法，結果為 `3.333...`。最後，`int(result)` 會將這個浮點數轉換為整數，無條件捨去小數部分，因此印出的值為 `3`。" },
+                { topic: "陣列與串列", question: "執行以下程式碼後，輸出為何？", code: "s = \"hello\"\ns_list = list(s)\ns_list[0] = 'H'\ns = \"\".join(s_list)\nprint(s)", options: ["hello", "Hello", "h", "H"], answer: 1, explanation: "Python 的字串是不可變的，不能直接修改。但可以將其轉換為可變的串列，修改串列的內容，然後再將串列合併回字串。`s_list[0] = 'H'` 修改了串列的第一個元素，`\"\".join(s_list)` 將 `['H', 'e', 'l', 'l', 'o']` 重新組合成字串 \"Hello\"." },
+                { topic: "遞迴", question: "執行 `func(\"abc\")` 後，輸出為何？", code: "def func(s):\n    if not s:\n        return\n    print(s[0], end=\"\")\n    func(s[1:])\n    print(s[0], end=\"\")\n\nfunc(\"abc\")", options: ["abc", "abccba", "abcba", "aabbcc"], answer: 1, explanation: "追蹤執行：\nfunc(\"abc\") -> 印 'a', func(\"bc\")\n  func(\"bc\") -> 印 'b', func(\"c\")\n    func(\"c\") -> 印 'c', func(\"\")\n      func(\"\") -> return\n    func(\"c\") -> 印 'c'\n  func(\"bc\") -> 印 'b'\nfunc(\"abc\") -> 印 'a'\n組合起來是 abccba。" },
+                { topic: "控制結構", question: "下列程式碼片段的輸出結果為何？", code: "i = 5\nwhile True:\n    print(i, end=\" \")\n    i -= 1\n    if not (i > 5):\n        break", options: ["5", "5 4 3 2 1", "沒有輸出", "無限迴圈"], answer: 0, explanation: "這是在Python中模擬 `do-while` 迴圈。迴圈主體會先執行一次。程式印出 `i` 的初始值 5，然後 `i` 變成 4。此時檢查條件 `not (i > 5)` (not (4 > 5)) 為真，執行 `break`，迴圈終止。因此只輸出 5。" },
+                { topic: "基礎演算法", question: "對於一個已排序的串列 `arr = [10, 20, 30, 40, 50]`，使用二分搜尋法尋找 `35`，最後 `low` 和 `high` 指標的關係會是什麼？", code: null, options: ["low == high", "low < high", "low > high", "low == -1"], answer: 2, explanation: "追蹤二分搜尋：\n1. low=0, high=4, mid=2 (arr[2]=30)。30<35, low=3。\n2. low=3, high=4, mid=3 (arr[3]=40)。40>35, high=2。\n此時 `low` (3) 大於 `high` (2)，迴圈終止，表示找不到元素。" },
+                { topic: "陣列與串列", question: "以下程式碼片段的輸出為何？", code: "arr = [[1, 2, 3], [4, 5, 6]]\nprint(arr[1][1])", options: ["2", "4", "5", "6"], answer: 2, explanation: "`arr` 是一個二維串列（串列的串列）。`arr[1]` 存取的是第二個子串列 `[4, 5, 6]`。接著 `arr[1][1]` 存取這個子串列的第二個元素，即 5。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: "def func(n):\n    if not hasattr(func, 'sum'):\n        func.sum = 0\n    func.sum += n\n    return func.sum\n\nfunc(1)\nfunc(2)\nprint(func(3))", options: ["3", "6", "5", "1"], answer: 1, explanation: "使用函式屬性來模擬靜態變數。`func.sum` 只會被初始化一次為 0，並在函式呼叫之間保持其值。\n1. `func(1)`: sum = 0 + 1 = 1。回傳 1 (但未使用)。\n2. `func(2)`: sum = 1 + 2 = 3。回傳 3 (但未使用)。\n3. `func(3)`: sum = 3 + 3 = 6。回傳 6，並被 `print` 印出。" },
+                { topic: "基礎資料結構", question: "執行以下程式碼後，輸出為何？", code: "stack = []\nstack.append(1) # push 1\nstack.append(2) # push 2\nstack.append(3) # push 3\nprint(stack.pop(), end=\" \") # pop and print\nprint(stack[-1]) # peek", options: ["3 3", "3 2", "2 1", "3 1"], answer: 1, explanation: "1. push 1, 2, 3 後，串列為 `[1, 2, 3]`。\n2. `stack.pop()` 移除並回傳最後一個元素 (3)，並印出。\n3. 此時串列為 `[1, 2]`。`stack[-1]` 存取最後一個元素 (peek)，即 2，並印出。\n最終輸出 3 2。" },
+                { topic: "遞迴", question: "下列計算階乘的遞迴函式有什麼問題？", code: "def factorial_bug(n):\n    return n * factorial_bug(n - 1)", options: ["函式名稱不合法", "乘法運算錯誤", "缺少終止條件（base case）", "參數 `n` 應該是浮點數"], answer: 2, explanation: "一個遞迴函式必須有一個或多個「終止條件」（Base Case），即不再進行遞迴呼叫而直接回傳結果的條件。這個函式沒有任何終止條件，它會無限地呼叫自己 (`n-1`, `n-2`,...)，直到耗盡記憶體導致堆疊溢位（Stack Overflow）錯誤。" },
+                { topic: "函式與作用域", question: "執行以下程式碼後，輸出為何？", code: "def modify(data):\n    data = [5, 9]\n\nmy_list = [4, 3]\nmodify(my_list)\nprint(my_list)", options: ["[4, 3]", "[5, 9]", "None", "語法錯誤"], answer: 0, explanation: "在函式 `modify` 內部，`data = [5, 9]` 是將區域變數 `data` 重新指向一個全新的串列物件。這個操作不會影響到函式外部傳入的 `my_list`。因此 `my_list` 的值保持不變。" }
+            ]
+        };
+        
+        const topics = [
+            "資料型態與表達式", "控制結構", "陣列與串列", "函式與作用域", 
+            "遞迴", "基礎資料結構", "基礎演算法"
+        ];
+        
+        const correctAnswersKey = {
+            c: [0, 1, 2, 3, 3, 0, 1, 0, 1, 0, 0, 1, 1, 1, 3, 1, 1, 0, 3, 1, 2, 1, 1, 0, 1, 1, 0, 2, 0, 0, 1, 1, 0, 2, 2, 1, 1, 2],
+            python: [1, 1, 1, 3, 3, 0, 2, 1, 1, 1, 1, 0, 1, 0, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 0, 2, 0, 0, 1, 1, 0, 2, 2, 1, 1, 2, 0]
+        };
+
+        let currentLanguage = '';
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let scoreChart = null;
+        let topicChart = null;
+
+        const welcomeView = document.getElementById('welcome-view');
+        const quizView = document.getElementById('quiz-view');
+        const resultsView = document.getElementById('results-view');
+        const overviewView = document.getElementById('overview-view');
+        
+        const startCBtn = document.getElementById('start-c');
+        const startPythonBtn = document.getElementById('start-python');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const previousQuestionBtn = document.getElementById('previous-question');
+        const overviewBtn = document.getElementById('overview-btn');
+        const submitQuizBtn = document.getElementById('submit-quiz-btn');
+
+        startCBtn.addEventListener('click', () => startQuiz('c'));
+        startPythonBtn.addEventListener('click', () => startQuiz('python'));
+        nextQuestionBtn.addEventListener('click', goToNextQuestion);
+        previousQuestionBtn.addEventListener('click', goToPreviousQuestion);
+        overviewBtn.addEventListener('click', showOverview);
+        submitQuizBtn.addEventListener('click', showResults);
+
+        function startQuiz(language) {
+            currentLanguage = language;
+            currentQuestionIndex = 0;
+            userAnswers = new Array(quizData[currentLanguage].length).fill(undefined);
+            welcomeView.classList.add('hidden');
+            quizView.classList.remove('hidden');
+            resultsView.classList.add('hidden');
+            overviewView.classList.add('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const totalQuestions = quizData[currentLanguage].length;
+            const questionData = quizData[currentLanguage][currentQuestionIndex];
+            
+            document.getElementById('question-counter').textContent = `問題 ${currentQuestionIndex + 1} / ${totalQuestions}`;
+            const langIndicator = document.getElementById('language-indicator');
+            if (currentLanguage === 'c') {
+                langIndicator.textContent = 'C 語言';
+                langIndicator.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800';
+            } else {
+                langIndicator.textContent = 'Python';
+                langIndicator.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800';
+            }
+
+            document.getElementById('question-text').textContent = questionData.question;
+            const codeContainer = document.getElementById('code-container');
+            if (questionData.code) {
+                codeContainer.textContent = questionData.code;
+                codeContainer.classList.remove('hidden');
+            } else {
+                codeContainer.classList.add('hidden');
+            }
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            questionData.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn border-2 border-slate-300 p-4 rounded-lg text-left hover:bg-slate-100';
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionBtn.classList.add('selected');
+                }
+                optionBtn.textContent = `(${String.fromCharCode(65 + index)}) ${option.replace(/`/g, '')}`;
+                optionBtn.addEventListener('click', () => selectAnswer(index, optionBtn));
+                optionsContainer.appendChild(optionBtn);
+            });
+
+            previousQuestionBtn.disabled = currentQuestionIndex === 0;
+            nextQuestionBtn.disabled = currentQuestionIndex === totalQuestions - 1;
+        }
+
+        function selectAnswer(selectedIndex, selectedBtn) {
+            userAnswers[currentQuestionIndex] = selectedIndex;
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(btn => btn.classList.remove('selected'));
+            selectedBtn.classList.add('selected');
+        }
+
+        function goToNextQuestion() {
+            if (currentQuestionIndex < quizData[currentLanguage].length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function showOverview() {
+            quizView.classList.add('hidden');
+            overviewView.classList.remove('hidden');
+            const grid = document.getElementById('overview-grid');
+            grid.innerHTML = '';
+            quizData[currentLanguage].forEach((_, i) => {
+                const qBtn = document.createElement('button');
+                qBtn.textContent = i + 1;
+                const isAnswered = userAnswers[i] !== undefined;
+                qBtn.className = `p-2 rounded-lg border-2 ${isAnswered? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-200 text-slate-700 border-slate-300'}`;
+                qBtn.addEventListener('click', () => goToQuestion(i));
+                grid.appendChild(qBtn);
+            });
+        }
+
+        function goToQuestion(index) {
+            currentQuestionIndex = index;
+            overviewView.classList.add('hidden');
+            quizView.classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function showResults() {
+            overviewView.classList.add('hidden');
+            resultsView.classList.remove('hidden');
+            
+            const correctKey = correctAnswersKey[currentLanguage];
+            const totalQuestions = quizData[currentLanguage].length;
+            let score = 0;
+            const topicScores = {};
+            topics.forEach(t => topicScores[t] = { correct: 0, total: 0 });
+
+            quizData[currentLanguage].forEach((q, i) => {
+                topicScores[q.topic].total++;
+                if (userAnswers[i] === correctKey[i]) {
+                    score++;
+                    topicScores[q.topic].correct++;
+                }
+            });
+
+            document.getElementById('score-text').textContent = `${score} / ${totalQuestions}`;
+            document.getElementById('score-percentage').textContent = `答對率: ${((score / totalQuestions) * 100).toFixed(1)}%`;
+
+            renderScoreChart(score);
+            renderTopicPerformance(topicScores);
+            renderReviewContainer(correctKey);
+            setupTabs();
+            renderTopicExplorer(correctKey);
+        }
+        
+        function renderScoreChart(score) {
+            const totalQuestions = quizData[currentLanguage].length;
+            const ctx = document.getElementById('score-chart').getContext('2d');
+            if(scoreChart) scoreChart.destroy();
+            scoreChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['答對', '答錯'],
+                    datasets: [{
+                        data: [score, totalQuestions - score],
+                        backgroundColor: ['#22c55e', '#ef4444'],
+                        borderColor: ['#ffffff'],
+                        borderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        }
+
+        function renderTopicPerformance(topicScores) {
+            const container = document.getElementById('topic-performance');
+            container.innerHTML = '';
+            Object.entries(topicScores).forEach(([topic, scores]) => {
+                if (scores.total === 0) return; // Don't show topics with 0 questions
+                const percentage = scores.total > 0? (scores.correct / scores.total) * 100 : 0;
+                const barColor = percentage >= 75? 'bg-green-500' : percentage >= 50? 'bg-yellow-500' : 'bg-red-500';
+
+                const topicDiv = document.createElement('div');
+                topicDiv.innerHTML = `\n                    <div class="flex justify-between items-center mb-1">\n                        <span class="font-semibold">${topic}</span>\n                        <span class="text-sm text-slate-600">${scores.correct} / ${scores.total}</span>\n                    </div>\n                    <div class="w-full bg-slate-200 rounded-full h-2.5">\n                        <div class="${barColor} h-2.5 rounded-full" style="width: ${percentage}%"></div>\n                    </div>\n                `;
+                container.appendChild(topicDiv);
+            });
+        }
+        
+        function renderReviewContainer(correctKey, filterTopic = null) {
+            const container = filterTopic? document.getElementById('explorer-container') : document.getElementById('review-container');
+            container.innerHTML = '';
+            quizData[currentLanguage].forEach((q, i) => {
+                if (filterTopic && q.topic!== filterTopic) {
+                    return;
+                }
+
+                const isCorrect = userAnswers[i] === correctKey[i];
+                const userAnswerText = userAnswers[i] === undefined || userAnswers[i] === -1 ? '未作答' : String.fromCharCode(65 + userAnswers[i]);
+                const correctAnswerText = String.fromCharCode(65 + correctKey[i]);
+
+                const reviewItem = document.createElement('div');
+                reviewItem.className = `border rounded-lg p-4 ${isCorrect? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+                reviewItem.innerHTML = `\n                    <div class="flex justify-between items-start">\n                        <div>\n                            <p class="font-bold text-lg mb-2">問題 ${i + 1}: ${q.question}</p>\n                            ${q.code? `<div class="code-block mb-4 text-sm">${q.code}</div>` : ''}\n                            <div class="text-sm space-y-1">\n                                <p>你的答案: <span class="font-semibold ${isCorrect? 'text-green-700' : 'text-red-700'}">${userAnswerText}</span></p>\n                                <p>正確答案: <span class="font-semibold text-green-700">${correctAnswerText}</span></p>\n                            </div>\n                        </div>\n                        <button class="toggle-explanation-btn text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap ml-4">顯示解析</button>\n                    </div>\n                    <div class="explanation mt-4 pt-4 border-t border-slate-200">\n                        <p class="font-semibold mb-1">解析:</p>\n                        <p class="text-slate-700">${q.explanation}</p>\n                    </div>\n                `;
+                container.appendChild(reviewItem);
+            });
+
+            document.querySelectorAll('.toggle-explanation-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const explanationDiv = e.target.closest('.border').querySelector('.explanation');
+                    explanationDiv.classList.toggle('show');
+                    e.target.textContent = explanationDiv.classList.contains('show')? '隱藏解析' : '顯示解析';
+                });
+            });
+        }
+        
+        function setupTabs() {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navBtns.forEach(b => b.classList.remove('active', 'border-blue-600'));
+                    btn.classList.add('active', 'border-blue-600');
+                    
+                    const tabId = btn.dataset.tab;
+                    tabContents.forEach(content => {
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+            // Set default active
+            document.querySelector('.nav-btn[data-tab="review"]').click();
+        }
+
+        function renderTopicExplorer(correctKey) {
+            const topicCounts = {};
+            quizData[currentLanguage].forEach(q => {
+                topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('topic-distribution-chart').getContext('2d');
+            if(topicChart) topicChart.destroy();
+            topicChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(topicCounts),
+                    datasets: [{
+                        label: '題目數量',
+                        data: Object.values(topicCounts),
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            const filtersContainer = document.getElementById('topic-filters');
+            filtersContainer.innerHTML = '';
+            const allButton = document.createElement('button');
+            allButton.className = 'topic-filter-btn bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg';
+            allButton.textContent = '所有主題';
+            allButton.addEventListener('click', () => {
+                document.querySelectorAll('.topic-filter-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                allButton.classList.add('bg-blue-600', 'text-white');
+                renderReviewContainer(correctKey, null);
+            });
+            filtersContainer.appendChild(allButton);
+
+            topics.forEach(topic => {
+                if (topicCounts[topic]) {
+                    const button = document.createElement('button');
+                    button.className = 'topic-filter-btn bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg';
+                    button.textContent = topic;
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.topic-filter-btn').forEach(b => {
+                            b.classList.remove('bg-blue-600', 'text-white');
+                            b.classList.add('bg-slate-200', 'text-slate-700');
+                        });
+                        button.classList.add('bg-blue-600', 'text-white');
+                        button.classList.remove('bg-slate-200', 'text-slate-700');
+                        renderReviewContainer(correctKey, topic);
+                    });
+                    filtersContainer.appendChild(button);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

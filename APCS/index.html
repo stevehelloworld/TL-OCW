@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APCS 程式識讀線上講義與測驗 - 得能教育 Telearn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" xintegrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kDXrdEMJqzWeCzyPshYMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" xintegrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        .prose-custom { color: #374151; }
+        .prose-custom h1, .prose-custom h2, .prose-custom h3, .prose-custom h4 { color: #111827; font-weight: 700; }
+        .prose-custom p { line-height: 1.9; }
+        .prose-custom a { color: #2563eb; }
+        .prose-custom code { background-color: #e5e7eb; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 6px; font-family: 'Courier New', Courier, monospace; }
+        .prose-custom pre code { font-size: 14px; line-height: 1.5; }
+        .prose-custom table { width: 100%; border-collapse: collapse; }
+        .prose-custom th, .prose-custom td { border: 1px solid #d1d5db; padding: 10px 14px; }
+        .prose-custom th { background-color: #f3f4f6; }
+        .prose-custom ul { list-style-type: disc; padding-left: 1.5rem; }
+        .prose-custom ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .sidebar-link { transition: all 0.2s ease-in-out; }
+        .sidebar-link.active { background-color: #3b82f6; color: white; font-weight: 600; }
+        .sidebar-link:not(.active):hover { background-color: #f3f4f6; }
+        .sidebar-link.parent-link.open { background-color: #e5e7eb; }
+        .sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; background-color: #f9fafb; }
+        .sub-menu.open { max-height: 500px; /* Adjust as needed */ }
+        .sub-link { padding-left: 2.5rem !important; font-size: 0.9rem; }
+        .sub-link.active { background-color: #3b82f6; color: white; }
+        #mobile-menu { transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+        #mobile-menu.open { transform: translateX(0); }
+        .content-page { display: none; }
+        .content-page.active { display: block; }
+        .trap-box {
+            background-color: #fffbeb; /* bg-yellow-50 */
+            border-left: 4px solid #facc15; /* border-l-4 border-yellow-400 */
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 0.5rem;
+        }
+        .trap-box h4 {
+            color: #b45309; /* text-yellow-800 */
+            font-weight: 700;
+            margin-top: 0;
+        }
+        .trap-box ul {
+            margin-top: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Mobile Header -->
+    <header class="bg-white shadow-md md:hidden sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+             <div class="flex items-center space-x-3">
+                 <img src="https://telearn.best/images/logo-dark.png" alt="得能教育 Telearn Logo" class="h-8 w-auto bg-gray-800 p-1 rounded-md" onerror="this.style.display='none'">
+                 <h1 class="text-base font-bold text-gray-800">得能教育 APCS識讀</h1>
+            </div>
+            <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-40 p-4">
+        <nav class="mt-8">
+            <ul>
+                <li>
+                    <a href="#part1" data-page="part1-1" class="block py-2 px-4 rounded-lg sidebar-link parent-link">第一部分：解構新制</a>
+                    <ul class="sub-menu">
+                        <li><a href="#part1-1" data-page="part1-1" class="block py-2 px-4 rounded-lg sidebar-link sub-link">1.1 洞悉變革</a></li>
+                        <li><a href="#part1-2" data-page="part1-2" class="block py-2 px-4 rounded-lg sidebar-link sub-link">1.2 語言策略比較</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#part2" data-page="part2-1" class="block py-2 px-4 rounded-lg sidebar-link parent-link">第二部分：掌握核心題型</a>
+                     <ul class="sub-menu">
+                        <li><a href="#part2-1" data-page="part2-1" class="block py-2 px-4 rounded-lg sidebar-link sub-link">2.1 程式運行追蹤</a></li>
+                        <li><a href="#part2-2" data-page="part2-2" class="block py-2 px-4 rounded-lg sidebar-link sub-link">2.2 程式填空</a></li>
+                        <li><a href="#part2-3" data-page="part2-3" class="block py-2 px-4 rounded-lg sidebar-link sub-link">2.3 程式除錯</a></li>
+                        <li><a href="#part2-4" data-page="part2-4" class="block py-2 px-4 rounded-lg sidebar-link sub-link">2.4 程式效能分析</a></li>
+                        <li><a href="#part2-5" data-page="part2-5" class="block py-2 px-4 rounded-lg sidebar-link sub-link">2.5 解析計算邏輯</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#part3" data-page="part3-1" class="block py-2 px-4 rounded-lg sidebar-link parent-link">第三部分：關鍵知識領域</a>
+                    <ul class="sub-menu">
+                        <li><a href="#part3-1" data-page="part3-1" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.1 基礎</a></li>
+                        <li><a href="#part3-2" data-page="part3-2" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.2 控制結構</a></li>
+                        <li><a href="#part3-3" data-page="part3-3" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.3 函式</a></li>
+                        <li><a href="#part3-4" data-page="part3-4" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.4 遞迴</a></li>
+                        <li><a href="#part3-5" data-page="part3-5" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.5 陣列與串列</a></li>
+                        <li><a href="#part3-6" data-page="part3-6" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.6 資料結構</a></li>
+                        <li><a href="#part3-7" data-page="part3-7" class="block py-2 px-4 rounded-lg sidebar-link sub-link">3.7 演算法</a></li>
+                    </ul>
+                </li>
+                <li><a href="#quiz" data-page="quiz" class="block py-2 px-4 rounded-lg sidebar-link font-bold text-blue-600">第四部分：線上模擬測驗</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden"></div>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-md hidden md:block sticky top-0 h-screen flex-shrink-0">
+            <div class="p-4 bg-gray-800">
+                <img src="https://telearn.best/images/logo-light.png" alt="得能教育 Telearn Logo" class="mx-auto h-16 w-auto mb-2" onerror="this.style.display='none'">
+                <h1 class="text-xl font-bold text-white text-center">APCS 程式識讀</h1>
+                <p class="text-sm text-gray-300 text-center">得能教育 Telearn</p>
+            </div>
+            <nav class="mt-4 p-2">
+                <ul>
+                    <li>
+                        <a href="#part1" data-page="part1-1" class="block py-2.5 px-4 rounded-lg sidebar-link parent-link">第一部分：解構新制</a>
+                        <ul class="sub-menu">
+                            <li><a href="#part1-1" data-page="part1-1" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">1.1 洞悉變革</a></li>
+                            <li><a href="#part1-2" data-page="part1-2" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">1.2 語言策略比較</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#part2" data-page="part2-1" class="block py-2.5 px-4 rounded-lg sidebar-link parent-link">第二部分：掌握核心題型</a>
+                        <ul class="sub-menu">
+                            <li><a href="#part2-1" data-page="part2-1" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">2.1 程式運行追蹤</a></li>
+                            <li><a href="#part2-2" data-page="part2-2" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">2.2 程式填空</a></li>
+                            <li><a href="#part2-3" data-page="part2-3" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">2.3 程式除錯</a></li>
+                            <li><a href="#part2-4" data-page="part2-4" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">2.4 程式效能分析</a></li>
+                            <li><a href="#part2-5" data-page="part2-5" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">2.5 解析計算邏輯</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#part3" data-page="part3-1" class="block py-2.5 px-4 rounded-lg sidebar-link parent-link">第三部分：關鍵知識領域</a>
+                        <ul class="sub-menu">
+                            <li><a href="#part3-1" data-page="part3-1" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.1 基礎</a></li>
+                            <li><a href="#part3-2" data-page="part3-2" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.2 控制結構</a></li>
+                            <li><a href="#part3-3" data-page="part3-3" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.3 函式</a></li>
+                            <li><a href="#part3-4" data-page="part3-4" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.4 遞迴</a></li>
+                            <li><a href="#part3-5" data-page="part3-5" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.5 陣列與串列</a></li>
+                            <li><a href="#part3-6" data-page="part3-6" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.6 資料結構</a></li>
+                            <li><a href="#part3-7" data-page="part3-7" class="block py-2.5 px-4 rounded-lg sidebar-link sub-link">3.7 演算法</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#quiz" data-page="quiz" class="block py-2.5 px-4 rounded-lg sidebar-link font-bold text-blue-600">第四部分：線上模擬測驗</a></li>
+                    <li class="pt-2 mt-2 border-t border-gray-200">
+                        <a href="test.html" class="block py-2.5 px-4 rounded-lg sidebar-link text-gray-700 font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 inline-block align-text-bottom text-gray-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            完整模擬測驗
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-8 lg:p-12">
+            <div id="content-container" class="max-w-4xl mx-auto">
+                
+                <!-- Page 1: Part 1 -->
+                <section id="part1-1" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h1>第一部分：解構新制APCS程式識讀測驗</h1>
+                    <h2 class="text-2xl font-bold mt-6 mb-4">1.1 洞悉2025年的變革：從語法到綜合分析</h2>
+                    <p>大學程式能力先修檢測（APCS）自114學年度起，其「程式識讀」項目迎來了一次深刻的變革。這次優化不僅是題型或範圍的微調，而是一次測驗哲學的根本轉變：從過去側重語法記憶與片段程式碼執行的評量，進化為對<strong>計算思維</strong>、<strong>程式邏輯</strong>、<strong>效能分析</strong>與<strong>除錯能力</strong>的綜合性檢驗。這意味著，考生不再能僅僅依賴刷題、背誦特定題型模式來獲取高分。新制度的目標是篩選出那些不僅能「寫」程式，更能「讀懂」、「分析」並「評價」程式的未來資訊科學家與工程師。</p>
+                    <p>這次變革的核心，是五大新檢測題型的確立：</p>
+                    <ol>
+                        <li><strong>程式運行追蹤 (Code Tracing)</strong>：精準模擬程式執行流程，判斷最終輸出或變數狀態。</li>
+                        <li><strong>程式填空 (Code Completion)</strong>：根據上下文邏輯，填入最恰當的程式碼片段。</li>
+                        <li><strong>程式測試與除錯 (Code Testing and Debugging)</strong>：找出程式碼中的邏輯錯誤、邊界條件問題或不符預期的行為。</li>
+                        <li><strong>程式效能分析 (Code Performance Analysis)</strong>：評估程式碼的時間與空間複雜度，判斷其執行效率。</li>
+                        <li><strong>解析計算邏輯 (Computational Logic Analysis)</strong>：從程式碼中抽象出其背後的演算法或解決的問題模型。</li>
+                    </ol>
+                    <p>這些題型的出現，其背後動機是為了彌合學術程式設計與真實世界軟體開發之間的鴻溝。在業界，軟體工程師花費大量的時間閱讀、維護和除錯他人撰寫的程式碼。因此，能夠快速理解一段陌生程式碼的意圖（解析計算邏輯）、找出其中潛在的錯誤（程式測試與除錯）、並評估其是否有效率（程式效能分析），是極其關鍵的專業技能。過去的考試形式，如舊版經驗分享中提到的，可能可以透過記憶題型模式來應對。然而，新制中的「效能分析」與「邏輯分析」題型，直接挑戰了這種學習方法。它們要求考生從一個更高的維度去思考：「這段程式碼的『目的』是什麼？」以及「這是一個『好』的實作方式嗎？」。這是一種更高階的認知能力，更能預測學生在大學資訊工程學系及未來職涯的成功。因此，本講義的目標，是訓練考生像一位「<strong>程式碼審閱者（Code Reviewer）</strong>」一樣思考，而不僅僅是一台「人肉編譯器」。</p>
+                </section>
+                <section id="part1-2" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h2 class="text-2xl font-bold mt-8 mb-4">1.2 C與Python的應試策略比較</h2>
+                    <p>APCS同時提供C和Python兩種語言選項，這並非偶然，而是測驗設計者用以評量考生對計算科學核心概念理解深度的巧妙工具。兩種語言在語法、資料結構和執行模型上的根本差異，為設計出能鑑別考生能力的題目提供了絕佳的素材。許多題目看似在兩種語言中邏輯相同，但由於底層機制的差異，會產生截然不同的結果。考生必須超越語法層面，深入理解這些差異，才能避免落入陷阱。</p>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>特性</th>
+                                    <th>C 實作/行為</th>
+                                    <th>Python 實作/行為</th>
+                                    <th>APCS 測驗意涵</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>資料型別</strong></td>
+                                    <td><strong>靜態型別</strong> (Statically Typed)。變數在使用前必須宣告其型別，如 <code>int x;</code>。編譯時期進行型別檢查。</td>
+                                    <td><strong>動態型別</strong> (Dynamically Typed)。變數在賦值時才決定型別，如 <code>x = 10</code>。執行時期才進行型別檢查。</td>
+                                    <td><strong>除錯/追蹤陷阱</strong>：一個Python函式可能因接收到預期外的型別而引發執行期錯誤（<code>TypeError</code>），這種情況在C語言的編譯階段就會被攔截。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>陣列 vs. 串列</strong></td>
+                                    <td><strong>陣列 (Array)</strong> 大小固定、元素型別同質、佔用連續記憶體空間。</td>
+                                    <td><strong>串列 (List)</strong> 大小可動態改變、元素型別可異質、基於物件參考儲存。</td>
+                                    <td><strong>效能分析陷阱</strong>：在Python串列尾端新增元素（<code>append</code>）的攤銷時間複雜度為 O(1)，但若要在C陣列「擴增」容量，則需手動重新配置記憶體並複製元素，成本極高。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>指標 vs. 參考</strong></td>
+                                    <td>提供明確的<strong>指標運算</strong>，可直接存取和操作記憶體位址，如 <code>*ptr</code>、<code>ptr++</code>。</td>
+                                    <td>變數名稱是對<strong>物件的參考</strong>（Object Reference），不提供直接的指標運算。</td>
+                                    <td><strong>追蹤/除錯陷阱</strong>：C語言可透過指標在函式內直接修改傳入陣列的內容。Python中，若在函式內重新賦值變數（如 <code>my_list = [9, 3, 2]</code>），只會改變函式內的參考，不影響外部；但若修改物件內容（如 <code>my_list.append(4)</code>），則會影響外部。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>控制流程</strong></td>
+                                    <td><code>switch</code> 語句具有「<strong>穿透 (fall-through)</strong>」特性，若 <code>case</code> 結尾沒有 <code>break</code>，會繼續執行下一個 <code>case</code>。</td>
+                                    <td>使用 <code>if/elif/else</code> 鏈，結構清晰，沒有穿透問題。</td>
+                                    <td><strong>除錯陷阱</strong>：一個沒有 <code>break</code> 的C <code>switch</code> 語句會執行多個區塊，這是非常經典的除錯題型，用來測試考生是否細心。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>整數除法</strong></td>
+                                    <td>兩個整數相除，結果會無條件捨去小數部分，例如 <code>5 / 2</code> 的結果是 <code>2</code>。</td>
+                                    <td><code>5 / 2</code> 的結果是浮點數 <code>2.5</code>。若要執行整數除法，需使用 <code>//</code> 運算子，即 <code>5 // 2</code> 結果為 <code>2</code>。</td>
+                                    <td><strong>運行追蹤陷阱</strong>：一個簡單的算術表達式，在兩種語言中會得出不同結果，是程式追蹤題中最常見的陷阱之一。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>字串處理</strong></td>
+                                    <td>字串實質上是以空字元 <code> </code> 結尾的字元陣列 (<code>char</code> array)，是<strong>可變的</strong>（mutable）。</td>
+                                    <td>字串 (<code>str</code>) 是<strong>不可變的</strong>（immutable）物件。任何修改字串的操作都會回傳一個新的字串物件。</td>
+                                    <td><strong>除錯陷阱</strong>：試圖在原地修改字串內容的程式碼，對C的字元陣列是合法的，但對Python的字串物件則會引發錯誤或產生非預期的行為。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Page 2: Part 2 -->
+                <section id="part2-1" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h1>第二部分：掌握五大核心題型</h1>
+                    <p>要征服新制APCS程式識讀，考生必須針對五大題型，建立系統化的解題策略。這不僅是技巧，更是一種思維模式的訓練。</p>
+                    <h3 class="text-xl font-bold mt-6 mb-3">2.1 程式運行追蹤的應試策略</h3>
+                    <p><strong>核心技能</strong>：一絲不苟地模擬程式的每一步執行，以機械般的精準度追蹤變數狀態的變化，最終確定程式的輸出或最終狀態。</p>
+                    <p><strong>戰略方法</strong>：</p>
+                    <ul>
+                        <li><strong>建立「變數狀態表」</strong>：這是應對程式追蹤最有效、最可靠的工具。在計算紙上，為程式中出現的每一個變數建立一個欄位。</li>
+                        <li><strong>視覺化「函式呼叫堆疊 (Call Stack)」</strong>：當遇到<strong>遞迴</strong>函式時，單純的變數狀態表可能不足以應付。</li>
+                        <li><strong>緊跟「控制流」</strong>：精確判讀 <code>if</code>、<code>for</code>、<code>while</code> 的條件式至關重要。</li>
+                    </ul>
+                </section>
+                <section id="part2-2" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h3 class="text-xl font-bold mt-6 mb-3">2.2 程式填空的應試策略</h3>
+                    <p><strong>核心技能</strong>：運用<strong>演繹推理</strong>，將程式碼的上下文視為線索，推斷出缺失部分的功能與邏輯。</p>
+                    <p><strong>戰略方法</strong>：</p>
+                    <ul>
+                        <li><strong>由上而下進行「目標分析」</strong>：快速掃描整個函式或程式碼區塊，問自己：「這段程式碼的『整體目標』是什麼？」</li>
+                        <li><strong>由下而上進行「變數用途分析」</strong>：仔細觀察空白處「之後」的程式碼是如何使用相關變數的。</li>
+                        <li><strong>代入選項進行「測試驗證」</strong>：將每個選項逐一代入空白處，然後用一個簡單的、自己設計的測試案例來追蹤程式的執行流程。</li>
+                    </ul>
+                </section>
+                <section id="part2-3" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h3 class="text-xl font-bold mt-6 mb-3">2.3 程式測試與除錯的應試策略</h3>
+                    <p><strong>核心技能</strong>：從「<strong>測試者</strong>」而非「開發者」的視角審視程式碼，專注於尋找邏輯上的漏洞，而不僅僅是語法錯誤。</p>
+                    <p><strong>戰略方法</strong>：</p>
+                    <ul>
+                        <li><strong>搜獵「差一錯誤 (Off-by-One Errors)」</strong>：這是迴圈和陣列索引中最常見的邏輯錯誤。</li>
+                        <li><strong>識別「邊界條件 (Edge Cases)」</strong>：一個健壯的程式必須能處理極端或非典型的輸入。</li>
+                        <li><strong>揪出「語言特性陷阱」</strong>：主動尋找那些可能因語言特性而導致錯誤的程式碼片段。</li>
+                    </ul>
+                </section>
+                <section id="part2-4" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h3 class="text-xl font-bold mt-6 mb-3">2.4 程式效能分析的應試策略</h3>
+                    <p><strong>核心技能</strong>：在不實際執行程式碼的情況下，快速估算其<strong>計算複雜度</strong>（時間複雜度為主，即 <code>Big O notation</code>），並判斷其效率等級。</p>
+                    <p><strong>戰略方法</strong>：</p>
+                    <ul>
+                        <li><strong>數「迴圈層數」</strong>：一個迭代 n 次的單層迴圈，其時間複雜度通常是 <code>O(n)</code>。</li>
+                        <li><strong>分析「遞迴呼叫」</strong>：線性遞迴複雜度通常為 <code>O(n)</code>，樹狀遞迴可能是指數級的 <code>O(2^n)</code>。</li>
+                        <li><strong>牢記「資料結構操作成本」</strong>：熟記基礎資料結構的各種操作的時間複雜度。</li>
+                    </ul>
+                    <div class="overflow-x-auto mt-4">
+                        <table>
+                            <thead>
+                                <tr><th>複雜度</th><th>名稱</th><th>APCS 程式碼模式範例</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>O(1)</code></td><td>常數 (Constant)</td><td><code>x = a + b;</code> <br> <code>return array[i];</code></td></tr>
+                                <tr><td><code>O(log n)</code></td><td>對數 (Logarithmic)</td><td><code>while (low <= high) { mid = low + (high-low)/2;... }</code> (二分搜尋法)</td></tr>
+                                <tr><td><code>O(n)</code></td><td>線性 (Linear)</td><td><code>for (int i = 0; i < n; i++) {... }</code></td></tr>
+                                <tr><td><code>O(n log n)</code></td><td>線性對數 (Log-linear)</td><td>辨識出一個對高效排序演算法的呼叫，如 <code>qsort()</code> 或 <code>sort()</code>。</td></tr>
+                                <tr><td><code>O(n^2)</code></td><td>平方 (Quadratic)</td><td><code>for (i=0..n-1) { for (j=0..n-1) {... } }</code> (巢狀迴圈)</td></tr>
+                                <tr><td><code>O(2^n)</code></td><td>指數 (Exponential)</td><td><code>int fib(int n) { return fib(n-1) + fib(n-2); }</code> (未優化的樹狀遞迴)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section id="part2-5" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h3 class="text-xl font-bold mt-6 mb-3">2.5 解析計算邏輯的應試策略</h3>
+                    <p><strong>核心技能</strong>：將具體的程式碼「<strong>抽象化</strong>」為演算法層級的理解。看透程式碼的表象，洞悉其正在解決的「問題」是什麼。</p>
+                    <p><strong>戰略方法</strong>：</p>
+                    <ul>
+                        <li><strong>辨識「知名演算法」的特徵</strong>：例如<strong>輾轉相除法</strong>、<strong>質數判斷法</strong>、<strong>基礎排序演算法</strong>等。</li>
+                        <li><strong>使用「有意義的範例」進行追蹤</strong>：選擇一個小而有代表性的輸入來幫助理解。</li>
+                        <li><strong>解讀「變數命名」的線索</strong>：命題者通常會使用具有提示性的變數名稱。</li>
+                    </ul>
+                </section>
+
+                <!-- Page 3: Part 3 (UPDATED) -->
+                <section id="part3-1" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <h1>第三部分：深入探討關鍵知識領域</h1>
+                    <p>本章節將依據APCS官方公布的檢測範圍，系統性地深入探討各個知識領域。每個小節都會提供更深入的應考策略、答題技巧，並剖析常見的陷阱，幫助您將知識轉化為實戰能力。</p>
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.1 基礎：資料型態、變數與表達式</h3>
+                    <p>這是程式設計的基石，也是最容易因疏忽而失分的地方。此類題目考驗的是細心與對語言特性的精準掌握。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>步步為營，不跳步驟</strong>：在追蹤複雜表達式時，嚴格遵守「<strong>運算子優先順序</strong>」（先乘除後加減，先AND後OR），切勿心算。用紙筆寫下每一步的計算結果。</li>
+                        <li><strong>注意型別轉換</strong>：特別是在C語言中，當整數(<code>int</code>)與浮點數(<code>double</code>)混合運算時，結果會被提升為浮點數。但在賦值時，浮點數若被存入整數變數，小數部分會被無條件捨去。</li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>整數除法陷阱</strong>：這是C與Python最經典的差異考點。看到 <code>5 / 2</code> 就要立刻反應：在C中是 <code>2</code>，在Python中是 <code>2.5</code>。</li>
+                            <li><strong>C的遞增/遞減運算子</strong>：<code>++x</code> (前置) 會先將 <code>x</code> 加一，再使用 <code>x</code> 的值；<code>x++</code> (後置) 會先使用 <code>x</code> 的值，再將 <code>x</code> 加一。這在單行複雜表達式中是極易混淆的陷阱。例如 <code>int x=5; int y = ++x + x;</code> 和 <code>int y = x++ + x;</code> 結果會完全不同。</li>
+                            <li><strong>短路求值</strong>：在邏輯表達式 <code>A && B</code> 中，若 <code>A</code> 為假，則 <code>B</code> 不會被執行。在 <code>A || B</code> 中，若 <code>A</code> 為真，則 <code>B</code> 也不會被執行。考題可能會在 <code>B</code> 的位置放一個會改變變數狀態的函式呼叫，例如 <code>if (x != 0 && some_func(&y))</code>，若 <code>x</code> 為0，則 <code>some_func</code> 不會被呼叫，<code>y</code> 的值也不會改變。</li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="part3-2" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.2 控制結構：循序、選擇與重複</h3>
+                    <p>控制結構是程式邏輯的骨架。理解其執行路徑是識讀所有程式碼的基礎。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>畫流程圖/縮排分析</strong>：對於巢狀的 <code>if-else</code> 或迴圈，可以在紙上簡單畫出執行流程，或用筆標示出Python程式碼的縮排層級，以釐清哪個區塊屬於哪個控制結構。</li>
+                        <li><strong>關注迴圈邊界</strong>：看到 <code>for</code> 或 <code>while</code> 迴圈，第一時間就要確認其「<strong>起始條件</strong>」、「<strong>終止條件</strong>」和「<strong>迭代變化</strong>」。這是找出「差一錯誤」的關鍵。</li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>C的<code>switch</code>穿透</strong>：這是C語言獨有的高頻考點。一個沒有 <code>break</code> 的 <code>case</code> 會繼續執行下一個 <code>case</code> 的程式碼，直到遇到 <code>break</code> 或 <code>switch</code> 結束。追蹤題會故意遺漏 <code>break</code>，要求判斷變數的最終值。</li>
+                            <li><strong>Python的縮排陷阱</strong>：除錯題可能會給出一段邏輯上看似正確，但因縮排錯誤導致行為不符預期的Python程式碼。例如，某行程式碼本應在迴圈內，卻因縮排錯誤而只在迴圈結束後執行一次。</li>
+                            <li><strong>空迴圈/無窮迴圈</strong>：注意迴圈的終止條件是否可能永遠無法滿足（無窮迴圈），或一開始就不滿足（迴圈一次都不執行）。</li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="part3-3" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.3 函式與模組化</h3>
+                    <p>函式題的核心在於測試對「<strong>作用域</strong>」和「<strong>參數傳遞</strong>」的理解。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>區分「修改內容」與「重新賦值」</strong>：這是理解參數傳遞的關鍵。
+                            <ul>
+                                <li>在函式內修改傳入的可變物件（如C的陣列、Python的串列）的<strong>內容</strong>（例如 <code>arr[0]=100</code>），會影響到函式外部的原始物件。</li>
+                                <li>在函式內將參數<strong>重新賦值</strong>給一個全新的物件（例如 <code>arr = new_array</code>），則只會改變函式內部的參考，不影響外部。</li>
+                            </ul>
+                        </li>
+                        <li><strong>變數查找順序</strong>：當函式內使用一個變數時，會先從函式的「<strong>區域作用域</strong>」找，找不到才往「<strong>全域作用域</strong>」找。</li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>變數遮蔽 (Shadowing)</strong>：函式內宣告了一個與全域變數同名的區域變數。在函式內對該變數的所有操作都只會影響這個區域變數，而不會碰到全域變數。</li>
+                            <li><strong>Python的可變預設參數</strong>：例如 <code>def func(a, b=[]):</code>。這個預設的空串列 <code>[]</code> 只會被建立一次。若函式內修改了 <code>b</code>，這個修改會保留到下一次呼叫，這是Python中一個非常隱晦且常見的陷阱。</li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="part3-4" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.4 遞迴的藝術</h3>
+                    <p>遞迴題看似複雜，但掌握其核心思維模式後便能迎刃而解。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>信任遞迴</strong>：不要試圖在腦中完整展開每一步遞迴。先找到「<strong>基礎情況</strong>」（終止點），然後理解「<strong>遞迴步驟</strong>」（如何將問題變小）。只要這兩點邏輯正確，就可以相信函式能完成任務。</li>
+                        <li><strong>畫呼叫樹</strong>：對於追蹤題，特別是 <code>fib(n-1) + fib(n-2)</code> 這類樹狀遞迴，畫出呼叫關係樹是唯一可靠的方法。在樹的節點旁標註回傳值，由下往上計算出最終結果。</li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>基礎情況錯誤</strong>：除錯題的遞迴錯誤，90%都出在基礎情況。可能是條件判斷錯誤（例如 <code>n==1</code> 寫成 <code>n<1</code>），或是基礎情況的回傳值錯誤。</li>
+                            <li><strong>堆疊溢位 (Stack Overflow)</strong>：效能分析或除錯題可能會問，為什麼某個遞迴函式在輸入值很大時會出錯。原因通常是遞迴太深，超過了呼叫堆疊的極限。</li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="part3-5" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.5 陣列與串列</h3>
+                    <p>陣列與串列是資料的容器，考題圍繞著如何存取和操作這些資料。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>索引值恆為 <code>0</code> 到 <code>長度-1</code></strong>：將這句話刻在腦海裡。看到任何 <code>arr[i]</code> 形式的存取，都要立刻檢查 <code>i</code> 的可能範圍是否會超出邊界。</li>
+                        <li><strong>視覺化二維陣列</strong>：遇到二維陣列時，直接在紙上畫一個表格，將初始值填入。在追蹤迴圈時，用筆尖在表格上移動，模擬 <code>matrix[i][j]</code> 的存取過程。</li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>索引越界</strong>：最常見的陷阱。通常發生在迴圈的最後一次迭代，例如 <code>for (i=0; i<=n; i++)</code> 存取 <code>arr[i]</code>，當 <code>i=n</code> 時就會越界。</li>
+                            <li><strong>C與Python的初始化差異</strong>：C語言宣告 <code>int arr[5];</code> 後，裡面的值是未定義的（隨機值）。而Python <code>arr = [0] * 5</code> 則會得到 <code>[0, 0, 0, 0, 0]</code>。這個差異可能成為除錯題的考點。</li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="part3-6" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.6 基礎資料結構</h3>
+                    <p>這類題目不考你會不會實作，而是考你懂不懂它們的「<strong>行為模式</strong>」。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>辨識行為模式</strong>：
+                            <ul>
+                                <li>看到「<strong>後進先出</strong>」(LIFO) 的操作順序，就要聯想到<strong>堆疊(Stack)</strong>。例如，括號匹配、函式呼叫都符合堆疊的行為。</li>
+                                <li>看到「<strong>先進先出</strong>」(FIFO) 的操作順序，就要聯想到<strong>佇列(Queue)</strong>。例如，排隊系統、廣度優先搜尋(BFS)都符合佇列的行為。</li>
+                            </ul>
+                        </li>
+                        <li><strong>用紙筆模擬</strong>：拿一張紙，畫一個開口朝上的方框代表堆疊，或一個左右貫通的管道代表佇列。根據程式碼的 <code>push/pop</code> 或 <code>enqueue/dequeue</code> 操作，實際畫出元素的進出過程。</li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>用串列模擬時的操作混淆</strong>：Python中，用 <code>list</code> 模擬堆疊很直觀 (<code>append</code> 和 <code>pop</code>)。但用 <code>list</code> 模擬佇列時，若使用 <code>pop(0)</code> 來取出頭部元素，其時間複雜度是 <code>O(n)</code>，效率很差。效能分析題可能會考這個觀念。</li>
+                            <li><strong>Struct/Class的存取語法</strong>：C語言中，存取 <code>struct</code> 變數的成員用 <code>.</code> (例如 <code>p.x</code>)，存取 <code>struct</code> 指標的成員用 <code>-></code> (例如 <code>ptr->x</code>)。這兩種符號的混用是常見的語法錯誤。</li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="part3-7" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm prose-custom">
+                    <hr class="my-12 border-gray-200">
+                    <h3 class="text-xl font-bold mt-8 mb-3">3.7 基礎演算法</h3>
+                    <p>演算法題考驗的是模式識別能力。你需要能從程式碼的結構，反推出它背後的演算法思想。</p>
+                    <h4>應考策略與技巧</h4>
+                    <ul>
+                        <li><strong>記憶「程式碼簽章」</strong>：
+                            <ul>
+                                <li><strong>二分搜尋</strong>：標誌是 <code>while (low <= high)</code> 迴圈，以及在迴圈內計算 <code>mid</code> 並移動 <code>low</code> 或 <code>high</code> 指標。前提是資料必須已排序。</li>
+                                <li><strong>選擇排序</strong>：標誌是兩層巢狀迴圈，內層迴圈只做「尋找最小值索引」的動作，真正的「交換」發生在外層迴圈的結尾。</li>
+                                <li><strong>氣泡/插入排序</strong>：標誌也是兩層巢狀迴圈，但「交換」操作可能在內層迴圈中就頻繁發生。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="trap-box">
+                        <h4>常見陷阱分析</h4>
+                        <ul>
+                            <li><strong>二分搜尋的前提</strong>：除錯題可能會給一個未排序的陣列，卻對它執行二分搜尋，導致結果錯誤。考生需要指出其根本錯誤在於未滿足演算法的前提。</li>
+                            <li><strong>迴圈邊界與更新邏輯</strong>：二分搜尋的 <code>high = mid - 1</code> 和 <code>low = mid + 1</code> 若寫錯，會導致無窮迴圈或找不到答案。排序演算法的迴圈邊界若有差一錯誤，可能導致最後一個元素未被排序。</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Page 4: Quiz -->
+                <section id="quiz" class="content-page bg-white p-6 md:p-8 rounded-xl shadow-sm">
+                    <div id="language-selection-container">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">第四部分：線上模擬測驗</h1>
+                        <p class="text-gray-600 mb-8">共 20 題。請先選擇您要使用的測驗語言。</p>
+                        <div class="flex justify-center items-center gap-4 md:gap-8">
+                            <button data-lang="c" class="lang-select-btn w-full md:w-48 bg-blue-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors text-xl shadow-md">
+                                C 語言
+                            </button>
+                            <button data-lang="python" class="lang-select-btn w-full md:w-48 bg-green-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-green-700 transition-colors text-xl shadow-md">
+                                Python
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="quiz-main-container" class="hidden">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">線上模擬測驗</h1>
+                        <p id="quiz-subtitle" class="text-gray-600 mb-6"></p>
+                        <div id="quiz-container" class="space-y-12">
+                            <!-- Questions will be dynamically inserted here -->
+                        </div>
+                        <div id="quiz-controls" class="mt-12 text-center">
+                            <button id="submit-quiz-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-md">
+                                提交答案並看結果
+                            </button>
+                        </div>
+                        <div id="quiz-results" class="mt-12 hidden">
+                            <div id="summary-container" class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
+                                <div class="flex justify-between items-center flex-wrap gap-4">
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-blue-800">測驗結果</h2>
+                                        <p id="score-text" class="text-lg mt-2 text-blue-700"></p>
+                                    </div>
+                                    <button id="download-pdf-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                        下載結果 (PDF)
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="results-container" class="mt-8 space-y-12">
+                                <!-- Detailed results will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const questions = [
+            // Question 1 (REVISED)
+            { 
+                id: 1, 
+                title: "問題 1", 
+                type: "程式運行追蹤, 語言特性", 
+                code: { 
+                    c: `#include <stdio.h>\n\nint main() {\n    int x = 10;\n    double y = 5 / 2 * x;\n    printf("%.1f\n", y);\n    return 0;\n}`, 
+                    python: `x = 10\ny = 5 / 2 * x\nprint(f"{y:.1f}")` 
+                }, 
+                c: {
+                    questionText: "執行上述 C 程式碼後，輸出為何？",
+                    options: ["20.0", "25.0", "10.0", "程式會出錯"],
+                    correctAnswer: 0
+                },
+                python: {
+                    questionText: "執行上述 Python 程式碼後，輸出為何？",
+                    options: ["20.0", "25.0", "10.0", "程式會出錯"],
+                    correctAnswer: 1
+                },
+                explanation: `**正確答案**: C 語言為 (A), Python 為 (B)\n\n* **題型分析**: 本題主要測試「程式運行追蹤」，並結合了對 C 和 Python 語言特性的理解，特別是「整數除法」。\n* **C語言程式碼追蹤步驟**:\n    1.  \`int x = 10;\`\n    2.  \`double y = 5 / 2 * x;\`：此表達式由左至右計算。\n    3.  \`5 / 2\`：因為 \`5\` 和 \`2\` 都是整數，C語言執行「整數除法」，結果為 \`2\`（小數部分被無條件捨去）。\n    4.  \`2 * x\`：\`2 * 10\` 結果為 \`20\`。\n    5.  \`double y = 20;\`：整數 \`20\` 被賦值給 \`double\` 型別的變數 \`y\`，\`y\` 的值為 \`20.0\`。\n    6.  \`printf("%.1f\\n", y);\` 輸出 \`20.0\`。\n* **Python程式碼追蹤步驟**:\n    1.  \`x = 10\`\n    2.  \`y = 5 / 2 * x\`：此表達式由左至右計算。\n    3.  \`5 / 2\`：Python 3.x 中的 \`/\` 運算子執行「浮點數除法」，結果為 \`2.5\`。\n    4.  \`2.5 * x\`：\`2.5 * 10\` 結果為 \`25.0\`。\n    5.  \`y\` 的值為 \`25.0\`。\n    6.  \`print(f"{y:.1f}")\` 輸出 \`25.0\`。\n* **核心觀念解析**: C語言中，兩個整數進行除法運算，結果仍為整數，小數部分會被截斷。Python中，\`/\` 運算子總是執行浮點數除法，若要得到整數結果需使用 \`//\`。這是兩種語言在基本運算上一個非常重要且常見的差異。\n* **應試重點**: 看到整數除法時，必須立即根據當前語言（C 或 Python）的規則來判斷其結果，這是程式追蹤題中的一個關鍵檢查點。` 
+            },
+            // Question 2 (REVISED)
+            { 
+                id: 2, 
+                title: "問題 2", 
+                type: "程式除錯, 控制結構", 
+                code: { 
+                    c: `#include <stdio.h>\n\nvoid getGrade(int score) {\n    char grade = 'F';\n    switch (score / 10) {\n        case 10:\n        case 9:\n            grade = 'A';\n        case 8:\n            grade = 'B';\n            break;\n        case 7:\n            grade = 'C';\n            break;\n        case 6:\n            grade = 'D';\n            break;\n    }\n    printf("%c\\n", grade);\n}\n\nint main() {\n    getGrade(95);\n    return 0;\n}`, 
+                    python: `def get_grade(score):\n    grade = 'F'\n    if score >= 90:\n        grade = 'A'\n    if score >= 80:\n        grade = 'B'\n    elif score >= 70:\n        grade = 'C'\n    elif score >= 60:\n        grade = 'D'\n    print(grade)\n\nget_grade(95)` 
+                }, 
+                c: {
+                    questionText: "執行上述 C 程式碼後，輸出為何？",
+                    options: ["A", "B", "C", "F"],
+                    correctAnswer: 1
+                },
+                python: {
+                    questionText: "執行上述 Python 程式碼後，輸出為何？",
+                    options: ["A", "B", "C", "F"],
+                    correctAnswer: 1
+                },
+                explanation: `**正確答案**: C 語言為 (B), Python 為 (B)\n\n* **題型分析**: 本題是典型的「程式除錯」與「運行追蹤」，專門測試對 C \`switch\` 語句的「穿透 (fall-through)」特性和 Python \`if\` 結構的理解。\n* **C語言程式碼追蹤步驟**:\n    1.  \`getGrade(95)\` 被呼叫，\`score\` 為 \`95\`。\n    2.  \`score / 10\` 的結果是 \`9\`。\n    3.  \`switch\` 語句跳轉到 \`case 9:\`。\n    4.  \`grade\` 被賦值為 \`'A'\`。\n    5.  **關鍵點**: \`case 9:\` 區塊結尾沒有 \`break\` 語句，因此程式執行會「穿透」到下一個 \`case\`。\n    6.  程式繼續執行 \`case 8:\` 的區塊。\n    7.  \`grade\` 被重新賦值為 \`'B'\`。\n    8.  遇到 \`break;\`，\`switch\` 語句結束。\n    9.  \`printf\` 輸出 \`grade\` 的當前值，即 \`'B'\`。\n* **Python程式碼追蹤步驟**:\n    1.  \`get_grade(95)\` 被呼叫，\`score\` 為 \`95\`。\n    2.  \`if score >= 90:\` 條件成立 (\`95 >= 90\`)，\`grade\` 被賦值為 \`'A'\`。\n    3.  **關鍵點**: Python 的第一個 \`if\` 語句是獨立的，不是 \`if-elif\` 結構。因此，第一個 \`if\` 執行完後，程式會繼續檢查下一個 \`if\`。\n    4.  \`if score >= 80:\` 條件成立 (\`95 >= 80\`)，\`grade\` 被重新賦值為 \`'B'\`。\n    5.  接下來是 \`elif\` 結構，由於前一個判斷式 (\`if score >= 80\`) 已經成立，\`elif\` 及其後的 \`else\` 都不會被執行。\n    6.  \`print\` 輸出 \`grade\` 的當前值，即 \`'B'\`。\n* **核心觀念解析**: C的 \`switch\` 穿透是一個常見的錯誤來源。Python中，獨立的 \`if\` 語句會被逐一檢查，而 \`if-elif-else\` 鏈一旦有條件滿足，後續的分支就會被跳過。此題的Python程式碼故意寫成一個獨立 \`if\` 加上一個 \`if-elif\` 鏈，製造了陷阱。\n* **應試重點**: 審查選擇結構時，務必注意 C 的 \`break\` 是否遺漏，以及 Python 的 \`if\` 和 \`elif\` 的區別。` 
+            },
+            // Question 3 (REVISED)
+            { 
+                id: 3, 
+                title: "問題 3", 
+                type: "程式運行追蹤, 函式與參數傳遞", 
+                code: { 
+                    c: `#include <stdio.h>\n\nvoid modify(int* arr, int size) {\n    arr[0] = 100;\n    arr = NULL;\n}\n\nint main() {\n    int data[] = {1, 2, 3};\n    modify(data, 3);\n    printf("%d\\n", data[0]);\n    return 0;\n}`, 
+                    python: `def modify(my_list):\n    my_list[0] = 100\n    my_list = [9, 3, 2]\n\ndata = [1, 2, 3]\nmodify(data)\nprint(data[0])` 
+                }, 
+                c: {
+                    questionText: "執行上述 C 程式碼後，輸出為何？",
+                    options: ["1", "100", "3", "程式會因 arr = NULL 而崩潰"],
+                    correctAnswer: 1
+                },
+                python: {
+                    questionText: "執行上述 Python 程式碼後，輸出為何？",
+                    options: ["1", "100", "9", "程式會出錯"],
+                    correctAnswer: 1
+                },
+                explanation: `**正確答案**: C 語言為 (B), Python 為 (B)\n\n* **題型分析**: 本題測試「程式運行追蹤」，核心在於理解 C 的指標傳遞和 Python 的物件參考傳遞在函式呼叫中的行為。\n* **C語言程式碼追蹤步驟**:\n    1.  \`int data[] = {1, 2, 3};\` 宣告一個整數陣列。\n    2.  \`modify(data, 3);\` 呼叫函式。在C中，傳遞陣列 \`data\` 給函式，實質上是將 \`data\` 陣列第一個元素的記憶體位址（一個指標）複製給函式參數 \`arr\`。\n    3.  在 \`modify\` 函式內，\`arr\` 和 \`main\` 函式中的 \`data\` 指向同一塊記憶體。\n    4.  \`arr[0] = 100;\`：透過指標 \`arr\` 修改了所指向記憶體的第一個元素。因為 \`arr\` 和 \`data\` 指向同一處，所以 \`main\` 中的 \`data[0]\` 也變成了 \`100\`。\n    5.  \`arr = NULL;\`：這行程式碼僅僅是將函式內的區域指標變數 \`arr\` 設為 \`NULL\`。它不影響 \`main\` 函式中的 \`data\` 指標，\`data\` 仍然指向原來的陣列記憶體。\n    6.  函式結束後，回到 \`main\`。\`printf("%d\\n", data[0]);\` 輸出被修改後的值，即 \`100\`。\n* **Python程式碼追蹤步驟**:\n    1.  \`data = [1, 2, 3]\` 建立一個串列物件。\n    2.  \`modify(data)\` 呼叫函式。Python將 \`data\` 這個變數所參考的串列物件的「參考」傳遞給函式參數 \`my_list\`。\n    3.  在 \`modify\` 函式內，\`my_list\` 和 \`main\` 作用域中的 \`data\` 參考同一個串列物件。\n    4.  \`my_list[0] = 100\`：透過參考 \`my_list\` 修改了其所參考的串列物件的第一個元素。因此，\`data\` 所參考的物件內容也被改變了。\n    5.  \`my_list = [9, 3, 2]\`：這行程式碼僅僅是讓函式內的區域變數 \`my_list\` 不再參考原來的串列物件，而是改為參考一個全新的串列物件 \`[9, 3, 2]\`。它不影響 \`main\` 作用域中的 \`data\` 變數，\`data\` 仍然參考著那個被修改過的串列物件。\n    6.  函式結束後，回到主程式。\`print(data[0])\` 輸出被修改後的值，即 \`100\`。\n* **核心觀念解析**: 儘管C和Python的底層機制不同（指標 vs. 物件參考），但在「透過函式參數修改傳入的可變物件的內容」這一點上，兩者表現出的行為是相似的。而「在函式內重新賦值參數本身」這一操作，都不會影響到呼叫端的原始變數。\n* **應試重點**: 當函式參數是陣列/串列時，要高度警惕函式內部對其「內容」的修改，這類修改通常會影響到函式外部。` 
+            },
+            { id: 4, title: "問題 4", type: "程式效能分析", code: { c: `int mystery(int n) {\n  int i = 1;\n  int count = 0;\n  while (i < n) {\n    i = i * 2;\n    count = count + 1;\n  }\n  return count;\n}`, python: `def mystery(n):\n  i = 1\n  count = 0\n  while i < n:\n    i = i * 2\n    count = count + 1\n  return count` }, c: { questionText: "上述 `mystery` 函式的時間複雜度為何？", options: ["O(1)", "O(log n)", "O(n)", "O(n^2)"], correctAnswer: 1 }, python: { questionText: "上述 `mystery` 函式的時間複雜度為何？", options: ["O(1)", "O(log n)", "O(n)", "O(n^2)"], correctAnswer: 1 }, explanation: `**正確答案**: (B)\n\n* **題型分析**: 本題是典型的「程式效能分析」。\n* **分析**:\n    1.  觀察 \`while\` 迴圈的行為。變數 \`i\` 的初始值是 \`1\`。\n    2.  迴圈的終止條件是 \`i < n\`。\n    3.  在每次迴圈迭代中，\`i\` 的值都會變成原來的兩倍 (\`i = i * 2\`)。\n    4.  \`i\` 的變化序列是：1, 2, 4, 8, 16,... , \\(2^k\\)。\n    5.  迴圈會持續進行，直到 \\(2^k \\ge n\\)。\n    6.  對 \\(2^k = n\\) 兩邊取對數（以2為底），得到 \\(k = \\log_2 n\\)。\n    7.  這表示迴圈的執行次數（由 \`count\` 記錄）與 \\(n\\) 的對數成正比。\n    8.  因此，時間複雜度為 \\(O(\\log n)\\)。\n* **核心觀念解析**: 當一個演算法在每一步都將問題的規模縮減一個固定的比例（例如，減半）時，其時間複雜度通常是對數級別的。這是二分搜尋法和許多高效演算法的共同特徵。\n* **應試重點**: 看到迴圈中的迭代變數是以乘法或除法方式變化的（如 \`i = i * 2\` 或 \`i = i / 2\`），應立刻聯想到 \\(O(\\log n)\\) 的時間複雜度。` },
+            { id: 5, title: "問題 5", type: "解析計算邏輯", code: { c: `#include <stdio.h>\n\nint logic(int a, int b) {\n    while (b != 0) {\n        int temp = b;\n        b = a % b;\n        a = temp;\n    }\n    return a;\n}`, python: `def logic(a, b):\n    while b != 0:\n        a, b = b, a % b\n    return a` }, c: { questionText: "上述 `logic` 函式的功能為何？", options: ["計算 a 和 b 的最小公倍數 (LCM)", "計算 a 和 b 的最大公因數 (GCD)", "判斷 a 是否為 b 的倍數", "計算 a 的 b 次方"], correctAnswer: 1 }, python: { questionText: "上述 `logic` 函式的功能為何？", options: ["計算 a 和 b 的最小公倍數 (LCM)", "計算 a 和 b 的最大公因數 (GCD)", "判斷 a 是否為 b 的倍數", "計算 a 的 b 次方"], correctAnswer: 1 }, explanation: `**正確答案**: (B)\n\n* **題型分析**: 本題是「解析計算邏輯」，要求考生辨識出一個非常經典的演算法。\n* **分析**:\n    1.  這段程式碼實現了輾轉相除法（Euclidean Algorithm）。\n    2.  演算法的邏輯是：給定兩個正整數 \`a\` 和 \`b\`，只要 \`b\` 不為0，就不斷地用 \`b\` 去更新 \`a\`，並用 \`a % b\`（\`a\` 除以 \`b\` 的餘數）去更新 \`b\`。\n    3.  當 \`b\` 變為0時，迴圈終止，此時 \`a\` の値は原始兩個數的最大公因數。\n    4.  Pythonの寫法 \`a, b = b, a % b\` は一個更簡潔的、實現相同邏輯的語法糖。\n* **核心觀念解析**: 輾轉相除法是計算兩個整數最大公因數（Greatest Common Divisor, GCD）的標準且高效的演算法。\n* **應試重點**: 考生應熟記幾個基礎數論演算法的程式碼模式，如GCD、質數判斷等。在考試中能立刻辨識出來，可以節省大量追蹤和分析的時間。` },
+            { id: 6, title: "問題 6", type: "程式填空, 遞迴", code: { c: `#include <stdio.h>\n\nint sum_digits(int n) {\n    if (n < 10) {\n        return n;\n    }\n    // BLANK\n}\n\nint main() {\n    printf("%d\\n", sum_digits(543)); // 應輸出 12\n    return 0;\n}`, python: `def sum_digits(n):\n    if n < 10:\n        return n\n    # BLANK\n\nprint(sum_digits(543)) # 應輸出 12` }, c: { questionText: "為了讓程式正確計算一個正整數所有位數的和，`// BLANK` 處應填入下列何者？", options: ["return sum_digits(n / 10);", "return n % 10 + sum_digits(n / 10);", "return n / 10 + sum_digits(n % 10);", "return n % 10 * sum_digits(n / 10);"], correctAnswer: 1 }, python: { questionText: "為了讓程式正確計算一個正整數所有位數的和，`# BLANK` 處應填入下列何者？", options: ["return sum_digits(n // 10)", "return n % 10 + sum_digits(n // 10)", "return n // 10 + sum_digits(n % 10)", "return n % 10 * sum_digits(n // 10)"], correctAnswer: 1 }, explanation: `**正確答案**: (B)\n\n* **題型分析**: 本題是「程式填空」，主題是遞迴。\n* **分析**:\n    1.  **目標**: 計算一個正整數所有位數的和，例如 \`sum_digits(543)\` 應為 \`5 + 4 + 3 = 12\`。\n    2.  **遞迴設計**:\n        * **基礎情況 (Base Case)**: 如果數字 \`n\` 是一位數 (\`n < 10\`)，那麼它各位數的和就是它自己。程式碼 \`if (n < 10) { return n; }\` 正確處理了此情況。\n        * **遞迴步驟 (Recursive Step)**: 如果 \`n\` 是多位數，我們可以將問題分解為「最後一位數」加上「前面所有位數的和」。\n            * 「最後一位數」可以透過 \`n % 10\` 得到。例如 \`543 % 10\` 是 \`3\`。\n            * 「前面所有位數」可以透過整數除法 \`n / 10\` (C) 或 \`n // 10\` (Python) 得到。例如 \`543 / 10\` 是 \`54\`。\n            * 「前面所有位數的和」可以透過遞迴呼叫 \`sum_digits(n / 10)\` 來解決。\n    3.  **組合**: 將兩部分相加，即 \`n % 10 + sum_digits(n / 10)\`。\n    4.  選項 (B) 完全符合這個邏輯。\n* **核心觀念解析**: 遞迴的核心思想是將一個大問題分解成一個與原問題結構相同但規模更小的子問題，直到達到一個可以直接求解的基礎情況。\n* **應試重點**: 解決遞迴填空題時，先明確「基礎情況」和「遞迴步驟」，然後思考如何將問題分解，答案通常就是分解後的各部分的組合。` },
+            { id: 7, title: "問題 7", type: "程式除錯, 陣列與迴圈", code: { c: `#include <stdio.h>\n#include <stdbool.h>\n\n// 函式意圖判斷陣列是否為嚴格遞增\nbool is_increasing(int arr[], int size) {\n    for (int i = 0; i <= size - 1; i++) {\n        if (arr[i] >= arr[i + 1]) {\n            return false;\n        }\n    }\n    return true;\n}`, python: `# 函式意圖判斷串列是否為嚴格遞增\ndef is_increasing(arr):\n    for i in range(len(arr)):\n        if arr[i] >= arr[i + 1]:\n            return False\n    return True` }, c: { questionText: "對於一個包含3個元素的陣列 `[1, 2, 3]`，執行上述 C 函式會發生什麼事？", options: ["函式回傳 true", "函式回傳 false", "發生編譯錯誤", "發生執行期錯誤 (索引越界)"], correctAnswer: 3 }, python: { questionText: "對於一個包含3個元素的串列 `[1, 2, 3]`，執行上述 Python 函式會發生什麼事？", options: ["函式回傳 True", "函式回傳 False", "發生語法錯誤", "發生執行期錯誤 (IndexError)"], correctAnswer: 3 }, explanation: `**正確答案**: (D)\n\n* **題型分析**: 本題是「程式除錯」，專門測試陣列/串列操作中極其常見的「索引越界」錯誤。\n* **分析**:\n    1.  **函式意圖**: 判斷一個序列是否為嚴格遞增。\n    2.  **原版程式碼分析**: \`for\` 迴圈的條件是 \`i <= size - 1\` (C) 或 \`range(len(arr))\` (Python)，這會讓 \`i\` 的最大值達到 \`size - 1\`。\n    3.  **問題點**: 在迴圈體內部，程式碼存取了 \`arr[i + 1]\`。\n    4.  **邊界分析**: 當迴圈執行到最後一次迭代時，\`i\` 的值為 \`size - 1\`。此時，\`arr[i + 1]\` 就變成了 \`arr[size]\`。陣列/串列的合法索引是從 \`0\` 到 \`size - 1\`。因此，存取索引 \`size\` 是一個「索引越界 (Index out of bounds / IndexError)」錯誤。\n    5.  **觸發條件**: 這個錯誤只在迴圈能「跑完」的情況下才會發生。如果傳入的陣列不是嚴格遞增的，例如 \`[1, 1, 1]\`，迴圈會在第一次迭代時 (\`i=0\`) 就因為 \`arr[0] >= arr[1]\` 而 \`return false\`，根本不會執行到 \`i\` 為最大值的時候。只有當傳入的陣列是嚴格遞增的，如 \`[1, 2, 3]\`，迴圈才會一直執行到最後，從而觸發索引越界錯誤。\n* **核心觀念解析**: 索引越界是程式設計中最常見的執行期錯誤之一。它通常發生在迴圈的邊界條件處理不當。\n* **應試重點**: 檢查處理陣列的迴圈時，要特別關注最大索引值，並檢查迴圈體內是否有 \`i+1\` 或 \`i-1\` 等操作，確保它們不會超出 \`[0, length-1]\` 的範圍。` },
+            { id: 8, title: "問題 8", type: "程式運行追蹤, 堆疊", code: { c: `// 假設已有 Stack 的實作\nstack s = create_stack();\npush(&s, 5);\npush(&s, 8);\nint x = pop(&s);\npush(&s, x * 2);\npush(&s, 3);\nint y = pop(&s);`, python: `stack = []\nstack.append(5)\nstack.append(8)\nx = stack.pop()\nstack.append(x * 2)\nstack.append(3)\ny = stack.pop()` }, c: { questionText: "執行完上述程式碼後，變數 `y` 的值以及堆疊 `s` 頂端的元素分別為何？", options: ["y = 3, 頂端元素 = 16", "y = 16, 頂端元素 = 5", "y = 3, 頂端元素 = 5", "y = 8, 頂端元素 = 16"], correctAnswer: 0 }, python: { questionText: "執行完上述程式碼後，變數 `y` 的值以及堆疊 `stack` 頂端的元素分別為何？", options: ["y = 3, 頂端元素 = 16", "y = 16, 頂端元素 = 5", "y = 3, 頂端元素 = 5", "y = 8, 頂端元素 = 16"], correctAnswer: 0 }, explanation: `**正確答案**: (A)\n\n* **題型分析**: 本題是「程式運行追蹤」，專門測試對堆疊（Stack）後進先出（LIFO）特性的理解。\n* **追蹤步驟**:\n    1.  初始化空堆疊: \`[]\`\n    2.  \`push(5)\` / \`append(5)\`: 堆疊為 \`[5]\` (5在底)。\n    3.  \`push(8)\` / \`append(8)\`: 堆疊為 \`[5, 8]\` (8在頂)。\n    4.  \`x = pop()\` : 從頂部彈出元素。\`x\` 得到 \`8\`。堆疊變為 \`[5]\`。\n    5.  \`push(x * 2)\`: 計算 \`8 * 2 = 16\`，並壓入堆疊。堆疊為 \`[5, 16]\` (16在頂)。\n    6.  \`push(3)\`: 壓入 \`3\`。堆疊為 \`[5, 16, 3]\` (3在頂)。\n    7.  \`y = pop()\`: 從頂部彈出元素。\`y\` 得到 \`3\`。堆疊變為 \`[5, 16]\`。\n    8.  執行結束。\`y\` 的值是 \`3\`，堆疊頂端的元素是 \`16\`。\n* **核心觀念解析**: 堆疊是一種後進先出（LIFO）的資料結構。\`push\` 操作將元素添加到頂部，\`pop\` 操作從頂部移除元素。Python的list可以很方便地模擬堆疊行為。\n* **應試重點**: 追蹤堆疊或佇列問題時，用紙筆畫出資料結構的變化過程是最清晰、最不容易出錯的方法。` },
+            { id: 9, title: "問題 9", type: "程式效能分析, 遞迴", code: { c: `int naive_fib(int n) {\n  if (n <= 1) {\n    return n;\n  }\n  return naive_fib(n - 1) + naive_fib(n - 2);\n}`, python: `def naive_fib(n):\n  if n <= 1:\n    return n\n  return naive_fib(n - 1) + naive_fib(n - 2)` }, c: { questionText: "上述 `naive_fib` 函式的時間複雜度為何？", options: ["O(log n)", "O(n)", "O(n^2)", "O(2^n)"], correctAnswer: 3 }, python: { questionText: "上述 `naive_fib` 函式的時間複雜度為何？", options: ["O(log n)", "O(n)", "O(n^2)", "O(2^n)"], correctAnswer: 3 }, explanation: `**正確答案**: (D)\n\n* **題型分析**: 本題是「程式效能分析」，考查對未優化遞迴的複雜度判斷。\n* **分析**:\n    1.  \`naive_fib(n)\` 會呼叫 \`naive_fib(n - 1)\` 和 \`naive_fib(n - 2)\`。\n    2.  這是一個樹狀遞迴。我們可以畫出呼叫樹來觀察：\n        \`\`\`\n              fib(4)\n             /      \\\n          fib(3)    fib(2)\n         /    \\     /    \\\n      fib(2) fib(1) fib(1) fib(0)\n      /    \\\n   fib(1) fib(0)\n        \`\`\`\n    3.  從呼叫樹可以看出，有大量的重複計算（例如 \`fib(2)\` 被計算了兩次）。\n    4.  每次呼叫（除了基礎情況）都會產生兩次新的呼叫，這導致呼叫次數大致以 \\(2^n\\) 的級別增長。\n    5.  因此，其時間複雜度為指數級的 \\(O(2^n)\\)。\n* **核心觀念解析**: 樹狀遞迴若不使用記憶化（memoization）或動態規劃等技巧進行優化，其時間複雜度通常是指數級的，因為存在大量的冗餘計算。\n* **應試重點**: 看到遞迴函式在單次執行中呼叫自身超過一次時，要警惕其時間複雜度可能是指數級的。` },
+            { id: 10, title: "問題 10", type: "解析計算邏輯, 排序", code: { c: `void sort_logic(int arr[], int n) {\n  for (int i = 0; i < n - 1; i++) {\n    int min_idx = i;\n    for (int j = i + 1; j < n; j++) {\n      if (arr[j] < arr[min_idx]) {\n        min_idx = j;\n      }\n    }\n    // swap arr[i] with arr[min_idx]\n    int temp = arr[min_idx];\n    arr[min_idx] = arr[i];\n    arr[i] = temp;\n  }\n}`, python: `def sort_logic(arr):\n  n = len(arr)\n  for i in range(n - 1):\n    min_idx = i\n    for j in range(i + 1, n):\n      if arr[j] < arr[min_idx]:\n        min_idx = j\n    arr[i], arr[min_idx] = arr[min_idx], arr[i]` }, c: { questionText: "上述 `sort_logic` 函式實現了哪一種排序演算法？", options: ["氣泡排序 (Bubble Sort)", "插入排序 (Insertion Sort)", "選擇排序 (Selection Sort)", "合併排序 (Merge Sort)"], correctAnswer: 2 }, python: { questionText: "上述 `sort_logic` 函式實現了哪一種排序演算法？", options: ["氣泡排序 (Bubble Sort)", "插入排序 (Insertion Sort)", "選擇排序 (Selection Sort)", "合併排序 (Merge Sort)"], correctAnswer: 2 }, explanation: `**正確答案**: (C)\n\n* **題型分析**: 本題是「解析計算邏輯」，要求辨識基礎排序演算法。\n* **分析**:\n    1.  **外層迴圈**: \`for i from 0 to n-2:\`，這個迴圈負責確定第 \`i\` 個位置應該放哪個元素。\n    2.  **內層迴圈**: \`for j from i+1 to n-1:\`，這個迴圈的目的是在「剩餘的未排序部分」（從索引 \`i+1\` 開始）中尋找。\n    3.  **核心邏輯**: 內層迴圈透過 \`min_idx\` 變數記錄下未排序部分中「最小元素的索引」。\n    4.  **交換操作**: 內層迴圈結束後，將找到的最小元素（位於 \`min_idx\`）與當前外層迴圈決定的位置（\`i\`）進行交換。\n    5.  這個「每次從未排序部分中選擇最小的元素，放到已排序部分的末尾」的邏輯，正是選擇排序（Selection Sort）的定義。\n* **核心觀念解析**:\n    * **選擇排序**: 每次迭代找到剩餘元素中的最小值，並將其放置在正確的位置。\n    * **氣泡排序**: 比較相鄰元素，將較大者「冒泡」到後面。\n    * **插入排序**: 將當前元素插入到前面已排序部分的合適位置。\n* **應試重點**: 熟悉三種基礎 \\(O(n^2)\\) 排序演算法的程式碼模式是必要的。選擇排序的特徵是「找到最小/大值的索引後再交換」，氣泡和插入排序則是在內層迴圈中就可能進行交換。` },
+            { id: 11, title: "問題 11", type: "程式運行追蹤, 位元運算", code: { c: `#include <stdio.h>\n\nint main() {\n    int a = 5;  // 0101\n    int b = 3;  // 0011\n    int c = a & b;\n    int d = a | b;\n    int e = a ^ b;\n    printf("%d %d %d\\n", c, d, e);\n    return 0;\n}`, python: `a = 5  # 0101\nb = 3  # 0011\nc = a & b\nd = a | b\ne = a ^ b\nprint(c, d, e)` }, c: { questionText: "上述程式碼的輸出為何？", options: ["1 7 6", "1 5 3", "3 5 6", "0 7 5"], correctAnswer: 0 }, python: { questionText: "上述程式碼的輸出為何？", options: ["1 7 6", "1 5 3", "3 5 6", "0 7 5"], correctAnswer: 0 }, explanation: `**正確答案**: (A)\n\n* **題型分析**: 本題是「程式運行追蹤」，專門測試對位元運算子的理解。\n* **追蹤步驟**:\n    1.  \`a = 5\` 的二進位表示是 \`0101\`。\n    2.  \`b = 3\` 的二進位表示是 \`0011\`。\n    3.  \`c = a & b\` (AND):\n        \`\`\`\n          0101 (a)\n        & 0011 (b)\n        ------\n          0001 (c)  --> 十進位的 1\n        \`\`\`\n    4.  \`d = a | b\` (OR):\n        \`\`\`\n          0101 (a)\n\n| 0011 (b)\n        ------\n          0111 (d)  --> 十進位的 7\n        \`\`\`\n    5.  \`e = a ^ b\` (XOR):\n        \`\`\`\n          0101 (a)\n        ^ 0011 (b)\n        ------\n          0110 (e)  --> 十進位的 6\n        \`\`\`\n    6.  因此，輸出為 \`1 7 6\`。\n* **核心觀念解析**:\n    * `&` (AND): 兩個位元都是1，結果才是1。\n    * `|` (OR): 只要有一個位元是1，結果就是1。\n    * `^` (XOR): 兩個位元不同，結果才是1。\n* **應試重點**: 位元運算是C和Python共有的底層操作，在APCS中可能出現。考生應熟練掌握 AND, OR, XOR 三種基本運算。` },
+            { id: 12, title: "問題 12", type: "程式填空, 二分搜尋", code: { c: `#include <stdio.h>\n\nint binary_search(int arr[], int size, int target) {\n    int low = 0, high = size - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] == target) {\n            return mid;\n        } else if (arr[mid] < target) {\n            // BLANK\n        } else {\n            high = mid - 1;\n        }\n    }\n    return -1;\n}`, python: `def binary_search(arr, target):\n    low, high = 0, len(arr) - 1\n    while low <= high:\n        mid = low + (high - low) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            # BLANK\n        else:\n            high = mid - 1\n    return -1` }, c: { questionText: "為了讓二分搜尋法正確運作，`// BLANK` 處應填入下列何者？", options: ["high = mid + 1;", "high = mid - 1;", "low = mid + 1;", "low = mid - 1;"], correctAnswer: 2 }, python: { questionText: "為了讓二分搜尋法正確運作，`# BLANK` 處應填入下列何者？", options: ["high = mid + 1", "high = mid - 1", "low = mid + 1", "low = mid - 1"], correctAnswer: 2 }, explanation: `**正確答案**: (C)\n\n* **題型分析**: 本題是「程式填空」，測試對二分搜尋法核心邏輯的理解。\n* **分析**:\n    1.  **演算法**: 二分搜尋法在一個「已排序」的陣列中尋找目標。\n    2.  **邏輯**: 比較中間元素 \`arr[mid]\` 和目標 \`target\`。\n    3.  **情況分析**:\n        * \`arr[mid] == target\`: 找到了，回傳 \`mid\`。\n        * \`arr[mid] > target\`: 目標在左半邊，所以需要縮小搜尋範圍，將 \`high\` 移到 \`mid\` 的左邊，即 \`high = mid - 1\`。\n        * \`arr[mid] < target\`: 目標在右半邊，所以需要縮小搜尋範圍，將 \`low\` 移到 \`mid\` 的右邊，即 \`low = mid + 1\`。\n    4.  **填空**: 題目中的 \`BLANK\` 位於 \`arr[mid] < target\` 的條件分支下，因此應填入 \`low = mid + 1;\` (C) 或 \`low = mid + 1\` (Python)。\n* **核心觀念解析**: 二分搜尋法的精髓在於每次比較後都能排除一半的不可能範圍，從而實現 \\(O(\\log n)\\) 的高效搜尋。\n* **應試重點**: 必須牢記二分搜尋法中 \`low\` 和 \`high\` 指標的更新規則，這是該演算法不出錯的關鍵。` },
+            { id: 13, title: "問題 13", type: "程式運行追蹤, 多維陣列", code: { c: `#include <stdio.h>\n\nint main() {\n    int matrix[2][3] = {{1, 2, 3}, {4, 5, 6}};\n    int sum = 0;\n    for (int i = 0; i < 2; i++) {\n        sum += matrix[i][i];\n    }\n    printf("%d\\n", sum);\n    return 0;\n}`, python: `matrix = [[1, 2, 3], [4, 5, 6]]\nsum_val = 0\nfor i in range(2):\n    sum_val += matrix[i][i]\nprint(sum_val)` }, c: { questionText: "上述程式碼的輸出為何？", options: ["3", "6", "10", "21"], correctAnswer: 1 }, python: { questionText: "上述程式碼的輸出為何？", options: ["3", "6", "10", "21"], correctAnswer: 1 }, explanation: `**正確答案**: (B)\n\n* **題型分析**: 本題是「程式運行追蹤」，測試對二維陣列/串列的索引和迴圈操作。\n* **追蹤步驟**:\n    1.  \`sum\` / \`sum_val\` 初始化為 \`0\`。\n    2.  **第一次迴圈 (i = 0)**:\n        * \`sum += matrix[0][0];\`\n        * \`matrix[0][0]\` 的值是 \`1\`。\n        * \`sum\` 變為 \`0 + 1 = 1\`。\n    3.  **第二次迴圈 (i = 1)**:\n        * \`sum += matrix[1][1];\`\n        * \`matrix[1][1]\` 的值是 \`5\`。\n        * \`sum\` 變為 \`1 + 5 = 6\`。\n    4.  迴圈結束。\n    5.  \`printf\` / \`print\` 輸出 \`sum\` 的最終值 \`6\`。\n* **核心觀念解析**: 這段程式碼在計算一個2x3矩陣的「主對角線」上元素的部分和（因為矩陣不是方陣，所以只加了 \`matrix[0][0]\` 和 \`matrix[1][1]\`）。\n* **應試重點**: 追蹤二維陣列時，要仔細看清楚迴圈變數 \`i\` 和 \`j\` 如何被用作索引，特別是當索引不是 \`[i][j]\` 而是 \`[i][i]\` 或 \`[j][i]\` 等變形時。` },
+            { id: 14, title: "問題 14", type: "程式除錯, 字串", code: { c: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\n// 函式意圖判斷字串是否為迴文\nbool is_palindrome(char* str) {\n    int left = 0;\n    int right = strlen(str) - 1;\n    while (left < right) {\n        if (str[left] != str[right]) {\n            return false;\n        }\n        left++;\n        // BUG HERE\n    }\n    return true;\n}`, python: `# 函式意圖判斷字串是否為迴文\ndef is_palindrome(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        if s[left] != s[right]:\n            return False\n        left += 1\n        # BUG HERE\n    return True` }, c: { questionText: "上述函式中存在一個邏輯錯誤，導致它無法正確判斷所有迴文。應如何修正 `// BUG HERE` 下一行的邏輯？", options: ["left--;", "right++;", "right--;", "不需要修正"], correctAnswer: 2 }, python: { questionText: "上述函式中存在一個邏輯錯誤，導致它無法正確判斷所有迴文。應如何修正 `# BUG HERE` 下一行的邏輯？", options: ["left -= 1", "right += 1", "right -= 1", "不需要修正"], correctAnswer: 2 }, explanation: `**正確答案**: (C)\n\n* **題型分析**: 本題是「程式除錯」，測試對雙指標演算法的理解。\n* **分析**:\n    1.  **演算法意圖**: 使用左右兩個指標 \`left\` 和 \`right\`，從字串兩端向中間比較，判斷是否為迴文。\n    2.  **邏輯流程**:\n        * \`left\` 從 \`0\` 開始，\`right\` 從 \`len - 1\` 開始。\n        * \`while (left < right)\` 確保指標沒有交錯。\n        * 比較 \`str[left]\` 和 \`str[right]\`。\n        * 如果不相等，立即回傳 \`false\`。\n        * 如果相等，則需要將兩個指標向中間移動，以比較下一對字元。\n    3.  **錯誤點**: 程式碼中只有 \`left++\`，將左指標向右移動。右指標 \`right\` 沒有移動。\n    4.  **修正**: 為了讓右指標向左移動，必須在 \`left++\` 之後加上 \`right--;\`。\n* **核心觀念解析**: 雙指標（Two Pointers）是一種常見的演算法技巧，常用於處理陣列或字串。在迴文判斷中，一個指標從頭開始，一個從尾開始，同步向中間移動。\n* **應試重點**: 在審查使用雙指標的程式碼時，務必檢查兩個指標是否都進行了正確的更新（增加或減少）。遺漏其中一個的更新是常見的錯誤。` },
+            { id: 15, title: "問題 15", type: "程式運行追蹤, 遞迴", code: { c: `#include <stdio.h>\n\nvoid mystery(int n) {\n    if (n > 0) {\n        printf("%d ", n);\n        mystery(n - 1);\n        mystery(n - 1);\n    }\n}\n\nint main() {\n    mystery(3);\n    return 0;\n}`, python: `def mystery(n):\n    if n > 0:\n        print(n, end=" ")\n        mystery(n - 1)\n        mystery(n - 1)\n\nmystery(3)` }, c: { questionText: "上述程式碼的輸出為何？", options: ["3 2 1 1 2 1 1", "3 2 1 2 1", "3 2 2 1 1 1 1", "1 2 1 3 1 2 1"], correctAnswer: 0 }, python: { questionText: "上述程式碼的輸出為何？", options: ["3 2 1 1 2 1 1", "3 2 1 2 1", "3 2 2 1 1 1 1", "1 2 1 3 1 2 1"], correctAnswer: 0 }, explanation: `**正確答案**: (A)\n\n* **題型分析**: 本題是「程式運行追蹤」，測試對樹狀遞迴執行順序的理解。\n* **追蹤步驟 (呼叫堆疊視覺化)**:\n    * \`mystery(3)\`: print \`3\`, 呼叫 \`mystery(2)\`\n        * \`mystery(2)\`: print \`2\`, 呼叫 \`mystery(1)\`\n            * \`mystery(1)\`: print \`1\`, 呼叫 \`mystery(0)\` (不執行), 呼叫 \`mystery(0)\` (不執行)\n        * (從 \`mystery(2)\` 的第一次呼叫返回), 再次呼叫 \`mystery(1)\`\n            * \`mystery(1)\`: print \`1\`, 呼叫 \`mystery(0)\` (不執行), 呼叫 \`mystery(0)\` (不執行)\n    * (從 \`mystery(3)\` 的第一次呼叫返回), 再次呼叫 \`mystery(2)\`\n        * \`mystery(2)\`: print \`2\`, 呼叫 \`mystery(1)\`\n            * \`mystery(1)\`: print \`1\`, 呼叫 \`mystery(0)\` (不執行), 呼叫 \`mystery(0)\` (不執行)\n        * (從 \`mystery(2)\` 的第二次呼叫返回), 再次呼叫 \`mystery(1)\`\n            * \`mystery(1)\`: print \`1\`, 呼叫 \`mystery(0)\` (不執行), 呼叫 \`mystery(0)\` (不執行)\n* **輸出序列**: 根據 \`printf\`/\`print\` 的執行順序，輸出為 \`3 2 1 1 2 1 1\`。\n* **核心觀念解析**: 遞迴的執行順序遵循深度優先（Depth-First）的原則。在一個函式呼叫中，其內部的第一個遞迴呼叫會被完整地執行到底（直到基礎情況），然後才會執行第二個遞迴呼叫。\n* **應試重點**: 對於樹狀遞迴的追蹤，畫出呼叫樹並標示出 \`print\` 語句的執行時機是最高效且最準確的方法。` },
+            { id: 16, title: "問題 16", type: "解析計算邏輯, 佇列", code: { c: `// 假設已有 Queue 和 List 的實作\nList* process_data(List* data_list) {\n  Queue q = create_queue();\n  for (int i = 0; i < data_list->size; i++) {\n    enqueue(&q, get_element(data_list, i));\n  }\n  \n  List* result = create_list();\n  while (!is_empty(&q)) {\n    int item = dequeue(&q);\n    if (item > 10) {\n      add_element(result, item);\n    }\n  }\n  return result;\n}`, python: `from collections import deque\n\ndef process_data(data_list):\n  q = deque(data_list)\n  \n  result = []\n  while q:\n    item = q.popleft()\n    if item > 10:\n      result.append(item)\n  return result` }, c: { questionText: "上述 `process_data` 函式的功能為何？", options: ["回傳 `data_list` 中所有大於 10 的元素，順序不變", "回傳 `data_list` 中所有小於等於 10 的元素，順序不變", "回傳 `data_list` 中所有大於 10 的元素，順序顛倒", "回傳 `data_list` 中所有小於等於 10 的元素，順序顛倒"], correctAnswer: 0 }, python: { questionText: "上述 `process_data` 函式的功能為何？", options: ["回傳 `data_list` 中所有大於 10 的元素，順序不變", "回傳 `data_list` 中所有小於等於 10 的元素，順序不變", "回傳 `data_list` 中所有大於 10 的元素，順序顛倒", "回傳 `data_list` 中所有小於等於 10 的元素，順序顛倒"], correctAnswer: 0 }, explanation: `**正確答案**: (A)\n\n* **題型分析**: 本題是「解析計算邏輯」，要求理解佇列（Queue）的特性如何影響資料處理流程。\n* **分析**:\n    1.  **第一部分**: \`q = deque(data_list)\`。這段程式碼將 \`data_list\` 中的所有元素按照原始順序加入到一個佇列 \`q\` 中。\n    2.  **佇列特性**: 佇列是先進先出（FIFO）。這意味著元素被取出的順序將和它們被加入的順序完全相同。\n    3.  **第二部分**: \`while q: item = q.popleft()...\`。這段程式碼按照 FIFO 的順序從佇列中取出元素。\n    4.  **過濾邏輯**: \`if item > 10: result.append(item)\`。只有大於10的元素會被加入到 \`result\` 串列中。\n    5.  **結論**: 整個函式的功能是：遍歷原始串列，篩選出其中大於10的元素，並保持它們的原始相對順序不變。\n* **核心觀念解析**: 佇列的 FIFO 特性使其成為一個天然的「順序保持器」。將資料存入佇列再取出，可以確保處理順序與輸入順序一致。\n* **應試重點**: 看到 \`enqueue\` 和 \`dequeue\` (或Python的 \`deque.popleft()\`) 操作時，應立即聯想到 FIFO 原則，並推斷資料的處理順序將與其進入順序相同。` },
+            { id: 17, title: "問題 17", type: "程式效能分析", code: { c: `long long do_something(int n) {\n  long long count = 0;\n  for (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n      count = count + 1;\n    }\n  }\n  \n  for (int k = 0; k < n; k++) {\n    count = count + 1;\n  }    \n  return count;\n}`, python: `def do_something(n):\n  count = 0\n  for i in range(n):\n    for j in range(n):\n      count = count + 1\n  \n  for k in range(n):\n    count = count + 1\n    \n  return count` }, c: { questionText: "上述 `do_something` 函式的時間複雜度為何？", options: ["O(n)", "O(n log n)", "O(n^2)", "O(n^3)"], correctAnswer: 2 }, python: { questionText: "上述 `do_something` 函式的時間複雜度為何？", options: ["O(n)", "O(n log n)", "O(n^2)", "O(n^3)"], correctAnswer: 2 }, explanation: `**正確答案**: (C)\n\n* **題型分析**: 本題是「程式效能分析」，測試對多個獨立迴圈塊的複雜度計算。\n* **分析**:\n    1.  **第一部分**: 是一個雙層巢狀迴圈。\n        * 外層迴圈執行 \`n\` 次。\n        * 內層迴圈也執行 \`n\` 次。\n        * 總執行次數約為 \\(n \\times n = n^2\\)。\n        * 因此，這部分的複雜度是 \\(O(n^2)\\)。\n    2.  **第二部分**: 是一個單層迴圈。\n        * 迴圈執行 \`n\` 次。\n        * 這部分的複雜度是 \\(O(n)\\)。\n    3.  **總複雜度**: 當一個演算法由多個連續的程式塊組成時，其總時間複雜度由其中「增長最快」的那個程式塊決定。\n    4.  比較 \\(O(n^2)\\) 和 \\(O(n)\\)， \\(O(n^2)\\) 增長得更快。\n    5.  因此，整個函式的時間複雜度為 \\(O(n^2)\\)。\n* **核心觀念解析**: 在 Big O 表示法中，我們只關心當 \`n\` 趨於無窮大時的增長率，因此低階項（如 \\(n\\)）和常數係數可以被忽略。\\(O(n^2 + n)\\) 簡化為 \\(O(n^2)\\)。\n* **應試重點**: 分析包含多個獨立迴圈的程式碼時，只需找出其中複雜度最高的那個迴圈，即為整段程式碼的複雜度。` },
+            { id: 18, title: "問題 18", type: "程式運行追蹤, struct/class", code: { c: `#include <stdio.h>\n\ntypedef struct {\n    int x;\n    int y;\n} Point;\n\nvoid move(Point *p) {\n    p->x += p->y;\n}\n\nint main() {\n    Point my_point = {5, 3};\n    move(&my_point);\n    printf("%d\\n", my_point.x);\n    return 0;\n}`, python: `class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\ndef move(p):\n    p.x += p.y\n\nmy_point = Point(5, 3)\nmove(my_point)\nprint(my_point.x)` }, c: { questionText: "上述程式碼的輸出為何？", options: ["3", "5", "8", "程式會出錯"], correctAnswer: 2 }, python: { questionText: "上述程式碼的輸出為何？", options: ["3", "5", "8", "程式會出錯"], correctAnswer: 2 }, explanation: `**正確答案**: (C)\n\n* **題型分析**: 本題是「程式運行追蹤」，測試對 C \`struct\` 指標和 Python \`class\` 物件作為函式參數的理解。\n* **C語言程式碼追蹤步驟**:\n    1.  \`Point my_point = {5, 3};\` 建立一個 \`Point\` 結構變數，\`my_point.x\` 為 5，\`my_point.y\` 為 3。\n    2.  \`move(&my_point);\` 呼叫函式，並傳入 \`my_point\` 的記憶體位址（指標）。函式參數 \`p\` 接收了這個位址。\n    3.  在 \`move\` 函式內，\`p->x += p->y;\` 相當於 \`(*p).x = (*p).x + (*p).y;\`。\n    4.  透過指標 \`p\`，程式存取了 \`my_point\` 的成員 \`x\` 和 \`y\`。\n    5.  計算 \`5 + 3 = 8\`，並將結果 \`8\` 存回 \`my_point.x\`。\n    6.  函式結束後，\`my_point.x\` 的值變為 \`8\`。\n    7.  \`printf\` 輸出 \`8\`。\n* **Python程式碼追蹤步驟**:\n    1.  \`my_point = Point(5, 3)\` 建立一個 \`Point\` 類別的實例（物件），\`my_point.x\` 為 5，\`my_point.y\` 為 3。\n    2.  \`move(my_point)\` 呼叫函式，將 \`my_point\` 所參考的物件的「參考」傳遞給參數 \`p\`。\n    3.  在 \`move\` 函式內，\`p\` 和 \`my_point\` 參考同一個物件。\n    4.  \`p.x += p.y\` 直接修改了該物件的 \`x\` 屬性。\n    5.  計算 \`5 + 3 = 8\`，物件的 \`x\` 屬性變為 \`8\`。\n    6.  函式結束後，\`my_point\` 仍然參考著那個被修改過的物件。\n    7.  \`print\` 輸出 \`my_point.x\` 的值，即 \`8\`。\n* **核心觀念解析**: 與第三題類似，本題展示了如何透過指標（C）或物件參考（Python）在函式內修改傳入的複合資料結構的狀態。\n* **應試重點**: 無論是 C 的 \`struct\` 指標還是 Python 的類別實例，當它們被傳遞給函式時，函式內部對其成員/屬性的修改都會影響到原始的資料。` },
+            { id: 19, title: "問題 19", type: "程式除錯, 邏輯運算", code: { c: `#include <stdio.h>\n#include <stdbool.h>\n\n// 函式意圖判斷年份是否為閏年\n// 規則：(1)可被4整除但不可被100整除，或 (2)可被400整除\nbool is_leap(int year) {\n    return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;\n}`, python: `# 函式意圖判斷年份是否為閏年\n# 規則：(1)可被4整除但不可被100整除，或 (2)可被400整除\ndef is_leap(year):\n    return (year % 4 == 0 and year % 100 != 0) or year % 400 == 0` }, c: { questionText: "對於判斷閏年的標準邏輯，上述 C 程式碼的實作是否正確？", options: ["正確", "錯誤"], correctAnswer: 0 }, python: { questionText: "對於判斷閏年的標準邏輯，上述 Python 程式碼的實作是否正確？", options: ["正確", "錯誤"], correctAnswer: 0 }, explanation: `**正確答案**: (A)\n\n* **題型分析**: 本題是「程式除錯」與「語言特性」，檢驗對邏輯運算子優先序的理解。\n* **閏年規則**: 一個年份是閏年，若滿足以下兩個條件之一：\n    1.  可以被 4 整除，但不能被 100 整除。\n    2.  可以被 400 整除。\n* **邏輯表達式**: 這個規則可以寫成 \`(year % 4 == 0 AND year % 100 != 0) OR (year % 400 == 0)\`。\n* **C語言分析**: C語言中，邏輯 AND (\`&&\`) 的優先序高於邏輯 OR (\`||\`)。因此，表達式 \`(year % 4 == 0 && year % 100 != 0) || year % 400 == 0\` 會被正確地先計算 \`&&\` 部分，再計算 \`||\` 部分，這與閏年的邏輯完全相符。\n* **Python語言分析**: Python中，\`and\` 的優先序也高於 \`or\`。因此，表達式 \`(year % 4 == 0 and year % 100 != 0) or year % 400 == 0\` 同樣會被正確地先計算 \`and\` 部分，再計算 \`or\` 部分。即使不加括號，\`year % 4 == 0 and year % 100 != 0 or year % 400 == 0\` 的結果也是一樣的。\n* **結論**: 兩段程式碼都正確地實現了閏年的判斷邏輯。\n* **應試重點**: 熟記邏輯運算子的優先順序 (\`NOT\` > \`AND\` > \`OR\`) 是分析複雜條件式的基礎。` },
+            { id: 20, title: "問題 20", type: "解析計算邏輯", code: { c: `#include <stdio.h>\n#include <stdbool.h>\n\nbool check(int n) {\n    if (n <= 1) return false;\n    for (int i = 2; i * i <= n; i++) {\n        if (n % i == 0) {\n            return false;\n        }\n    }\n    return true;\n}`, python: `import math\n\ndef check(n):\n    if n <= 1:\n        return False\n    for i in range(2, int(math.sqrt(n)) + 1):\n        if n % i == 0:\n            return False\n    return True` }, c: { questionText: "上述 `check` 函式的功能為何？", options: ["判斷 n 是否為偶數", "判斷 n 是否為完全數", "判斷 n 是否為質數", "判斷 n 是否為平方數"], correctAnswer: 2 }, python: { questionText: "上述 `check` 函式的功能為何？", options: ["判斷 n 是否為偶數", "判斷 n 是否為完全數", "判斷 n 是否為質數", "判斷 n 是否為平方數"], correctAnswer: 2 }, explanation: `**正確答案**: (C)\n\n* **題型分析**: 本題是「解析計算邏輯」，要求辨識質數判斷演算法。\n* **分析**:\n    1.  **函式邏輯**:\n        * 首先，處理基礎情況：小於等於1的數不是質數，直接回傳 \`false\`。\n        * 然後，從 \`2\` 開始進行迴圈，一直到 \`n\` 的平方根 (\`i * i <= n\` 或 \`int(math.sqrt(n))\`)。\n        * 在迴圈中，檢查 \`n\` 是否能被當前的 \`i\` 整除 (\`n % i == 0\`)。\n        * 如果能被任何一個 \`i\` 整除，表示 \`n\` 有除了1和自身以外的因數，因此它不是質數，立即回傳 \`false\`。\n        * 如果迴圈跑完都沒有找到任何能整除 \`n\` 的數，表示 \`n\` 是質數，回傳 \`true\`。\n    2.  **演算法辨識**: 這個「檢查從2到其平方根之間是否存在因數」的過程，是判斷一個數是否為質數（Prime Number）的標準優化演算法。\n* **核心觀念解析**: 質數的定義是「一個大於1的自然數，除了1和它自身以外沒有其他因數」。檢查因數時，只需檢查到其平方根即可，因為如果 \`n\` 有一個大於其平方根的因數 \`a\`，那麼它必然有一個小於其平方根的因數 \`n/a\`。\n* **應試重點**: 質數判斷是基礎演算法中的常客，考生應能一眼認出其標準實作的程式碼。看到 \`for\` 迴圈的條件是 \`i * i <= n\` 或 \`i <= sqrt(n)\` 時，應立刻聯想到與質數相關的計算。` }
+        ];
+
+        // --- APP LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- State ---
+            let selectedLanguage = null;
+
+            // --- Elements ---
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const contentPages = document.querySelectorAll('.content-page');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const langSelectionContainer = document.getElementById('language-selection-container');
+            const quizMainContainer = document.getElementById('quiz-main-container');
+            const quizContainer = document.getElementById('quiz-container');
+            const submitButton = document.getElementById('submit-quiz-btn');
+            const resultsDiv = document.getElementById('quiz-results');
+            const scoreText = document.getElementById('score-text');
+            const resultsContainer = document.getElementById('results-container');
+            const downloadPdfButton = document.getElementById('download-pdf-btn');
+            const markdownConverter = new showdown.Converter();
+
+            // --- Navigation Logic ---
+            function showPage(pageId) {
+                contentPages.forEach(page => {
+                    page.classList.toggle('active', page.id === pageId);
+                });
+
+                // Handle sidebar links activation
+                sidebarLinks.forEach(link => {
+                    const isSubLink = link.classList.contains('sub-link');
+                    const isParentLink = link.classList.contains('parent-link');
+                    const linkPageId = link.dataset.page;
+
+                    if (linkPageId === pageId) {
+                        link.classList.add('active');
+                        // If it's a sub-link, open its parent menu
+                        if (isSubLink) {
+                            const parentMenu = link.closest('.sub-menu');
+                            if (parentMenu) {
+                                parentMenu.classList.add('open');
+                                const parentLink = parentMenu.previousElementSibling;
+                                if(parentLink) parentLink.classList.add('open');
+                            }
+                        }
+                    } else {
+                        link.classList.remove('active');
+                        // Do not close parent menus if another sub-link is active
+                        if(isParentLink) {
+                            const subMenu = link.nextElementSibling;
+                            if (subMenu && !subMenu.querySelector('.sidebar-link.active')) {
+                                link.classList.remove('open');
+                                subMenu.classList.remove('open');
+                            }
+                        }
+                    }
+                });
+
+                window.scrollTo(0, 0);
+            }
+
+            function handleNavClick(e) {
+                e.preventDefault();
+                const target = e.currentTarget;
+                const targetPageId = target.dataset.page;
+
+                if (target.classList.contains('parent-link')) {
+                    const subMenu = target.nextElementSibling;
+                    if (subMenu && subMenu.classList.contains('sub-menu')) {
+                        target.classList.toggle('open');
+                        subMenu.classList.toggle('open');
+                    }
+                }
+                
+                if (targetPageId) {
+                    showPage(targetPageId);
+                    if (mobileMenu.classList.contains('open')) {
+                        mobileMenu.classList.remove('open');
+                        mobileMenuOverlay.classList.add('hidden');
+                    }
+                }
+            }
+            
+            sidebarLinks.forEach(link => link.addEventListener('click', handleNavClick));
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('open');
+                mobileMenuOverlay.classList.toggle('hidden');
+            });
+            mobileMenuOverlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenuOverlay.classList.add('hidden');
+            });
+
+            // --- Quiz Language Selection ---
+            langSelectionContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('.lang-select-btn');
+                if (button) {
+                    selectedLanguage = button.dataset.lang;
+                    langSelectionContainer.classList.add('hidden');
+                    quizMainContainer.classList.remove('hidden');
+                    document.getElementById('quiz-subtitle').textContent = `測驗語言：${selectedLanguage === 'c' ? 'C 語言' : 'Python'}`;
+                    renderQuiz(selectedLanguage);
+                }
+            });
+
+            // --- Quiz Rendering ---
+            function renderQuiz(language) {
+                const langClass = language === 'c' ? 'language-c' : 'language-python';
+                quizContainer.innerHTML = questions.map(q => {
+                    const questionData = q[language];
+                    return `
+                    <div id="question-${q.id}" class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <div>
+                            <p class="text-sm font-semibold text-blue-600">${q.type}</p>
+                            <h3 class="text-xl font-bold text-gray-800 mt-1">${q.title}</h3>
+                        </div>
+                        <div class="mt-4 bg-gray-900 rounded-lg overflow-hidden">
+                            <pre><code class="${langClass} hljs">${hljs.highlight(q.code[language], {language: language}).value}</code></pre>
+                        </div>
+                        <p class="mt-4 text-gray-700 font-medium">${questionData.questionText}</p>
+                        <div class="mt-4 space-y-3" id="options-${q.id}">
+                            ${questionData.options.map((opt, i) => `
+                                <label for="q${q.id}-opt${i}" class="flex items-center p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-100">
+                                    <input type="radio" name="question-${q.id}" id="q${q.id}-opt${i}" value="${i}" class="mr-3 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                    <span class="text-gray-800">${opt.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `}).join('');
+            }
+            
+            // --- Quiz Submission ---
+            submitButton.addEventListener('click', () => {
+                let score = 0;
+                const userAnswers = [];
+
+                questions.forEach(q => {
+                    const selectedOption = document.querySelector(`input[name="question-${q.id}"]:checked`);
+                    const answer = selectedOption ? parseInt(selectedOption.value) : -1;
+                    userAnswers.push(answer);
+                    const correctAnswer = q[selectedLanguage].correctAnswer;
+                    if (answer === correctAnswer) {
+                        score++;
+                    }
+                });
+
+                scoreText.textContent = `您答對了 ${score} / ${questions.length} 題。`;
+                resultsDiv.classList.remove('hidden');
+                displayResults(userAnswers, selectedLanguage);
+                
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                submitButton.classList.add('hidden');
+            });
+
+            function displayResults(userAnswers, language) {
+                const langClass = language === 'c' ? 'language-c' : 'language-python';
+                resultsContainer.innerHTML = questions.map((q, index) => {
+                    const userAnswer = userAnswers[index];
+                    const questionData = q[language];
+                    const isCorrect = userAnswer === questionData.correctAnswer;
+                    
+                    const optionsHtml = questionData.options.map((opt, i) => {
+                        let classes = 'p-3 border rounded-lg flex items-center ';
+                        if (i === questionData.correctAnswer) {
+                            classes += 'bg-green-100 border-green-400 font-bold';
+                        } else if (i === userAnswer) {
+                            classes += 'bg-red-100 border-red-400';
+                        } else {
+                            classes += 'bg-gray-50';
+                        }
+                        return `<div class="${classes}">${opt.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+                    }).join('');
+
+                    return `
+                        <div id="result-${q.id}" class="result-item bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xl font-bold text-gray-800">${q.title}</h3>
+                                ${isCorrect 
+                                    ? '<span class="text-sm font-bold py-1 px-3 bg-green-200 text-green-800 rounded-full">正確</span>' 
+                                    : '<span class="text-sm font-bold py-1 px-3 bg-red-200 text-red-800 rounded-full">錯誤</span>'
+                                }
+                            </div>
+                             <div class="mt-4 bg-gray-900 rounded-lg overflow-hidden">
+                                <pre><code class="${langClass} hljs">${hljs.highlight(q.code[language], {language: language}).value}</code></pre>
+                            </div>
+                            <p class="mt-4 text-gray-700 font-medium">${questionData.questionText}</p>
+                            <div class="mt-4 space-y-3">${optionsHtml}</div>
+                            <div class="mt-6 p-4 bg-blue-50 border-t-2 border-blue-200 rounded-b-lg explanation-container">
+                                <h4 class="font-bold text-blue-800">詳解</h4>
+                                <div class="prose-custom mt-2 text-sm">${markdownConverter.makeHtml(q.explanation)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // --- PDF Download Logic (REVISED) ---
+            downloadPdfButton.addEventListener('click', () => {
+                // Check if libraries are loaded
+                if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined') {
+                    console.error("PDF generation libraries not loaded.");
+                    downloadPdfButton.innerHTML = "函式庫載入失敗";
+                    alert("抱歉，PDF生成功能所需的函式庫載入失敗，請檢查您的網路連線或稍後再試。");
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const originalButtonText = downloadPdfButton.innerHTML;
+                downloadPdfButton.innerHTML = '產生中...';
+                downloadPdfButton.disabled = true;
+
+                // Initialize PDF
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'pt',
+                    format: 'a4'
+                });
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const margin = 40; // 40pt margin
+                const contentWidth = pdfWidth - (margin * 2);
+
+                // Helper function to add an element to the PDF
+                const addElementToPdf = async (element, isFirstPage = false) => {
+                    const canvas = await window.html2canvas(element, {
+                        scale: 1.5, // Reduced scale for smaller file size
+                        useCORS: true,
+                        logging: false,
+                        onclone: (doc) => {
+                             const btn = doc.getElementById('download-pdf-btn');
+                             if (btn) btn.style.display = 'none';
+                             const explanations = doc.querySelectorAll('.explanation-container');
+                             explanations.forEach(el => el.style.display = 'none');
+                        }
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95); // Use JPEG for compression
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
+                    
+                    if (!isFirstPage) {
+                        pdf.addPage();
+                    }
+                    
+                    pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, imgHeight); // Use JPEG
+                };
+
+                // Process elements sequentially
+                (async () => {
+                    try {
+                        const summaryElement = document.getElementById('summary-container');
+                        await addElementToPdf(summaryElement, true);
+                        
+                        const resultElements = document.querySelectorAll('.result-item');
+                        for (const el of resultElements) {
+                            await addElementToPdf(el, false);
+                        }
+                        
+                        pdf.save('APCS_測驗結果_得能教育.pdf');
+                    } catch (err) {
+                        console.error("PDF generation failed:", err);
+                        downloadPdfButton.innerHTML = "下載失敗，請重試";
+                        alert("抱歉，產生PDF時發生錯誤，請稍後再試。");
+                    } finally {
+                        downloadPdfButton.innerHTML = originalButtonText;
+                        downloadPdfButton.disabled = false;
+                    }
+                })();
+            });
+
+            // --- Initial State ---
+            showPage('part1-1');
+        });
+    </script>
+</body>
+</html>
