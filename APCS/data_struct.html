@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資料結構視覺化 | Stack & Queue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Slate -->
+    <!-- Application Structure Plan: 採用兩層式佈局。上層為主要互動區，左側為概念解釋，右側為寬敞的視覺化動畫區。下層為程式碼與控制區，將控制面板與程式碼面板並排，給予程式碼更寬的顯示空間。此結構將視覺化體驗置於首位，同時改善了程式碼的可讀性。 -->
+    <!-- Visualization & Content Choices: 
+        - Stack: 垂直容器模擬盤子堆疊，強調 LIFO。使用 GSAP Timeline 動畫化 push/pop，一個「TOP」指針會同步移動。目標：直觀展示單一存取點。
+        - Queue: 水平容器模擬排隊，強調 FIFO。使用 GSAP Timeline 動畫化 enqueue/dequeue，元素從尾部進、頭部出。「FRONT」和「REAR」指針清晰標示兩端。目標：展示雙存取點和先進先出的流程。
+        - Circular Queue: 陣列視覺化，並在末端和開頭之間有「環繞」動畫，以解決線性陣列的空間浪費問題。目標：解釋模數運算在回收空間中的應用。
+        - Deque: 類似 Queue 的水平容器，但兩端都有操作按鈕和動畫入口/出口。目標：展示其作為 Stack 和 Queue 混合體的靈活性。
+        - Priority Queue: 元素根據優先級（數字）在一個有序列表中進行插入。使用 GSAP 動畫元素「插入」到正確位置，而不是僅附加在末尾。目標：強調服務順序由優先級而非到達時間決定。
+        - Code Panel: 提供 C++ 和 Python 程式碼，並在動畫的關鍵步驟高亮對應行，將視覺操作與實際程式碼聯繫起來。
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .ds-container { min-height: 450px; border: 2px solid #e2e8f0; background-color: white; }
+        .node {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background-color: #38bdf8;
+            color: white;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            border: 2px solid #0284c7;
+            position: absolute;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .pointer {
+            position: absolute;
+            background-color: #f97316;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.5s ease-in-out;
+        }
+        .code-highlight { background-color: #fef9c3; color: #333; }
+        .tab-button.active { background-color: #0c4a6e; color: white; }
+        .tab-button { background-color: #e2e8f0; color: #334155; }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-slate-900">資料結構互動式教學</h1>
+            <p class="mt-2 text-lg text-slate-600">透過動畫視覺化 Stack、Queue 及其常見變體</p>
+        </header>
+
+        <nav class="flex justify-center flex-wrap gap-2 md:gap-4 mb-8">
+            <button data-ds="Stack" class="ds-nav-button bg-sky-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-sky-700 transition-colors">Stack (堆疊)</button>
+            <button data-ds="Queue" class="ds-nav-button bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-semibold shadow-md hover:bg-slate-300 transition-colors">Queue (佇列)</button>
+            <button data-ds="CircularQueue" class="ds-nav-button bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-semibold shadow-md hover:bg-slate-300 transition-colors">Circular Queue</button>
+            <button data-ds="Deque" class="ds-nav-button bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-semibold shadow-md hover:bg-slate-300 transition-colors">Deque</button>
+            <button data-ds="PriorityQueue" class="ds-nav-button bg-slate-200 text-slate-700 px-4 py-2 rounded-full font-semibold shadow-md hover:bg-slate-300 transition-colors">Priority Queue</button>
+        </nav>
+
+        <main class="flex flex-col gap-8">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div id="explanation-panel" class="lg:col-span-4 bg-white p-6 rounded-lg shadow-lg">
+                    <h2 id="ds-title" class="text-2xl font-bold text-slate-900 mb-4"></h2>
+                    <p id="ds-analogy" class="text-slate-600 mb-4"></p>
+                    <p id="ds-principle" class="font-semibold text-sky-700 mb-4"></p>
+                    <div id="ds-explanation" class="text-slate-700 space-y-2"></div>
+                </div>
+
+                <div class="lg:col-span-8">
+                    <div id="visualizer-container" class="relative ds-container rounded-lg shadow-inner overflow-hidden">
+                    </div>
+                    <div id="message-box" class="mt-2 text-center font-semibold text-red-500 h-6"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                 <div class="lg:col-span-4">
+                    <div id="controls-panel" class="bg-white p-6 rounded-lg shadow-lg h-full">
+                        <h3 class="text-xl font-bold mb-4">控制面板</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                 <input type="text" id="node-value" placeholder="輸入數值" class="flex-grow w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-sky-500 focus:border-sky-500">
+                                 <input type="text" id="node-priority" placeholder="優先級" class="w-24 px-3 py-2 border border-slate-300 rounded-md focus:ring-sky-500 focus:border-sky-500 hidden">
+                            </div>
+                            <div id="ds-buttons" class="grid grid-cols-2 gap-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-8">
+                    <div id="code-panel" class="bg-slate-900 p-4 rounded-lg shadow-lg h-full">
+                        <div class="flex mb-2 rounded-md overflow-hidden">
+                            <button id="python-tab" class="tab-button flex-1 py-1 text-sm font-semibold transition-colors">Python</button>
+                            <button id="cpp-tab" class="tab-button flex-1 py-1 text-sm font-semibold transition-colors">C++</button>
+                        </div>
+                        <div id="python-code" class="text-white text-sm">
+                            <pre><code class="language-python"></code></pre>
+                        </div>
+                        <div id="cpp-code" class="hidden text-white text-sm">
+                            <pre><code class="language-cpp"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dsNavButtons = document.querySelectorAll('.ds-nav-button');
+            const dsTitle = document.getElementById('ds-title');
+            const dsAnalogy = document.getElementById('ds-analogy');
+            const dsPrinciple = document.getElementById('ds-principle');
+            const dsExplanation = document.getElementById('ds-explanation');
+            const visualizerContainer = document.getElementById('visualizer-container');
+            const dsButtonsContainer = document.getElementById('ds-buttons');
+            const nodeValueInput = document.getElementById('node-value');
+            const nodePriorityInput = document.getElementById('node-priority');
+            const messageBox = document.getElementById('message-box');
+
+            const pythonCodeEl = document.querySelector('#python-code code');
+            const cppCodeEl = document.querySelector('#cpp-code code');
+            const pythonTab = document.getElementById('python-tab');
+            const cppTab = document.getElementById('cpp-tab');
+
+            let activeDS = null;
+            let isAnimating = false;
+
+            const dsData = {
+                Stack: {
+                    title: 'Stack (堆疊)',
+                    analogy: '主要類比：一疊盤子。新盤子只能放在最上面，也只能從最上面拿走。',
+                    principle: '核心原則：後進先出 (Last-In, First-Out, LIFO)',
+                    explanation: '堆疊是一種受限的線性資料結構，所有新增 (push) 和移除 (pop) 操作都發生在同一端，稱為「頂部」(Top)。',
+                    buttons: [
+                        { label: 'Push', action: 'push' },
+                        { label: 'Pop', action: 'pop' },
+                    ],
+                    code: {
+                        python: {
+                            base: `from collections import deque
+
+class Stack:
+    def __init__(self):
+        self.container = deque()
+
+    def push(self, item):
+        self.container.append(item)
+
+    def pop(self):
+        if self.is_empty():
+            raise IndexError("pop from empty stack")
+        return self.container.pop()
+
+    def is_empty(self):
+        return len(self.container) == 0`,
+                            push: [6, 7],
+                            pop: [9, 11, 12]
+                        },
+                        cpp: {
+                            base: `#include <vector>
+#include <stdexcept>
+
+class Stack {
+private:
+    std::vector<int> container;
+
+public:
+    void push(int item) {
+        container.push_back(item);
+    }
+
+    int pop() {
+        if (is_empty()) {
+            throw std::out_of_range("Stack Underflow");
+        }
+        int val = container.back();
+        container.pop_back();
+        return val;
+    }
+
+    bool is_empty() {
+        return container.empty();
+    }
+};`,
+                            push: [8, 9],
+                            pop: [12, 15, 16, 17]
+                        }
+                    }
+                },
+                Queue: {
+                    title: 'Queue (佇列)',
+                    analogy: '主要類比：排隊結帳。新來的人排在隊伍的尾端，而服務總是從隊伍的前端開始。',
+                    principle: '核心原則：先進先出 (First-In, First-Out, FIFO)',
+                    explanation: '佇列也是一種線性資料結構，但它有兩端：新增 (enqueue) 發生在「尾端」(Rear)，移除 (dequeue) 發生在「前端」(Front)。',
+                    buttons: [
+                        { label: 'Enqueue', action: 'enqueue' },
+                        { label: 'Dequeue', action: 'dequeue' },
+                    ],
+                    code: {
+                        python: {
+                            base: `from collections import deque
+
+class Queue:
+    def __init__(self):
+        self.container = deque()
+
+    def enqueue(self, item):
+        self.container.append(item)
+
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("dequeue from empty queue")
+        return self.container.popleft()
+
+    def is_empty(self):
+        return len(self.container) == 0`,
+                            enqueue: [6, 7],
+                            dequeue: [9, 11, 12]
+                        },
+                        cpp: {
+                            base: `#include <deque>
+#include <stdexcept>
+
+class Queue {
+private:
+    std::deque<int> container;
+
+public:
+    void enqueue(int item) {
+        container.push_back(item);
+    }
+
+    int dequeue() {
+        if (is_empty()) {
+            throw std::out_of_range("Queue Underflow");
+        }
+        int val = container.front();
+        container.pop_front();
+        return val;
+    }
+
+    bool is_empty() {
+        return container.empty();
+    }
+};`,
+                            enqueue: [8, 9],
+                            dequeue: [12, 15, 16, 17]
+                        }
+                    }
+                },
+                CircularQueue: {
+                    title: 'Circular Queue (環形佇列)',
+                    analogy: '動機：解決普通陣列佇列dequeue後造成的空間浪費問題。',
+                    principle: '核心概念：將陣列的結尾邏輯上連接到開頭，形成一個環。',
+                    explanation: '環形佇列使用固定大小的陣列，並透過模數運算(%)來回收被dequeue的元素所佔用的空間。這使得佇列可以在空間滿之前，持續地新增元素。',
+                    buttons: [
+                        { label: 'Enqueue', action: 'enqueue' },
+                        { label: 'Dequeue', action: 'dequeue' },
+                    ],
+                    code: {
+                        python: {
+                            base: `class CircularQueue:
+    def __init__(self, size):
+        self.size = size
+        self.queue = [None] * size
+        self.front = self.rear = -1
+
+    def enqueue(self, item):
+        if (self.rear + 1) % self.size == self.front:
+            # Queue is full
+            return
+        elif self.is_empty():
+            self.front = self.rear = 0
+        else:
+            self.rear = (self.rear + 1) % self.size
+        self.queue[self.rear] = item
+
+    def dequeue(self):
+        if self.is_empty():
+            # Queue is empty
+            return
+        item = self.queue[self.front]
+        if self.front == self.rear:
+            self.front = self.rear = -1
+        else:
+            self.front = (self.front + 1) % self.size
+        return item
+
+    def is_empty(self):
+        return self.front == -1`,
+                            enqueue: [7, 8, 11, 13, 15],
+                            dequeue: [18, 19, 22, 24, 26]
+                        },
+                        cpp: {
+                            base: `#include <vector>
+
+class CircularQueue {
+private:
+    std::vector<int> arr;
+    int front, rear, capacity;
+
+public:
+    CircularQueue(int k) {
+        capacity = k + 1;
+        arr.resize(capacity);
+        front = rear = 0;
+    }
+
+    bool enqueue(int value) {
+        if (is_full()) return false;
+        arr[rear] = value;
+        rear = (rear + 1) % capacity;
+        return true;
+    }
+
+    bool dequeue() {
+        if (is_empty()) return false;
+        front = (front + 1) % capacity;
+        return true;
+    }
+
+    bool is_empty() { return front == rear; }
+    bool is_full() { return (rear + 1) % capacity == front; }
+};`,
+                            enqueue: [16, 17, 18, 19],
+                            dequeue: [23, 24, 25]
+                        }
+                    }
+                },
+                Deque: {
+                    title: 'Deque (雙向佇列)',
+                    analogy: '概念：佇列的推廣，像是一條兩端都有出入口的通道。',
+                    principle: '核心概念：允許在前端和尾端進行高效的新增和移除操作。',
+                    explanation: 'Deque (Double-Ended Queue) 結合了堆疊和佇列的特性。你可以從前面加、後面加，也可以從前面刪、後面刪。',
+                    buttons: [
+                        { label: 'Add Front', action: 'addFront' },
+                        { label: 'Add Rear', action: 'addRear' },
+                        { label: 'Remove Front', action: 'removeFront' },
+                        { label: 'Remove Rear', action: 'removeRear' },
+                    ],
+                    code: {
+                        python: {
+                            base: `from collections import deque
+
+# Python's deque is a native implementation
+d = deque()
+
+# Add to the rear
+d.append(item)
+
+# Add to the front
+d.appendleft(item)
+
+# Remove from the rear
+d.pop()
+
+# Remove from the front
+d.popleft()`,
+                            addFront: [9], addRear: [6], removeFront: [15], removeRear: [12]
+                        },
+                        cpp: {
+                            base: `#include <deque>
+
+std::deque<int> d;
+
+// Add to the rear
+d.push_back(item);
+
+// Add to the front
+d.push_front(item);
+
+// Remove from the rear
+d.pop_back();
+
+// Remove from the front
+d.pop_front();`,
+                            addFront: [9], addRear: [6], removeFront: [15], removeRear: [12]
+                        }
+                    }
+                },
+                PriorityQueue: {
+                    title: 'Priority Queue (優先佇列)',
+                    analogy: '類比：醫院急診室。病患（元素）不按照先來後到的順序處理，而是根據傷勢的嚴重性（優先級）。',
+                    principle: '核心概念：具有最高優先級的元素最先被移除。',
+                    explanation: '優先佇列是一種抽象資料型別，每個元素除了數值外還有一個優先級。當新增元素時，它會被插入到基於優先級排序的正確位置。',
+                    buttons: [
+                        { label: 'Enqueue', action: 'enqueue' },
+                        { label: 'Dequeue', action: 'dequeue' },
+                    ],
+                    code: {
+                        python: {
+                            base: `import heapq
+
+class PriorityQueue:
+    def __init__(self):
+        self._queue = []
+
+    def push(self, item, priority):
+        # heapq is a min-heap
+        heapq.heappush(self._queue, (priority, item))
+
+    def pop(self):
+        return heapq.heappop(self._queue)[1]`,
+                            push: [8, 10],
+                            pop: [12]
+                        },
+                        cpp: {
+                            base: `#include <queue>
+#include <vector>
+#include <functional>
+
+// Min-heap
+std::priority_queue<
+    std::pair<int, int>,
+    std::vector<std::pair<int, int>>,
+    std::greater<std::pair<int, int>>
+> pq;
+
+void push(int item, int priority) {
+    pq.push({priority, item});
+}
+
+int pop() {
+    int item = pq.top().second;
+    pq.pop();
+    return item;
+}`,
+                            push: [14],
+                            pop: [17, 18, 19]
+                        }
+                    }
+                }
+            };
+
+            class Visualizer {
+                constructor(type) {
+                    this.type = type;
+                    this.elements = [];
+                    this.pointers = {};
+                    this.maxSize = this.type === 'CircularQueue' ? 8 : 12;
+                    this.init();
+                }
+
+                init() {
+                    visualizerContainer.innerHTML = '';
+                    if (this.type === 'Stack') {
+                        this.pointers.top = this.createPointer('TOP', { right: '20px', top: '430px' });
+                    }
+                    if (this.type === 'Queue' || this.type === 'Deque') {
+                        this.pointers.front = this.createPointer('FRONT', { left: '10px', top: '10px' });
+                        this.pointers.rear = this.createPointer('REAR', { right: '10px', top: '10px' });
+                    }
+                    if (this.type === 'CircularQueue') {
+                        this.pointers.front = this.createPointer('F', { left: '10px', top: '10px', display: 'none' });
+                        this.pointers.rear = this.createPointer('R', { left: '10px', top: '10px', display: 'none' });
+                        this.front = -1;
+                        this.rear = -1;
+                        this.drawCircularSlots();
+                    }
+                }
+                
+                drawCircularSlots() {
+                    for (let i = 0; i < this.maxSize; i++) {
+                        const slot = document.createElement('div');
+                        slot.className = 'absolute border-2 border-dashed border-slate-300 rounded-md';
+                        slot.style.width = '60px';
+                        slot.style.height = '60px';
+                        const { x, y } = this.getCircularPosition(i);
+                        slot.style.left = `${x}px`;
+                        slot.style.top = `${y}px`;
+                        visualizerContainer.appendChild(slot);
+                    }
+                }
+
+                createPointer(text, styles) {
+                    const p = document.createElement('div');
+                    p.className = 'pointer';
+                    p.textContent = text;
+                    Object.assign(p.style, styles);
+                    visualizerContainer.appendChild(p);
+                    return p;
+                }
+
+                createNode(value, priority = null) {
+                    const node = document.createElement('div');
+                    node.className = 'node';
+                    if (priority !== null) {
+                        node.innerHTML = `${value}<span class="text-xs absolute top-1 right-2 bg-amber-500 rounded-full px-1.5 py-0.5">${priority}</span>`;
+                        node.dataset.priority = priority;
+                    } else {
+                        node.textContent = value;
+                    }
+                    node.dataset.value = value;
+                    visualizerContainer.appendChild(node);
+                    return node;
+                }
+
+                showMessage(msg, isError = false) {
+                    messageBox.textContent = msg;
+                    messageBox.style.color = isError ? '#ef4444' : '#16a34a';
+                    setTimeout(() => messageBox.textContent = '', 2000);
+                }
+
+                highlightCode(operation) {
+                    const lines = dsData[this.type].code.python[operation];
+                    const cppLines = dsData[this.type].code.cpp[operation];
+                    
+                    const highlight = (code, lineNumbers) => {
+                        if(!lineNumbers) return;
+                        const lines = code.split('\n');
+                        return lines.map((line, i) => {
+                            if (lineNumbers.includes(i + 1)) {
+                                return `<span class="code-highlight">${line}</span>`;
+                            }
+                            return line;
+                        }).join('\n');
+                    }
+                    
+                    pythonCodeEl.innerHTML = highlight(dsData[this.type].code.python.base, lines);
+                    cppCodeEl.innerHTML = highlight(dsData[this.type].code.cpp.base, cppLines);
+                }
+
+                async push(value) {
+                    if (this.elements.length >= this.maxSize) {
+                        this.showMessage('Stack is full!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('push');
+                    const node = this.createNode(value);
+                    const targetY = 370 - this.elements.length * 70;
+                    
+                    gsap.set(node, { top: '50px', left: 'calc(50% - 30px)', opacity: 0 });
+                    const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+                    tl.to(node, { top: targetY, opacity: 1, duration: 0.5, ease: 'power2.out' })
+                      .to(this.pointers.top, { top: targetY - 20, duration: 0.5, ease: 'power2.out' }, "-=0.5");
+                    
+                    this.elements.push(node);
+                }
+
+                async pop() {
+                    if (this.elements.length === 0) {
+                        this.showMessage('Stack is empty!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('pop');
+                    const node = this.elements.pop();
+                    const targetY = 370 - this.elements.length * 70;
+
+                    const tl = gsap.timeline({ onComplete: () => { node.remove(); isAnimating = false; } });
+                    tl.to(node, { top: '50px', opacity: 0, duration: 0.5, ease: 'power2.in' })
+                      .to(this.pointers.top, { top: (this.elements.length > 0 ? targetY - 20 : 430), duration: 0.5, ease: 'power2.out' }, "-=0.5");
+                }
+
+                async enqueue(value, priority = null) {
+                    if (this.type === 'PriorityQueue') {
+                        await this.enqueuePriority(value, priority);
+                        return;
+                    }
+                    if (this.type === 'CircularQueue') {
+                         await this.enqueueCircular(value);
+                        return;
+                    }
+                    if (this.elements.length >= this.maxSize) {
+                        this.showMessage('Queue is full!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('enqueue');
+                    const node = this.createNode(value);
+                    this.elements.push(node);
+
+                    gsap.set(node, { top: '200px', left: '100%', opacity: 0 });
+                    const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+                    tl.to(node, { left: `calc(100% - ${this.elements.length * 70}px)`, opacity: 1, duration: 0.5 });
+                    
+                    if (this.elements.length === 1) {
+                         tl.to(this.pointers.front, { left: `calc(100% - 70px - 10px)`, duration: 0.5 }, "-=0.5");
+                    }
+                }
+
+                async dequeue() {
+                    if (this.type === 'CircularQueue') {
+                        await this.dequeueCircular();
+                        return;
+                    }
+                    if (this.elements.length === 0) {
+                        this.showMessage('Queue is empty!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('dequeue');
+                    const node = this.elements.shift();
+
+                    const tl = gsap.timeline({ onComplete: () => { node.remove(); isAnimating = false; } });
+                    tl.to(node, { left: '-70px', opacity: 0, duration: 0.5 });
+                    
+                    this.elements.forEach((el, i) => {
+                        tl.to(el, { left: `calc(100% - ${(i + 1) * 70}px)`, duration: 0.5 }, "-=0.5");
+                    });
+                    
+                    if (this.elements.length > 0) {
+                        tl.to(this.pointers.front, { left: `calc(100% - 70px - 10px)`, duration: 0.5 }, "-=0.5");
+                    } else {
+                        gsap.to(this.pointers.front, { left: `10px`, duration: 0.5 });
+                    }
+                }
+                
+                getCircularPosition(index) {
+                    const radius = 160;
+                    const centerX = visualizerContainer.offsetWidth / 2 - 30;
+                    const centerY = visualizerContainer.offsetHeight / 2 - 30;
+                    const angle = (index / this.maxSize) * 2 * Math.PI - Math.PI / 2;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    return { x, y };
+                }
+
+                async enqueueCircular(value) {
+                    const isFull = (this.rear + 1) % this.maxSize === this.front;
+                    if (isFull) {
+                        this.showMessage('Circular Queue is full!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('enqueue');
+
+                    if (this.front === -1) {
+                        this.front = 0;
+                        this.rear = 0;
+                    } else {
+                        this.rear = (this.rear + 1) % this.maxSize;
+                    }
+                    
+                    const node = this.createNode(value);
+                    node.dataset.index = this.rear;
+                    this.elements.push(node);
+                    
+                    const { x, y } = this.getCircularPosition(this.rear);
+                    
+                    const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+                    tl.from(node, { x: visualizerContainer.offsetWidth, y: 20, opacity: 0, duration: 0.7, ease: 'power2.out' });
+                    tl.to(node, { x, y, opacity: 1, duration: 0.5 }, "-=0.2");
+
+                    const frontPos = this.getCircularPosition(this.front);
+                    gsap.to(this.pointers.front, { x: frontPos.x, y: frontPos.y - 30, display: 'block', duration: 0.5 });
+                    gsap.to(this.pointers.rear, { x: x, y: y + 65, display: 'block', duration: 0.5 });
+                }
+
+                async dequeueCircular() {
+                    if (this.front === -1) {
+                        this.showMessage('Circular Queue is empty!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('dequeue');
+                    
+                    const nodeToRemove = this.elements.find(el => parseInt(el.dataset.index) === this.front);
+                    
+                    const tl = gsap.timeline({ onComplete: () => { 
+                        nodeToRemove.remove();
+                        this.elements = this.elements.filter(el => el !== nodeToRemove);
+                        isAnimating = false; 
+                    }});
+                    tl.to(nodeToRemove, { x: -70, y: 20, opacity: 0, duration: 0.7, ease: 'power2.in' });
+
+                    if (this.front === this.rear) {
+                        this.front = -1;
+                        this.rear = -1;
+                        gsap.to([this.pointers.front, this.pointers.rear], { display: 'none', duration: 0.5 });
+                    } else {
+                        this.front = (this.front + 1) % this.maxSize;
+                        const frontPos = this.getCircularPosition(this.front);
+                        gsap.to(this.pointers.front, { x: frontPos.x, y: frontPos.y - 30, duration: 0.5 });
+                    }
+                }
+                
+                async addFront(value) {
+                    if (this.elements.length >= this.maxSize) {
+                        this.showMessage('Deque is full!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('addFront');
+                    const node = this.createNode(value);
+                    
+                    const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+                    tl.to(this.elements, { x: '+=70', duration: 0.5 });
+                    
+                    this.elements.unshift(node);
+                    gsap.set(node, { top: '200px', left: '-70px', opacity: 0 });
+                    tl.to(node, { left: `calc(100% - ${this.elements.length * 70}px)`, opacity: 1, duration: 0.5 }, 0);
+                    
+                    if (this.elements.length === 1) {
+                        gsap.to(this.pointers.rear, { right: `calc(100% - 70px - 10px)`, duration: 0.5 });
+                    }
+                }
+
+                async addRear(value) {
+                    await this.enqueue(value);
+                }
+
+                async removeFront() {
+                    await this.dequeue();
+                }
+
+                async removeRear() {
+                    if (this.elements.length === 0) {
+                        this.showMessage('Deque is empty!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('removeRear');
+                    const node = this.elements.pop();
+
+                    const tl = gsap.timeline({ onComplete: () => { node.remove(); isAnimating = false; } });
+                    tl.to(node, { left: '100%', opacity: 0, duration: 0.5 });
+                    
+                    if (this.elements.length === 0) {
+                        gsap.to(this.pointers.rear, { right: `10px`, duration: 0.5 });
+                    }
+                }
+
+                async enqueuePriority(value, priority) {
+                    if (this.elements.length >= this.maxSize) {
+                        this.showMessage('Priority Queue is full!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('push');
+                    const node = this.createNode(value, priority);
+                    
+                    const newElement = { el: node, priority: parseInt(priority) };
+                    
+                    let insertIndex = this.elements.findIndex(item => item.priority > newElement.priority);
+                    if (insertIndex === -1) {
+                        insertIndex = this.elements.length;
+                    }
+                    this.elements.splice(insertIndex, 0, newElement);
+
+                    const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+                    gsap.set(node, { top: '50px', left: 'calc(50% - 30px)', opacity: 0 });
+                    tl.to(node, { opacity: 1, duration: 0.5 });
+                    
+                    this.elements.forEach((item, i) => {
+                        const targetX = 20 + i * 70;
+                        tl.to(item.el, { left: `${targetX}px`, top: '200px', duration: 0.5 }, "-=0.4");
+                    });
+                }
+
+                async dequeuePriority() {
+                    if (this.elements.length === 0) {
+                        this.showMessage('Priority Queue is empty!', true);
+                        return;
+                    }
+                    isAnimating = true;
+                    this.highlightCode('pop');
+                    const itemToRemove = this.elements.shift();
+
+                    const tl = gsap.timeline({ onComplete: () => { itemToRemove.el.remove(); isAnimating = false; } });
+                    tl.to(itemToRemove.el, { top: '50px', opacity: 0, duration: 0.5 });
+                    
+                    this.elements.forEach((item, i) => {
+                         const targetX = 20 + i * 70;
+                        tl.to(item.el, { left: `${targetX}px`, duration: 0.5 }, "-=0.5");
+                    });
+                }
+            }
+
+            function setupDS(type) {
+                if(isAnimating) return;
+                
+                activeDS = new Visualizer(type);
+                const data = dsData[type];
+
+                dsTitle.textContent = data.title;
+                dsAnalogy.textContent = data.analogy;
+                dsPrinciple.textContent = data.principle;
+                dsExplanation.textContent = data.explanation;
+                
+                nodePriorityInput.classList.toggle('hidden', type !== 'PriorityQueue');
+                nodeValueInput.placeholder = type === 'PriorityQueue' ? '輸入數值' : '輸入數值';
+
+                dsButtonsContainer.innerHTML = '';
+                data.buttons.forEach(btn => {
+                    const button = document.createElement('button');
+                    button.textContent = btn.label;
+                    button.className = 'bg-sky-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-sky-600 transition-colors disabled:bg-slate-300';
+                    button.addEventListener('click', () => {
+                        if (isAnimating) return;
+                        
+                        const value = nodeValueInput.value.trim();
+                        if (btn.action.toLowerCase().includes('push') || btn.action.toLowerCase().includes('enqueue') || btn.action.toLowerCase().includes('add')) {
+                            if (!value) {
+                                activeDS.showMessage('請輸入一個數值!', true);
+                                return;
+                            }
+                            if (type === 'PriorityQueue') {
+                                const priority = nodePriorityInput.value.trim();
+                                if(!priority || isNaN(parseInt(priority))) {
+                                    activeDS.showMessage('請輸入有效的優先級!', true);
+                                    return;
+                                }
+                                activeDS[btn.action](value, priority);
+                            } else {
+                                activeDS[btn.action](value);
+                            }
+                            nodeValueInput.value = '';
+                            nodePriorityInput.value = '';
+                        } else {
+                            activeDS[btn.action]();
+                        }
+                    });
+                    dsButtonsContainer.appendChild(button);
+                });
+
+                pythonCodeEl.innerHTML = data.code.python.base.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                cppCodeEl.innerHTML = data.code.cpp.base.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                dsNavButtons.forEach(btn => {
+                    btn.classList.toggle('bg-sky-600', btn.dataset.ds === type);
+                    btn.classList.toggle('text-white', btn.dataset.ds === type);
+                    btn.classList.toggle('bg-slate-200', btn.dataset.ds !== type);
+                    btn.classList.toggle('text-slate-700', btn.dataset.ds !== type);
+                });
+            }
+
+            dsNavButtons.forEach(button => {
+                button.addEventListener('click', () => setupDS(button.dataset.ds));
+            });
+            
+            pythonTab.addEventListener('click', () => {
+                pythonTab.classList.add('active');
+                cppTab.classList.remove('active');
+                document.getElementById('python-code').classList.remove('hidden');
+                document.getElementById('cpp-code').classList.add('hidden');
+            });
+            
+            cppTab.addEventListener('click', () => {
+                cppTab.classList.add('active');
+                pythonTab.classList.remove('active');
+                document.getElementById('cpp-code').classList.remove('hidden');
+                document.getElementById('python-code').classList.add('hidden');
+            });
+
+            pythonTab.click();
+            setupDS('Stack');
+        });
+    </script>
+</body>
+</html>

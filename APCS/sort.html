@@ -15,6 +15,9 @@
         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. 
     -->
     <style>
+        html, body {
+            height: 100%; /* Ensure full viewport height for vh units */
+        }
         :root {
             --bar-default-color: #38bdf8; /* sky-400 */
             --bar-compare-color: #facc15; /* yellow-400 */
@@ -36,7 +39,9 @@
             transition: height 0.3s ease, background-color 0.3s ease;
             margin: 0 1px;
             flex-grow: 1;
-            flex-basis: 0; /* FIX: Ensure bars grow from a zero basis for stability */
+            flex-basis: 0; /* Ensure bars grow from a zero basis for stability */
+            min-width: 2px; /* Ensure bars are visible even when very thin */
+            border: 1px solid black; /* Add border for visibility */
         }
         .tab-btn {
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
@@ -88,10 +93,15 @@
 <body class="min-h-screen flex flex-col p-4 gap-4">
 
     <header class="control-panel p-4 w-full max-w-7xl mx-auto">
+        <div class="flex items-center justify-center mb-4">
+            <img src="https://telearn.best/images/logo-light.png" alt="得能教育Telearn Logo" class="h-10 mr-3">
+            <h1 class="text-2xl font-bold text-slate-800">得能教育Telearn</h1>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
             <div class="flex flex-col sm:flex-row gap-4">
                 <button id="generate-btn" class="control-btn w-full sm:w-auto bg-sky-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">產生新陣列</button>
                 <button id="sort-btn" class="control-btn w-full sm:w-auto bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">開始排序</button>
+                <button id="pause-btn" class="control-btn w-full sm:w-auto bg-orange-500 text-white font-bold py-2 px-4 rounded-lg shadow-md">暫停</button>
             </div>
             <div class="flex flex-col col-span-1 md:col-span-2 gap-4">
                 <div class="flex items-center gap-4">
@@ -101,7 +111,7 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <label for="speed-slider" class="text-sm font-medium text-slate-700 whitespace-nowrap">動畫速度:</label>
-                    <input id="speed-slider" type="range" min="1" max="100" value="50" class="slider w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <input id="speed-slider" type="range" min="1" max="300" value="50" class="slider w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                     <span id="speed-value" class="text-sm font-semibold text-slate-800 w-8 text-center">50</span>
                 </div>
             </div>
@@ -311,6 +321,7 @@ class SortingVisualizer {
         this.canvas = null;
         this.generateBtn = null;
         this.sortBtn = null;
+        this.pauseBtn = null; // Added pause button reference
         this.sizeSlider = null;
         this.speedSlider = null;
         this.sizeValue = null;
@@ -324,14 +335,17 @@ class SortingVisualizer {
         this.size = 50;
         this.speed = 50;
         this.isSorting = false;
+        this.isPaused = false; // Added isPaused state
         this.currentAlgo = 'bubble';
         this.currentLang = 'cpp';
     }
 
     init() {
+        console.log("SortingVisualizer.init() called");
         this.canvas = document.getElementById('canvas-container');
         this.generateBtn = document.getElementById('generate-btn');
         this.sortBtn = document.getElementById('sort-btn');
+        this.pauseBtn = document.getElementById('pause-btn'); // Get pause button element
         this.sizeSlider = document.getElementById('size-slider');
         this.speedSlider = document.getElementById('speed-slider');
         this.sizeValue = document.getElementById('size-value');
@@ -341,8 +355,11 @@ class SortingVisualizer {
         this.infoContent = document.getElementById('info-content');
         this.codeContent = document.getElementById('code-content');
 
+        if(!this.canvas) { console.error("Canvas container not found!"); return; }
+
         this.generateBtn.addEventListener('click', () => this.generateArray());
         this.sortBtn.addEventListener('click', () => this.sort());
+        this.pauseBtn.addEventListener('click', () => this.togglePause()); // Add event listener for pause button
         this.sizeSlider.addEventListener('input', (e) => this.updateSize(e.target.value));
         this.speedSlider.addEventListener('input', (e) => this.updateSpeed(e.target.value));
         
@@ -358,16 +375,32 @@ class SortingVisualizer {
             }
         });
 
-        this.updateSize(this.sizeSlider.value);
-        this.updateSpeed(this.speedSlider.value);
+        this.size = this.sizeSlider.value;
+        this.speed = this.speedSlider.value;
+        this.sizeValue.textContent = this.size;
+        this.speedValue.textContent = this.speed;
+        
         this.setAlgorithm(this.currentAlgo);
         this.setLanguage(this.currentLang);
+        
+        this.generateArray();
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        this.pauseBtn.textContent = this.isPaused ? '繼續' : '暫停';
+        if (!this.isPaused) {
+            // If resuming, allow the sleep function to resolve
+            // This is handled by the sleep function's internal loop
+        }
     }
 
     updateSize(value) {
         this.size = parseInt(value);
         this.sizeValue.textContent = this.size;
-        this.generateArray();
+        if (!this.isSorting) {
+            this.generateArray();
+        }
     }
 
     updateSpeed(value) {
@@ -380,6 +413,7 @@ class SortingVisualizer {
     }
 
     generateArray() {
+        console.log(`generateArray() called with size: ${this.size}`);
         if (this.isSorting) return;
         this.array = [];
         for (let i = 0; i < this.size; i++) {
@@ -389,11 +423,15 @@ class SortingVisualizer {
     }
 
     renderArray(highlights = {}) {
-        if (!this.canvas) return;
+        console.log(`renderArray() called with ${this.array.length} items.`);
+        if (!this.canvas) {
+            console.error("renderArray failed: canvas is null");
+            return;
+        }
         this.canvas.innerHTML = '';
         this.array.forEach((value, index) => {
             const bar = document.createElement('div');
-            bar.style.height = `${value}%`;
+            bar.style.height = `${value}%`; // Revert to dynamic height
             bar.classList.add('bar');
             if (highlights.compare && highlights.compare.includes(index)) {
                 bar.style.backgroundColor = 'var(--bar-compare-color)';
@@ -404,6 +442,7 @@ class SortingVisualizer {
             }
             this.canvas.appendChild(bar);
         });
+        console.log("renderArray() completed.");
     }
 
     setAlgorithm(algo) {
@@ -457,6 +496,11 @@ class SortingVisualizer {
         this.sortBtn.disabled = disabled;
         this.sizeSlider.disabled = disabled;
         this.algoSelector.querySelectorAll('button').forEach(b => b.disabled = disabled);
+        this.pauseBtn.disabled = !disabled; // Enable pause button only when sorting
+        if (!disabled) {
+            this.isPaused = false; // Reset pause state when sorting finishes
+            this.pauseBtn.textContent = '暫停';
+        }
     }
 
     async sort() {
@@ -512,7 +556,16 @@ class SortingVisualizer {
     }
     
     sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(resolve => {
+            const resume = () => {
+                if (!this.isPaused) {
+                    resolve();
+                } else {
+                    setTimeout(resume, 100); // Check every 100ms if still paused
+                }
+            };
+            setTimeout(resume, ms);
+        });
     }
 
     getBubbleSortAnimations(arr) {
@@ -530,13 +583,16 @@ class SortingVisualizer {
                 animations.push({ type: 'compare_end', indices: [j, j + 1] });
             }
             animations.push({ type: 'set_sorted', indices: n - 1 - i });
-            if (!swapped) break;
-        }
-        for (let i = 0; i < arr.length; i++) {
-            if (!animations.some(a => a.type === 'set_sorted' && a.indices === i)) {
-                 animations.push({ type: 'set_sorted', indices: i });
+            if (!swapped) {
+                // If no swaps occurred, the remainder of the array is already sorted.
+                for (let k = 0; k < n - i - 1; k++) {
+                    animations.push({ type: 'set_sorted', indices: k });
+                }
+                break;
             }
         }
+        // Ensure the first element is always marked as sorted upon completion.
+        animations.push({ type: 'set_sorted', indices: 0 });
         return animations;
     }
 
@@ -566,19 +622,22 @@ class SortingVisualizer {
         for (let i = 1; i < n; i++) {
             let key = arr[i];
             let j = i - 1;
-            animations.push({ type: 'compare_start', indices: [i, j] });
-            animations.push({ type: 'compare_end', indices: [i, j] });
+            
+            animations.push({ type: 'compare_start', indices: [i, i]});
+
             while (j >= 0 && arr[j] > key) {
+                animations.push({ type: 'compare_start', indices: [j, j]});
                 animations.push({ type: 'overwrite', indices: j + 1, value: arr[j] });
                 arr[j + 1] = arr[j];
+                animations.push({ type: 'compare_end', indices: [j, j]});
                 j--;
-                if (j >= 0) {
-                    animations.push({ type: 'compare_start', indices: [i, j] });
-                    animations.push({ type: 'compare_end', indices: [i, j] });
-                }
             }
             animations.push({ type: 'overwrite', indices: j + 1, value: key });
             arr[j + 1] = key;
+            animations.push({ type: 'compare_end', indices: [i, i]});
+        }
+        for (let i = 0; i < n; i++) {
+            animations.push({ type: 'set_sorted', indices: i });
         }
         return animations;
     }
@@ -588,6 +647,9 @@ class SortingVisualizer {
         if (arr.length <= 1) return animations;
         const auxiliaryArray = arr.slice();
         this.mergeSortHelper(arr, 0, arr.length - 1, auxiliaryArray, animations);
+        for (let i = 0; i < arr.length; i++) {
+            animations.push({ type: 'set_sorted', indices: i });
+        }
         return animations;
     }
 
@@ -633,7 +695,13 @@ class SortingVisualizer {
 // This is the standard and most robust way to ensure the script
 // runs only after the entire HTML document has been loaded and parsed.
 window.addEventListener('DOMContentLoaded', () => {
-    new SortingVisualizer().init();
+    console.log("DOM fully loaded and parsed");
+    try {
+        new SortingVisualizer().init();
+        console.log("SortingVisualizer initialized successfully.");
+    } catch (e) {
+        console.error("An error occurred during initialization:", e);
+    }
 });
 </script>
 
