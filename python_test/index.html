@@ -987,7 +987,7 @@
                     id: "ch5_6", 
                     topic: "使用判斷式和迴圈流程控制", 
                     question: "一個程式用來檢查正整數是1位、2位或2位以上。應如何完成程式碼？", 
-                    code: "if num > 0:\n    (1)____________:\n        digits = \"1\"\n    (2)____________:\n        digits = \"2\"\n    (3)____________:\n        digits = \">2\"", 
+                    code: "if num > 0:\n    ______(1)______:\n        digits = \"1\"\n    ______(2)______:\n        digits = \"2\"\n    _______(3)_____:\n        digits = \">2\"", 
                     options: [
                         "(1) if num < 10, (2) elif num < 100, (3) else", 
                         "(1) if num < 100, (2) if num < 10, (3) else", 
@@ -999,7 +999,7 @@
                     id: "ch5_7", 
                     topic: "使用判斷式和迴圈流程控制", 
                     question: "猜數字遊戲，最多三次機會，猜對即停止。應如何完成行號05、13及14的程式碼?", 
-                    code: "05 _________________\n06     guess = int(input(...))\n11     else:\n12         print(\"Guess is just right\")\n13         _______________\n14     ___________________", 
+                    code: "01 import random\n02 number = random.randint(1, 100)\n03 chance = 0\n04 _________________\n05     guess = int(input(\"guess the number:\"))\n06     if guess == number:\n07         print(\"Guess is just right\")\n08         _______________\n09     else:\n10         print(\"Guess is wrong\")\n11         _______________\n12     ___________________", 
                     options: [
                         "(1) while chance <= 3:, (2) break, (3) chance += 1", 
                         "(1) while chance < 3:, (2) pass, (3) chance += 1", 
