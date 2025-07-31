@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>位元運算與進位教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A task-oriented, three-section SPA. 1) A real-time number base converter for foundational understanding. 2) A bitwise operation sandbox that visually breaks down calculations, mimicking the highly-praised step-by-step approach. 3) A section for practical APCS tricks with interactive examples. This structure guides the user from basic concepts to practical application, which is more effective for learning than mirroring the source document's layout. The flow is designed to be intuitive: learn bases, operate on them, then apply the knowledge. -->
+    <!-- Visualization & Content Choices: Report Info: Number systems (2,8,10,16). Goal: Inform/Compare. Viz: Four linked input fields and a dynamic HTML/CSS bit display. Interaction: Real-time updates on input. Justification: Provides immediate feedback on how number bases relate. Library: Vanilla JS. Report Info: Bitwise operations (AND, OR, XOR, etc.). Goal: Explore/Verify. Viz: Vertically aligned text output mimicking manual calculation. Interaction: User inputs numbers and operator, clicks to see result. Justification: Clarifies the low-level mechanism of each operation. Library: Vanilla JS. Report Info: APCS-style tricks. Goal: Apply/Connect. Viz: Interactive HTML cards for each trick with C++/Python code snippets. Interaction: User tests tricks and switches between languages. Justification: Bridges theory and practical exam problems in multiple languages. Library: Vanilla JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
+        }
+        .bit-box {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 500;
+            border: 1px solid #DEE2E6;
+            transition: all 0.2s ease-in-out;
+        }
+        .bit-1 {
+            background-color: #D1E7DD;
+            color: #0F5132;
+            border-color: #A3CFBB;
+        }
+        .bit-0 {
+            background-color: #F8D7DA;
+            color: #58151C;
+            border-color: #F1AEB5;
+        }
+        .calc-line {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+        }
+        .nav-link {
+            transition: color 0.2s, border-bottom-color 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0D6EFD;
+            border-bottom-color: #0D6EFD;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .btn-primary {
+            background-color: #0D6EFD;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0B5ED7;
+        }
+        .input-base {
+            border: 1px solid #CED4DA;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-base:focus {
+            border-color: #86B7FE;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+        }
+        .lang-toggle-group {
+            display: flex;
+            border: 1px solid #DEE2E6;
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+        .lang-toggle {
+            padding: 0.25rem 0.75rem;
+            cursor: pointer;
+            background-color: #FFFFFF;
+            color: #495057;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .lang-toggle:not(:last-child) {
+            border-right: 1px solid #DEE2E6;
+        }
+        .lang-toggle.active {
+            background-color: #E9ECEF;
+            color: #0D6EFD;
+        }
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+        .code-block .k { color: #c678dd; } /* keyword */
+        .code-block .v { color: #e06c75; } /* variable */
+        .code-block .o { color: #56b6c2; } /* operator */
+        .code-block .n { color: #d19a66; } /* number */
+        .code-block .c { color: #61afef; } /* class/type */
+        .inline-code {
+            background-color: #e9ecef;
+            color: #e06c75;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-10">
+        <nav class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <a href="https://telearn.best/" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3">
+                        <img src="https://telearn.best/images/logo-dark.png" alt="得能教育 Telearn Logo" class="h-8 w-auto" onerror="this.style.display='none'">
+                        <span class="text-xl font-bold text-white">得能教育 Telearn</span>
+                    </a>
+                    <h1 class="text-xl font-bold text-gray-400 hidden sm:block">
+                        位元運算
+                    </h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#converter" class="nav-link text-gray-300 hover:text-white font-medium pb-1">進位轉換器</a>
+                    <a href="#sandbox" class="nav-link text-gray-300 hover:text-white font-medium pb-1">位元運算沙盒</a>
+                    <a href="#tricks" class="nav-link text-gray-300 hover:text-white font-medium pb-1">實用技巧</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <section id="converter" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">進位轉換器</h2>
+                <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">在此輸入一個數字，即可看到它在不同進位制下的表示方式，以及其底層的 8 位元結構。這是理解電腦如何儲存數字的第一步。</p>
+            </div>
+
+            <div class="card p-6 md:p-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="dec-input" class="block text-sm font-medium text-gray-700 mb-1">十進位 (Decimal)</label>
+                        <input type="text" id="dec-input" data-base="10" class="input-base w-full p-2 rounded-md font-mono" value="123">
+                    </div>
+                    <div>
+                        <label for="hex-input" class="block text-sm font-medium text-gray-700 mb-1">十六進位 (Hexadecimal)</label>
+                        <input type="text" id="hex-input" data-base="16" class="input-base w-full p-2 rounded-md font-mono">
+                    </div>
+                    <div>
+                        <label for="bin-input" class="block text-sm font-medium text-gray-700 mb-1">二進位 (Binary)</label>
+                        <input type="text" id="bin-input" data-base="2" class="input-base w-full p-2 rounded-md font-mono">
+                    </div>
+                    <div>
+                        <label for="oct-input" class="block text-sm font-medium text-gray-700 mb-1">八進位 (Octal)</label>
+                        <input type="text" id="oct-input" data-base="8" class="input-base w-full p-2 rounded-md font-mono">
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">8位元視覺化表示 (8-bit Representation)</h3>
+                    <div id="bit-display" class="grid grid-cols-8 gap-1 bg-gray-50 p-2 rounded-lg max-w-md mx-auto">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sandbox" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">位元運算沙盒</h2>
+                <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">動手操作，親眼見證位元運算的魔力。輸入數字並選擇運算子，觀察每一步的計算過程，加深您對 AND、OR、XOR 等運算的理解。</p>
+            </div>
+            <div class="card p-6 md:p-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="opA" class="block text-sm font-medium text-gray-700 mb-1">運算元 A</label>
+                        <input type="number" id="opA" class="input-base w-full p-2 rounded-md" value="21">
+                    </div>
+                    <div>
+                        <label for="operator" class="block text-sm font-medium text-gray-700 mb-1">運算子</label>
+                        <select id="operator" class="input-base w-full p-2 rounded-md">
+                            <option value="&">AND (&)</option>
+                            <option value="|">OR (|)</option>
+                            <option value="^" selected>XOR (^)</option>
+                            <option value="~">NOT (~)</option>
+                            <option value="<<">左移 (<<)</option>
+                            <option value=">>">右移 (>>)</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="opB" class="block text-sm font-medium text-gray-700 mb-1">運算元 B</label>
+                        <input type="number" id="opB" class="input-base w-full p-2 rounded-md" value="29">
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="calculate-btn" class="btn-primary font-bold py-2 px-6 rounded-md">計算</button>
+                </div>
+                <div id="calc-result-container" class="mt-6 hidden">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">計算結果</h3>
+                    <div class="bg-gray-800 text-white p-4 rounded-md overflow-x-auto">
+                        <pre id="calc-result" class="calc-line text-sm"></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="tricks" class="scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">APCS 實用技巧</h2>
+                <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">學習程式競賽中常見的位元運算技巧。這些精簡的程式碼不僅執行效率高，更能展現您對底層原理的深刻理解。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="card p-6">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">判斷奇偶數</h3>
+                            <div class="lang-toggle-group" data-trick="odd-even">
+                                <span class="lang-toggle active" data-lang="cpp">C++</span>
+                                <span class="lang-toggle" data-lang="py">Python</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">一個數字的奇偶性取決於其最低有效位 (LSB)。若 LSB 為 1，是奇數；若為 0，是偶數。<code class="inline-code">n & 1</code> 操作會遮蔽掉除了 LSB 以外的所有位元，直接得到 LSB 的值。</p>
+                        <div class="code-container">
+                            <pre class="code-block" data-lang="cpp" data-trick="odd-even"><code><span class="k">bool</span> <span class="v">isEven</span> <span class="o">=</span> (<span class="v">n</span> <span class="o">&</span> <span class="n">1</span>) <span class="o">==</span> <span class="n">0</span>;</code></pre>
+                            <pre class="code-block hidden" data-lang="py" data-trick="odd-even"><code><span class="v">is_even</span> <span class="o">=</span> (<span class="v">n</span> <span class="o">&</span> <span class="n">1</span>) <span class="o">==</span> <span class="n">0</span></code></pre>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <input type="number" id="trick-odd-even-input" class="input-base w-full p-2 rounded-md" placeholder="輸入一個整數">
+                        <button onclick="runTrick('odd-even')" class="w-full btn-primary text-sm font-bold py-2 px-4 rounded-md">執行</button>
+                        <p id="trick-odd-even-output" class="text-center font-semibold text-blue-600 h-6"></p>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">用 XOR 交換變數</h3>
+                            <div class="lang-toggle-group" data-trick="swap">
+                                <span class="lang-toggle active" data-lang="cpp">C++</span>
+                                <span class="lang-toggle" data-lang="py">Python</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">利用 XOR 的特性 <code class="inline-code">a^a=0</code> 和 <code class="inline-code">a^0=a</code>。<code class="inline-code">a^=b</code> 後 a 儲存了兩者差異；<code class="inline-code">b^=a</code> 使 b 變回原始 a；<code class="inline-code">a^=b</code> 使 a 變回原始 b，從而完成交換。</p>
+                        <div class="code-container">
+                            <pre class="code-block" data-lang="cpp" data-trick="swap"><code><span class="v">a</span> <span class="o">^=</span> <span class="v">b</span>;<br><span class="v">b</span> <span class="o">^=</span> <span class="v">a</span>;<br><span class="v">a</span> <span class="o">^=</span> <span class="v">b</span>;</code></pre>
+                            <pre class="code-block hidden" data-lang="py" data-trick="swap"><code><span class="v">a</span> <span class="o">^=</span> <span class="v">b</span><br><span class="v">b</span> <span class="o">^=</span> <span class="v">a</span><br><span class="v">a</span> <span class="o">^=</span> <span class="v">b</span></code></pre>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                         <div class="flex gap-2">
+                            <input type="number" id="trick-swap-a" class="input-base w-full p-2 rounded-md" placeholder="a">
+                            <input type="number" id="trick-swap-b" class="input-base w-full p-2 rounded-md" placeholder="b">
+                        </div>
+                        <button onclick="runTrick('swap')" class="w-full btn-primary text-sm font-bold py-2 px-4 rounded-md">執行</button>
+                        <p id="trick-swap-output" class="text-center font-semibold text-blue-600 h-6"></p>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                     <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">檢查是否為 2 的冪</h3>
+                            <div class="lang-toggle-group" data-trick="power-of-two">
+                                <span class="lang-toggle active" data-lang="cpp">C++</span>
+                                <span class="lang-toggle" data-lang="py">Python</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4">2 的冪在二進位中只有一個 1 (如 <code class="inline-code">1000</code>)。<code class="inline-code">n-1</code> 會將這個 1 變 0，其後的 0 都變 1 (如 <code class="inline-code">0111</code>)。因此 <code class="inline-code">n & (n-1)</code> 的結果必為 0。</p>
+                        <div class="code-container">
+                            <pre class="code-block" data-lang="cpp" data-trick="power-of-two"><code><span class="k">bool</span> <span class="v">isPowerOfTwo</span> <span class="o">=</span> <span class="v">n</span> <span class="o">></span> <span class="n">0</span> <span class="o">&&</span> (<span class="v">n</span> <span class="o">&</span> (<span class="v">n</span> <span class="o">-</span> <span class="n">1</span>)) <span class="o">==</span> <span class="n">0</span>;</code></pre>
+                            <pre class="code-block hidden" data-lang="py" data-trick="power-of-two"><code><span class="v">is_power_of_two</span> <span class="o">=</span> <span class="v">n</span> <span class="o">></span> <span class="n">0</span> <span class="k">and</span> (<span class="v">n</span> <span class="o">&</span> (<span class="v">n</span> <span class="o">-</span> <span class="n">1</span>)) <span class="o">==</span> <span class="n">0</span></code></pre>
+                        </div>
+                    </div>
+                     <div class="mt-4 space-y-2">
+                        <input type="number" id="trick-power-of-two-input" class="input-base w-full p-2 rounded-md" placeholder="輸入一個正整數">
+                        <button onclick="runTrick('power-of-two')" class="w-full btn-primary text-sm font-bold py-2 px-4 rounded-md">執行</button>
+                        <p id="trick-power-of-two-output" class="text-center font-semibold text-blue-600 h-6"></p>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                     <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">清除最低位的 1</h3>
+                             <div class="lang-toggle-group" data-trick="clear-lsb">
+                                <span class="lang-toggle active" data-lang="cpp">C++</span>
+                                <span class="lang-toggle" data-lang="py">Python</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4"><code class="inline-code">n-1</code> 會翻轉 <code class="inline-code">n</code> 中最低位的 1 及其之後的所有位元。當 <code class="inline-code">n</code> 與 <code class="inline-code">n-1</code> 做 AND 運算時，這個最低位的 1 就會被清除，而更高位的位元不受影響。</p>
+                        <div class="code-container">
+                            <pre class="code-block" data-lang="cpp" data-trick="clear-lsb"><code><span class="v">n</span> <span class="o">=</span> <span class="v">n</span> <span class="o">&</span> (<span class="v">n</span> <span class="o">-</span> <span class="n">1</span>);</code></pre>
+                            <pre class="code-block hidden" data-lang="py" data-trick="clear-lsb"><code><span class="v">n</span> <span class="o">=</span> <span class="v">n</span> <span class="o">&</span> (<span class="v">n</span> <span class="o">-</span> <span class="n">1</span>)</code></pre>
+                        </div>
+                    </div>
+                     <div class="mt-4 space-y-2">
+                        <input type="number" id="trick-clear-lsb-input" class="input-base w-full p-2 rounded-md" placeholder="輸入一個整數">
+                        <button onclick="runTrick('clear-lsb')" class="w-full btn-primary text-sm font-bold py-2 px-4 rounded-md">執行</button>
+                        <p id="trick-clear-lsb-output" class="text-center font-semibold text-blue-600 h-6"></p>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">取得第 k 個位元</h3>
+                            <div class="lang-toggle-group" data-trick="get-kth">
+                                <span class="lang-toggle active" data-lang="cpp">C++</span>
+                                <span class="lang-toggle" data-lang="py">Python</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4"><code class="inline-code">n >> k</code> 將第 k 個位元移動到最低位。然後 <code class="inline-code">& 1</code> 操作會遮蔽掉所有其他位元，只留下我們感興趣的第 k 個位元的值 (0 或 1)。</p>
+                        <div class="code-container">
+                            <pre class="code-block" data-lang="cpp" data-trick="get-kth"><code><span class="c">int</span> <span class="v">kthBit</span> <span class="o">=</span> (<span class="v">n</span> <span class="o">>></span> <span class="v">k</span>) <span class="o">&</span> <span class="n">1</span>;</code></pre>
+                            <pre class="code-block hidden" data-lang="py" data-trick="get-kth"><code><span class="v">kth_bit</span> <span class="o">=</span> (<span class="v">n</span> <span class="o">>></span> <span class="v">k</span>) <span class="o">&</span> <span class="n">1</span></code></pre>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                         <div class="flex gap-2">
+                            <input type="number" id="trick-get-kth-n" class="input-base w-full p-2 rounded-md" placeholder="n">
+                            <input type="number" id="trick-get-kth-k" class="input-base w-full p-2 rounded-md" placeholder="k">
+                        </div>
+                        <button onclick="runTrick('get-kth')" class="w-full btn-primary text-sm font-bold py-2 px-4 rounded-md">執行</button>
+                        <p id="trick-get-kth-output" class="text-center font-semibold text-blue-600 h-6"></p>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">設定第 k 個位元為 1</h3>
+                            <div class="lang-toggle-group" data-trick="set-kth">
+                                <span class="lang-toggle active" data-lang="cpp">C++</span>
+                                <span class="lang-toggle" data-lang="py">Python</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4"><code class="inline-code">1 << k</code> 產生一個只在第 k 位為 1 的數字。透過 OR 運算，可以強制將 <code class="inline-code">n</code> 的第 k 位設為 1 (因 <code class="inline-code">x|1=1</code>)，而不影響其他位元 (因 <code class="inline-code">x|0=x</code>)。</p>
+                         <div class="code-container">
+                            <pre class="code-block" data-lang="cpp" data-trick="set-kth"><code><span class="v">n</span> <span class="o">=</span> <span class="v">n</span> <span class="o">|</span> (<span class="n">1</span> <span class="o"><<</span> <span class="v">k</span>);</code></pre>
+                            <pre class="code-block hidden" data-lang="py" data-trick="set-kth"><code><span class="v">n</span> <span class="o">=</span> <span class="v">n</span> <span class="o">|</span> (<span class="n">1</span> <span class="o"><<</span> <span class="v">k</span>)</code></pre>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                         <div class="flex gap-2">
+                            <input type="number" id="trick-set-kth-n" class="input-base w-full p-2 rounded-md" placeholder="n">
+                            <input type="number" id="trick-set-kth-k" class="input-base w-full p-2 rounded-md" placeholder="k">
+                        </div>
+                        <button onclick="runTrick('set-kth')" class="w-full btn-primary text-sm font-bold py-2 px-4 rounded-md">執行</button>
+                        <p id="trick-set-kth-output" class="text-center font-semibold text-blue-600 h-6"></p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="text-center py-8 border-t border-gray-200 mt-16">
+        <p class="text-gray-500">得能教育Telearn 版權所有 © 2025</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const decInput = document.getElementById('dec-input');
+            const hexInput = document.getElementById('hex-input');
+            const binInput = document.getElementById('bin-input');
+            const octInput = document.getElementById('oct-input');
+            const bitDisplay = document.getElementById('bit-display');
+            const inputs = [decInput, hexInput, binInput, octInput];
+
+            const operatorSelect = document.getElementById('operator');
+            const opAInput = document.getElementById('opA');
+            const opBInput = document.getElementById('opB');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const calcResultContainer = document.getElementById('calc-result-container');
+            const calcResultPre = document.getElementById('calc-result');
+
+            const validChars = {
+                10: /^-?[0-9]+$/,
+                16: /^[0-9a-fA-F]+$/,
+                2: /^[01]+$/,
+                8: /^[0-7]+$/
+            };
+            
+            function safeParseInt(value, base) {
+                if (base === 10) {
+                    return parseInt(value, 10) || 0;
+                }
+                const num = parseInt(value, base);
+                return isNaN(num) ? 0 : num;
+            }
+
+            function updateValues(sourceElement) {
+                const sourceBase = parseInt(sourceElement.dataset.base);
+                let value = sourceElement.value.trim();
+                
+                if (value === '' || (sourceBase === 10 && value === '-')) {
+                    inputs.forEach(input => { if (input !== sourceElement) input.value = ''; });
+                    updateBitDisplay(0);
+                    return;
+                }
+
+                if (!validChars[sourceBase].test(value)) {
+                    sourceElement.value = value.slice(0, -1);
+                    return;
+                }
+
+                const numValue = safeParseInt(value, sourceBase);
+
+                inputs.forEach(input => {
+                    if (input !== sourceElement) {
+                        const targetBase = parseInt(input.dataset.base);
+                        if (!isNaN(numValue)) {
+                            input.value = numValue.toString(targetBase).toUpperCase();
+                        } else {
+                            input.value = '';
+                        }
+                    }
+                });
+                updateBitDisplay(numValue);
+            }
+
+            function updateBitDisplay(num) {
+                bitDisplay.innerHTML = '';
+                for (let i = 7; i >= 0; i--) {
+                    const bit = (num >> i) & 1;
+                    const bitBox = document.createElement('div');
+                    bitBox.textContent = bit;
+                    bitBox.className = `bit-box ${bit === 1 ? 'bit-1' : 'bit-0'}`;
+                    bitDisplay.appendChild(bitBox);
+                }
+            }
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', () => updateValues(input));
+            });
+
+            operatorSelect.addEventListener('change', () => {
+                const op = operatorSelect.value;
+                opBInput.disabled = (op === '~');
+            });
+
+            function toBinaryString(num, bits) {
+                return (num >>> 0).toString(2).padStart(bits, '0').slice(-bits);
+            }
+
+            calculateBtn.addEventListener('click', () => {
+                const opA = parseInt(opAInput.value) || 0;
+                const opB = parseInt(opBInput.value) || 0;
+                const operator = operatorSelect.value;
+                let result;
+                let resultText = '';
+                const BITS = 8;
+
+                const binA = toBinaryString(opA, BITS);
+                const binB = toBinaryString(opB, BITS);
+
+                switch (operator) {
+                    case '&':
+                        result = opA & opB;
+                        resultText = `  ${binA}  (A = ${opA})\n& ${binB}  (B = ${opB})\n${'-'.repeat(BITS + 16)}\n  ${toBinaryString(result, BITS)}  (Result = ${result})`;
+                        break;
+                    case '|':
+                        result = opA | opB;
+                        resultText = `  ${binA}  (A = ${opA})\n| ${binB}  (B = ${opB})\n${'-'.repeat(BITS + 16)}\n  ${toBinaryString(result, BITS)}  (Result = ${result})`;
+                        break;
+                    case '^':
+                        result = opA ^ opB;
+                        resultText = `  ${binA}  (A = ${opA})\n^ ${binB}  (B = ${opB})\n${'-'.repeat(BITS + 16)}\n  ${toBinaryString(result, BITS)}  (Result = ${result})`;
+                        break;
+                    case '~':
+                        result = ~opA;
+                        resultText = `~ ${binA}  (A = ${opA})\n${'-'.repeat(BITS + 16)}\n  ${toBinaryString(result, BITS)}  (Result = ${result})`;
+                        break;
+                    case '<<':
+                        result = opA << opB;
+                        resultText = `  ${binA}  (A = ${opA})\n<< ${opB}\n${'-'.repeat(BITS + 16)}\n  ${toBinaryString(result, BITS)}  (Result = ${result})`;
+                        break;
+                    case '>>':
+                        result = opA >> opB;
+                        resultText = `  ${binA}  (A = ${opA})\n>> ${opB}\n${'-'.repeat(BITS + 16)}\n  ${toBinaryString(result, BITS)}  (Result = ${result})`;
+                        break;
+                }
+                
+                calcResultPre.textContent = resultText;
+                calcResultContainer.classList.remove('hidden');
+            });
+
+            function setupLangToggles() {
+                const toggles = document.querySelectorAll('.lang-toggle');
+                toggles.forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        const target = e.currentTarget;
+                        const lang = target.dataset.lang;
+                        const trick = target.parentElement.dataset.trick;
+
+                        const group = target.parentElement;
+                        group.querySelectorAll('.lang-toggle').forEach(t => t.classList.remove('active'));
+                        target.classList.add('active');
+                        
+                        const card = target.closest('.card');
+                        card.querySelectorAll('.code-block').forEach(block => {
+                            if (block.dataset.lang === lang && block.dataset.trick === trick) {
+                                block.classList.remove('hidden');
+                            } else {
+                                block.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+            }
+            
+            updateValues(decInput);
+            calculateBtn.click();
+            setupLangToggles();
+        });
+
+        function runTrick(trickName) {
+            switch (trickName) {
+                case 'odd-even': {
+                    const input = document.getElementById('trick-odd-even-input');
+                    const output = document.getElementById('trick-odd-even-output');
+                    const n = parseInt(input.value);
+                    if (isNaN(n)) {
+                        output.textContent = '請輸入有效數字';
+                        return;
+                    }
+                    output.textContent = (n & 1) === 0 ? `${n} 是偶數` : `${n} 是奇數`;
+                    break;
+                }
+                case 'swap': {
+                    const inputA = document.getElementById('trick-swap-a');
+                    const inputB = document.getElementById('trick-swap-b');
+                    const output = document.getElementById('trick-swap-output');
+                    let a = parseInt(inputA.value);
+                    let b = parseInt(inputB.value);
+                    if (isNaN(a) || isNaN(b)) {
+                        output.textContent = '請輸入有效數字';
+                        return;
+                    }
+                    const originalA = a, originalB = b;
+                    a = a ^ b;
+                    b = a ^ b;
+                    a = a ^ b;
+                    output.textContent = `a=${originalA}, b=${originalB} -> a=${a}, b=${b}`;
+                    break;
+                }
+                 case 'power-of-two': {
+                    const input = document.getElementById('trick-power-of-two-input');
+                    const output = document.getElementById('trick-power-of-two-output');
+                    const n = parseInt(input.value);
+                    if (isNaN(n) || n <= 0) {
+                        output.textContent = '請輸入正整數';
+                        return;
+                    }
+                    const isPowerOfTwo = (n > 0) && ((n & (n - 1)) === 0);
+                    output.textContent = isPowerOfTwo ? `${n} 是 2 的冪` : `${n} 不是 2 的冪`;
+                    break;
+                }
+                case 'clear-lsb': {
+                    const input = document.getElementById('trick-clear-lsb-input');
+                    const output = document.getElementById('trick-clear-lsb-output');
+                    const n = parseInt(input.value);
+                    if (isNaN(n)) {
+                        output.textContent = '請輸入有效數字';
+                        return;
+                    }
+                    const result = n & (n - 1);
+                    output.textContent = `${n} -> ${result}`;
+                    break;
+                }
+                case 'get-kth': {
+                    const nInput = document.getElementById('trick-get-kth-n');
+                    const kInput = document.getElementById('trick-get-kth-k');
+                    const output = document.getElementById('trick-get-kth-output');
+                    const n = parseInt(nInput.value);
+                    const k = parseInt(kInput.value);
+                    if (isNaN(n) || isNaN(k) || k < 0) {
+                        output.textContent = '請輸入有效數字 (k>=0)';
+                        return;
+                    }
+                    const result = (n >> k) & 1;
+                    output.textContent = `${n} 的第 ${k} 位元是 ${result}`;
+                    break;
+                }
+                case 'set-kth': {
+                    const nInput = document.getElementById('trick-set-kth-n');
+                    const kInput = document.getElementById('trick-set-kth-k');
+                    const output = document.getElementById('trick-set-kth-output');
+                    const n = parseInt(nInput.value);
+                    const k = parseInt(kInput.value);
+                     if (isNaN(n) || isNaN(k) || k < 0) {
+                        output.textContent = '請輸入有效數字 (k>=0)';
+                        return;
+                    }
+                    const result = n | (1 << k);
+                    output.textContent = `${n} -> ${result}`;
+                    break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
