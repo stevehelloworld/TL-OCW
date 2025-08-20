@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pygame貪食蛇遊戲製作教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Prism JS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    <!-- Chosen Palette: Slate & Amber -->
+    <!-- Application Structure Plan: A multi-page SPA simulation. The tutorial is broken into major "Pages" (Part 1, Part 2, etc.). Sidebar navigation switches between these pages. Within each page, "Next" and "Previous" buttons guide the user through more granular sub-steps. The code viewer on the right dynamically displays only the code relevant to the current sub-step. This structure provides a highly focused, linear, and less overwhelming learning path as requested. -->
+    <!-- Visualization & Content Choices: Tutorial Pages -> Sidebar Navigation -> Switches between major tutorial parts. Sub-steps -> Next/Previous Buttons -> Guides user through detailed steps within a part. Code -> Dynamic Code Viewer -> Displays small, manageable code snippets for each sub-step, ensuring clarity. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .nav-active {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #f59e0b; /* amber-500 */
+            border-left-color: #f59e0b; /* amber-500 */
+        }
+        .step-content {
+            display: none;
+        }
+        .step-content.active {
+            display: block;
+        }
+        .content-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .content-section h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-section p, .content-section li {
+            line-height: 1.75;
+            color: #334155; /* slate-700 */
+        }
+        .content-section code:not(pre > code) {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #475569; /* slate-600 */
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        /* PrismJS okaidia theme background override */
+        pre[class*="language-"] {
+            background: #1e293b; /* slate-800 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 fixed top-0 left-0 h-full overflow-y-auto transition-transform -translate-x-full md:translate-x-0 z-20">
+            <div class="p-4">
+                <h2 class="text-xl font-bold text-slate-700">Pygame 貪食蛇</h2>
+                <p class="text-sm text-slate-500">遊戲製作教學</p>
+            </div>
+            <nav id="table-of-contents" class="mt-4">
+                <ul>
+                    <!-- Navigation items will be injected by JS -->
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Menu Button -->
+        <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-md shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+
+        <!-- Main Content -->
+        <main class="w-full md:ml-64 p-4 md:p-8 lg:p-12">
+            <div id="main-grid" class="max-w-7xl mx-auto grid grid-cols-1 gap-8">
+                <!-- Tutorial Text Column -->
+                <div>
+                    <div class="flex justify-end mb-4">
+                        <button id="toggle-code-btn" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-medium py-2 px-4 rounded-lg shadow-sm">
+                            顯示程式碼
+                        </button>
+                    </div>
+                    <div id="tutorial-content" class="prose max-w-none">
+                        <!-- Content sections will be injected and managed by JS -->
+                    </div>
+                </div>
+
+                <!-- Code Viewer Column -->
+                <div id="code-viewer-container" class="sticky top-0 h-screen overflow-hidden hidden">
+                    <div class="h-full flex flex-col bg-slate-900 rounded-lg shadow-lg">
+                        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-slate-800/50 rounded-t-lg">
+                            <h3 id="code-viewer-title" class="text-lg font-semibold text-white">當前步驟程式碼</h3>
+                            <button id="copy-button" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-1 px-3 rounded-md transition-colors">
+                                複製
+                            </button>
+                        </div>
+                        <div class="flex-grow overflow-y-auto">
+                            <pre class="h-full m-0 rounded-b-lg"><code id="code-display" class="language-python text-sm"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialData = {
+                'intro': {
+                    title: '👋 歡迎',
+                    steps: [
+                        {
+                            title: '歡迎來到遊戲開發的世界！',
+                            content: `
+                                <p>歡迎各位剛學會 Python 基礎的程式設計師！準備好將你的技能提升到一個全新的、令人興奮的層次了嗎？在本教學中，我們將一起踏上一段有趣的旅程：使用 Pygame 這個強大且適合初學者的函式庫，從零開始打造一個經典的貪食蛇遊戲。</p>
+                                <img src="./snake.png" alt="完成的貪食蛇遊戲" class="rounded-lg shadow-md my-4">
+                                <p>本教學採用分頁、分步驟的方式進行。請點擊左側的導覽列來切換主要章節，並使用下方的「下一步」按鈕來跟隨每個詳細步驟。您可以點擊右上方的「顯示程式碼」按鈕來查看與該步驟對應的程式碼。</p>
+                                <p>現在，點擊「下一步」或左側的「Part 1」開始我們的旅程吧！</p>`,
+                            code: `# 歡迎來到 Pygame 貪食蛇教學！\n# 請點擊「下一步」開始。`
+                        }
+                    ]
+                },
+                'part1': {
+                    title: 'Part 1: 搭建舞台',
+                    steps: [
+                        {
+                            title: '1.1: 匯入與初始化',
+                            content: `<p>任何 Pygame 程式的第一步都是匯入必要的函式庫並初始化 Pygame 引擎。這就像是為我們的表演準備好舞台和燈光。</p>
+                                       <ul>
+                                           <li><code>import pygame, sys, random, time</code>: 匯入我們整個專案會用到的所有函式庫。</li>
+                                           <li><code>pygame.init()</code>: 這是啟動 Pygame 的魔法指令，必須在所有其他 Pygame 功能之前呼叫。</li>
+                                       </ul>`,
+                            code: `# 匯入函式庫
+import pygame
+import sys
+import time
+import random
+
+# 初始化 Pygame
+pygame.init()`
+                        },
+                        {
+                            title: '1.2: 建立遊戲視窗',
+                            content: `<p>接下來，我們要定義遊戲視窗的大小，並實際建立出這個視窗。我們也會為它設定一個標題。</p>
+                                       <ul>
+                                           <li><code>screen_width</code> 和 <code>screen_height</code>: 定義視窗的寬與高。</li>
+                                           <li><code>BLOCK_SIZE</code>: 定義遊戲中網格的大小，這對之後蛇和食物的定位非常重要。</li>
+                                           <li><code>pygame.display.set_mode()</code>: 根據尺寸建立視窗。</li>
+                                           <li><code>pygame.display.set_caption()</code>: 設定視窗標題。</li>
+                                       </ul>`,
+                            code: `# 視窗尺寸
+screen_width = 720
+screen_height = 480
+
+# 網格尺寸
+BLOCK_SIZE = 20
+
+# 建立遊戲視窗
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption('貪食蛇')`
+                        },
+                        {
+                            title: '1.3: 顏色與時鐘',
+                            content: `<p>我們預先定義好遊戲中會用到的顏色，並建立一個時鐘物件來控制遊戲的更新速度（幀率）。</p>
+                                       <ul>
+                                           <li>顏色是用 <code>(R, G, B)</code> 元組定義的。</li>
+                                           <li><code>pygame.time.Clock()</code>: 建立一個時鐘物件，用來穩定遊戲速度。</li>
+                                       </ul>`,
+                            code: `# 顏色定義
+BLACK = pygame.Color(0, 0, 0)
+WHITE = pygame.Color(255, 255, 255)
+RED = pygame.Color(255, 0, 0)
+GREEN = pygame.Color(0, 255, 0)
+
+# FPS 控制器
+clock = pygame.time.Clock()
+snake_speed = 15`
+                        },
+                        {
+                            title: '1.4: 主遊戲迴圈',
+                            content: `<p>這是遊戲的心臟。一個 <code>while</code> 迴圈會不斷執行，處理事件、更新邏輯並重新繪製畫面。目前，它只會處理「關閉視窗」事件，並用黑色填滿背景。</p>
+                                       <ul>
+                                           <li><code>while True:</code>: 建立一個無限迴圈。</li>
+                                           <li><code>pygame.event.get()</code>: 檢查所有使用者輸入。</li>
+                                           <li><code>screen.fill()</code>: 清空並填滿背景。</li>
+                                           <li><code>pygame.display.update()</code>: 將所有繪製更新到螢幕上。</li>
+                                           <li><code>clock.tick()</code>: 控制迴圈每秒執行的次數。</li>
+                                       </ul>
+                                       <p class="mt-4 font-bold">恭喜！Part 1 已完成。點擊「下一步」進入 Part 2。</p>`,
+                            code: `# 主遊戲迴圈 (此迴圈將在 Part 4 被移入 main 函式)
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # 遊戲邏輯更新 (暫時為空)
+
+    # 畫面渲染
+    screen.fill(BLACK)
+    
+    pygame.display.update()
+    clock.tick(snake_speed)`
+                        }
+                    ]
+                },
+                'part2': {
+                    title: 'Part 2: 讓蛇活起來',
+                    steps: [
+                        {
+                            title: '2.1: 蛇的資料結構',
+                            content: `<p>我們需要用變數來儲存蛇的狀態。最直觀的方式是用一個列表 (list) 來代表蛇的身體，列表中的每個元素都是一個座標。</p>
+                                       <ul>
+                                           <li><code>snake_pos</code>: 蛇頭的 <code>[x, y]</code> 座標。</li>
+                                           <li><code>snake_body</code>: 一個列表的列表，儲存蛇每一節身體的座標。</li>
+                                           <li><code>direction</code>: 儲存蛇當前的移動方向。</li>
+                                       </ul>
+                                       <p>請將這段程式碼加在 <code>snake_speed = 15</code> 之後。</p>`,
+                            code: `# 遊戲變數
+snake_pos = [100, 60]
+snake_body = [[100, 60], [80, 60], [60, 60]]
+direction = 'RIGHT'
+change_to = direction`
+                        },
+                        {
+                            title: '2.2: 繪製蛇',
+                            content: `<p>有了蛇的資料，我們就可以在遊戲迴圈的「畫面渲染」區塊把它畫出來。我們遍歷 <code>snake_body</code> 列表，為每個座標點畫一個綠色的方塊。</p>
+                                       <p>請將這段程式碼加在 <code>screen.fill(BLACK)</code> 之後。</p>`,
+                            code: `# 畫蛇
+for pos in snake_body:
+    pygame.draw.rect(screen, GREEN, pygame.Rect(pos[0], pos[1], BLOCK_SIZE, BLOCK_SIZE))`
+                        },
+                        {
+                            title: '2.3: 鍵盤控制',
+                            content: `<p>為了讓玩家能控制蛇，我們需要在事件處理迴圈中偵測鍵盤按下 (<code>KEYDOWN</code>) 事件，並根據按下的方向鍵來更新 <code>change_to</code> 變數。</p>
+                                       <p>請將這段程式碼加在 <code>for event in pygame.event.get():</code> 迴圈內部。</p>`,
+                            code: `# 鍵盤輸入
+if event.type == pygame.KEYDOWN:
+    if (event.key == pygame.K_UP or event.key == ord('w')) and direction != 'DOWN':
+        change_to = 'UP'
+    if (event.key == pygame.K_DOWN or event.key == ord('s')) and direction != 'UP':
+        change_to = 'DOWN'
+    if (event.key == pygame.K_LEFT or event.key == ord('a')) and direction != 'RIGHT':
+        change_to = 'LEFT'
+    if (event.key == pygame.K_RIGHT or event.key == ord('d')) and direction != 'LEFT':
+        change_to = 'RIGHT'`
+                        },
+                        {
+                            title: '2.4: 移動邏輯',
+                            content: `<p>這是讓蛇動起來的核心。我們根據方向更新蛇頭的位置，然後在蛇身體列表的頭部插入新位置，並移除尾部。這一增一減，就模擬出了移動的效果。</p>
+                                       <p>請將這段程式碼加在「遊戲邏輯更新」區塊。</p>
+                                       <p class="mt-4 font-bold">太棒了！Part 2 已完成。點擊「下一步」來為遊戲加入更多機制。</p>`,
+                            code: `# 防止180度轉彎
+direction = change_to
+
+# 更新蛇頭位置
+if direction == 'UP':
+    snake_pos[1] -= BLOCK_SIZE
+if direction == 'DOWN':
+    snake_pos[1] += BLOCK_SIZE
+if direction == 'LEFT':
+    snake_pos[0] -= BLOCK_SIZE
+if direction == 'RIGHT':
+    snake_pos[0] += BLOCK_SIZE
+
+# 蛇身體移動機制
+snake_body.insert(0, list(snake_pos))
+snake_body.pop()`
+                        }
+                    ]
+                },
+                 'part3': {
+                    title: 'Part 3: 核心遊戲機制',
+                    steps: [
+                        {
+                            title: '3.1: 產生食物',
+                            content: `<p>遊戲需要一個目標，那就是食物。我們來寫一個函式，它可以在一個隨機、且不與蛇身重疊的位置產生食物。</p>
+                                       <p>請將這個函式加在程式碼的頂部區域 (import 之後)。</p>`,
+                            code: `def generate_food(snake_body):
+    while True:
+        pos = [random.randrange(0, screen_width // BLOCK_SIZE) * BLOCK_SIZE, 
+               random.randrange(0, screen_height // BLOCK_SIZE) * BLOCK_SIZE]
+        if pos not in snake_body:
+            return pos`
+                        },
+                        {
+                            title: '3.2: 顯示分數',
+                            content: `<p>我們也需要一個函式來在螢幕上顯示當前分數。</p>
+                                       <p>請將這個函式也加在程式碼的頂部區域。</p>`,
+                            code: `def show_score(score):
+    score_font = pygame.font.SysFont('consolas', 20)
+    score_surface = score_font.render('Score : ' + str(score), True, WHITE)
+    score_rect = score_surface.get_rect()
+    score_rect.midtop = (screen_width / 10, 15)
+    screen.blit(score_surface, score_rect)`
+                        },
+                        {
+                            title: '3.3: 碰撞與成長',
+                            content: `<p>現在來修改遊戲邏輯。我們需要初始化分數和食物位置，並在蛇頭碰到食物時，增加分數並重新產生食物，同時讓蛇身變長（透過不移除蛇尾來實現）。</p>
+                                       <p>請用這段程式碼替換掉舊的變數定義和 <code>snake_body.pop()</code> 邏輯。</p>`,
+                            code: `# 在變數定義區
+score = 0
+food_pos = generate_food(snake_body)
+
+# 在主迴圈中，替換掉 snake_body.pop()
+if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
+    score += 10
+    food_pos = generate_food(snake_body)
+else:
+    snake_body.pop()`
+                        },
+                        {
+                            title: '3.4: 失敗條件與繪圖',
+                            content: `<p>最後，我們要加入失敗條件（撞牆或撞自己），並把食物和分數畫出來。</p>
+                                       <p>請將這段程式碼加到遊戲迴圈的對應位置。</p>
+                                       <p class="mt-4 font-bold">核心機制完成！點擊「下一步」來完善遊戲體驗。</p>`,
+                            code: `# 在遊戲邏輯更新區塊的結尾新增：
+if snake_pos[0] < 0 or snake_pos[0] >= screen_width or snake_pos[1] < 0 or snake_pos[1] >= screen_height:
+    pass # 將在 Part 4 處理
+for block in snake_body[1:]:
+    if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
+        pass # 將在 Part 4 處理
+
+# 在畫面渲染區塊新增：
+pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], BLOCK_SIZE, BLOCK_SIZE))
+show_score(score)`
+                        }
+                    ]
+                },
+                'part4': {
+                    title: 'Part 4: 完善體驗',
+                     steps: [
+                        {
+                            title: '4.1: 遊戲結束畫面',
+                            content: `<p>當玩家失敗時，我們應該顯示一個清晰的「遊戲結束」畫面，而不是讓程式直接崩潰。這個函式會顯示死亡訊息、最終分數，並等待玩家輸入。</p>
+                                       <p>請將這個函式加在程式碼的頂部區域。</p>`,
+                            code: `def game_over_message(score):
+    my_font = pygame.font.SysFont('times new roman', 90)
+    game_over_surface = my_font.render('YOU DIED', True, RED)
+    game_over_rect = game_over_surface.get_rect()
+    game_over_rect.midtop = (screen_width / 2, screen_height / 4)
+    screen.blit(game_over_surface, game_over_rect)
+    
+    # 這裡可以呼叫 show_score 來顯示最終分數，但我們需要稍作修改
+    # 暫時先這樣
+    final_score_font = pygame.font.SysFont('consolas', 20)
+    final_score_surface = final_score_font.render('Final Score: ' + str(score), True, WHITE)
+    final_score_rect = final_score_surface.get_rect()
+    final_score_rect.midtop = (screen_width / 2, screen_height / 1.5)
+    screen.blit(final_score_surface, final_score_rect)
+    
+    pygame.display.flip()
+    
+    time.sleep(2) # 暫停兩秒
+    # 接下來要處理重新開始`
+                        },
+                        {
+                            title: '4.2: 重新開始遊戲',
+                            content: `<p>為了能重新開始遊戲，我們需要將整個遊戲邏輯包裝進一個 <code>main</code> 函式，並在遊戲結束時再次呼叫它。這是一種簡單的重啟方式。</p>
+                                       <p>請用這段程式碼結構來重組你的程式碼，並在檔案底部加上程式進入點。</p>`,
+                            code: `# 修改 game_over_message 函式，加入等待迴圈
+def game_over_message(score):
+    # ... (顯示文字的部分) ...
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                waiting = False # 結束等待，返回 main 函式
+
+# 建立 main 函式
+def main():
+    # 將所有遊戲變數初始化和主迴圈都移到這裡...
+
+# 在檔案最底部新增
+if __name__ == '__main__':
+    main()
+
+# 在主迴圈的失敗條件中，呼叫 game_over_message 和 main
+if is_game_over:
+    game_over_message(score)
+    main()`
+                        },
+                         {
+                            title: '4.3: 最終整合',
+                            content: `<p>這是將所有部分整合在一起的最終樣貌。左側的導覽列現在多了一個「最終程式碼」選項，你可以隨時點擊查看完整的、可執行的程式碼。</p>
+                                       <p class="mt-4 font-bold">恭喜你，完成了整個教學！你已經從零打造了一個完整的貪食蛇遊戲！</p>`,
+                            code: `# 最終程式碼展示在「最終程式碼」分頁中。
+# 恭喜你完成教學！`
+                        }
+                    ]
+                },
+                'final': {
+                    title: '最終程式碼',
+                    steps: [
+                        {
+                            title: '完整 main.py',
+                            content: `<p>這是整個專案的最終完整程式碼。你可以複製這段程式碼到你的 <code>main.py</code> 檔案中直接執行。</p>`,
+                            code: `import pygame
+import sys
+import time
+import random
+
+# 初始化 Pygame
+pygame.init()
+
+# 視窗尺寸
+screen_width = 720
+screen_height = 480
+BLOCK_SIZE = 20
+
+# 建立遊戲視窗
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption('貪食蛇新手村')
+
+# 顏色定義
+BLACK = pygame.Color(0, 0, 0)
+WHITE = pygame.Color(255, 255, 255)
+RED = pygame.Color(255, 0, 0)
+GREEN = pygame.Color(0, 255, 0)
+
+# FPS 控制器
+clock = pygame.time.Clock()
+snake_speed = 15
+
+def show_score(score, choice=1):
+    score_font = pygame.font.SysFont('consolas', 20)
+    score_surface = score_font.render('Score : ' + str(score), True, WHITE)
+    score_rect = score_surface.get_rect()
+    if choice == 1:
+        score_rect.midtop = (screen_width / 10, 15)
+    else:
+        score_rect.midtop = (screen_width / 2, screen_height / 1.5)
+    screen.blit(score_surface, score_rect)
+
+def game_over_message(score):
+    my_font = pygame.font.SysFont('times new roman', 90)
+    game_over_surface = my_font.render('YOU DIED', True, RED)
+    game_over_rect = game_over_surface.get_rect()
+    game_over_rect.midtop = (screen_width / 2, screen_height / 4)
+    screen.blit(game_over_surface, game_over_rect)
+    
+    show_score(score, choice=0)
+
+    restart_font = pygame.font.SysFont('consolas', 20)
+    restart_surface = restart_font.render('Press [R] to Restart or [Q] to Quit', True, WHITE)
+    restart_rect = restart_surface.get_rect()
+    restart_rect.midtop = (screen_width / 2, screen_height / 1.25)
+    screen.blit(restart_surface, restart_rect)
+    
+    pygame.display.flip()
+    
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == pygame.K_r:
+                    waiting = False
+
+def main():
+    def generate_food(snake_body):
+        while True:
+            pos = [random.randrange(0, screen_width // BLOCK_SIZE) * BLOCK_SIZE, 
+                   random.randrange(0, screen_height // BLOCK_SIZE) * BLOCK_SIZE]
+            if pos not in snake_body:
+                return pos
+
+    score = 0
+    snake_pos = [100, 60]
+    snake_body = [[100, 60], [80, 60], [60, 60]]
+    food_pos = generate_food(snake_body)
+    direction = 'RIGHT'
+    change_to = direction
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_UP or event.key == ord('w')) and direction != 'DOWN':
+                    change_to = 'UP'
+                if (event.key == pygame.K_DOWN or event.key == ord('s')) and direction != 'UP':
+                    change_to = 'DOWN'
+                if (event.key == pygame.K_LEFT or event.key == ord('a')) and direction != 'RIGHT':
+                    change_to = 'LEFT'
+                if (event.key == pygame.K_RIGHT or event.key == ord('d')) and direction != 'LEFT':
+                    change_to = 'RIGHT'
+
+        direction = change_to
+
+        if direction == 'UP': snake_pos[1] -= BLOCK_SIZE
+        if direction == 'DOWN': snake_pos[1] += BLOCK_SIZE
+        if direction == 'LEFT': snake_pos[0] -= BLOCK_SIZE
+        if direction == 'RIGHT': snake_pos[0] += BLOCK_SIZE
+
+        snake_body.insert(0, list(snake_pos))
+        if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
+            score += 10
+            food_pos = generate_food(snake_body)
+        else:
+            snake_body.pop()
+
+        screen.fill(BLACK)
+        for pos in snake_body:
+            pygame.draw.rect(screen, GREEN, pygame.Rect(pos[0], pos[1], BLOCK_SIZE, BLOCK_SIZE))
+        pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0], food_pos[1], BLOCK_SIZE, BLOCK_SIZE))
+        
+        if snake_pos[0] < 0 or snake_pos[0] >= screen_width or snake_pos[1] < 0 or snake_pos[1] >= screen_height:
+            game_over_message(score)
+            main()
+        for block in snake_body[1:]:
+            if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
+                game_over_message(score)
+                main()
+
+        show_score(score)
+        pygame.display.update()
+        clock.tick(snake_speed)
+
+if __name__ == '__main__':
+    main()`
+                        }
+                    ]
+                }
+            };
+
+            const toc = document.getElementById('table-of-contents').getElementsByTagName('ul')[0];
+            const tutorialContent = document.getElementById('tutorial-content');
+            const codeDisplay = document.getElementById('code-display');
+            const copyButton = document.getElementById('copy-button');
+            const codeTitle = document.getElementById('code-viewer-title');
+            const toggleCodeBtn = document.getElementById('toggle-code-btn');
+            const codeViewerContainer = document.getElementById('code-viewer-container');
+            const mainGrid = document.getElementById('main-grid');
+            
+            let currentPage = 'intro';
+            let currentStep = 0;
+            let currentCode = '';
+
+            function renderPage(pageId, startStep = 0) {
+                currentPage = pageId;
+                currentStep = startStep;
+                
+                const pageData = tutorialData[pageId];
+                if (!pageData) return;
+
+                tutorialContent.innerHTML = ''; // Clear previous content
+
+                const pageContainer = document.createElement('div');
+                pageContainer.id = `page-${pageId}`;
+                pageContainer.classList.add('content-section');
+                
+                let stepsHtml = `<h3>${pageData.title}</h3>`;
+                pageData.steps.forEach((step, index) => {
+                    stepsHtml += `<div class="step-content ${index === startStep ? 'active' : ''}" data-step="${index}">
+                                    <h4>${step.title}</h4>
+                                    ${step.content}
+                                  </div>`;
+                });
+                
+                pageContainer.innerHTML = stepsHtml;
+
+                const navigationButtons = document.createElement('div');
+                navigationButtons.classList.add('mt-8', 'flex', 'justify-between');
+                navigationButtons.innerHTML = `
+                    <button class="prev-step-btn bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        &larr; 上一步
+                    </button>
+                    <button class="next-step-btn bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded">
+                        下一步 &rarr;
+                    </button>
+                `;
+                pageContainer.appendChild(navigationButtons);
+                tutorialContent.appendChild(pageContainer);
+
+                updateStep();
+                updateNavButtons();
+
+                document.querySelector('.prev-step-btn').addEventListener('click', () => {
+                    const pageKeys = Object.keys(tutorialData);
+                    const currentPageIndex = pageKeys.indexOf(currentPage);
+
+                    if (currentStep > 0) {
+                        currentStep--;
+                        updateStep();
+                    } else if (currentPageIndex > 0) {
+                        const prevPageId = pageKeys[currentPageIndex - 1];
+                        const prevPageData = tutorialData[prevPageId];
+                        renderPage(prevPageId, prevPageData.steps.length - 1);
+                    }
+                    updateNavButtons();
+                });
+
+                document.querySelector('.next-step-btn').addEventListener('click', () => {
+                     const pageKeys = Object.keys(tutorialData);
+                     const currentPageIndex = pageKeys.indexOf(currentPage);
+
+                    if (currentStep < pageData.steps.length - 1) {
+                        currentStep++;
+                        updateStep();
+                    } else if (currentPageIndex < pageKeys.length - 1) {
+                        renderPage(pageKeys[currentPageIndex + 1]);
+                    }
+                    updateNavButtons();
+                });
+
+                // Update sidebar active state
+                toc.querySelectorAll('a').forEach(link => {
+                    if (link.getAttribute('data-page') === pageId) {
+                        link.classList.add('nav-active');
+                    } else {
+                        link.classList.remove('nav-active');
+                    }
+                });
+            }
+
+            function updateStep() {
+                const pageData = tutorialData[currentPage];
+                const stepData = pageData.steps[currentStep];
+
+                document.querySelectorAll('.step-content').forEach(el => {
+                    el.classList.remove('active');
+                });
+                const activeStepEl = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+                if (activeStepEl) {
+                    activeStepEl.classList.add('active');
+                }
+                
+                currentCode = stepData.code.trim();
+                codeTitle.textContent = stepData.title;
+                codeDisplay.innerHTML = Prism.highlight(currentCode, Prism.languages.python, 'python');
+            }
+
+            function updateNavButtons() {
+                const prevBtn = document.querySelector('.prev-step-btn');
+                const nextBtn = document.querySelector('.next-step-btn');
+                if (!prevBtn || !nextBtn) return;
+
+                const pageData = tutorialData[currentPage];
+                const pageKeys = Object.keys(tutorialData);
+                const currentPageIndex = pageKeys.indexOf(currentPage);
+
+                prevBtn.disabled = (currentPageIndex === 0 && currentStep === 0);
+                nextBtn.disabled = (currentPageIndex === pageKeys.length - 1 && currentStep === pageData.steps.length - 1);
+            }
+
+            // Build sidebar
+            Object.keys(tutorialData).forEach(pageId => {
+                const pageData = tutorialData[pageId];
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" data-page="${pageId}" class="block border-l-4 border-transparent px-4 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors">${pageData.title}</a>`;
+                toc.appendChild(li);
+            });
+
+            // Sidebar click listeners
+            toc.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = e.target.getAttribute('data-page');
+                    renderPage(pageId);
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                });
+            });
+
+            copyButton.addEventListener('click', () => {
+                if (currentCode) {
+                    navigator.clipboard.writeText(currentCode).then(() => {
+                        copyButton.textContent = '已複製!';
+                        setTimeout(() => {
+                            copyButton.textContent = '複製';
+                        }, 2000);
+                    });
+                }
+            });
+
+            // Toggle Code Viewer
+            toggleCodeBtn.addEventListener('click', () => {
+                const isHidden = codeViewerContainer.classList.toggle('hidden');
+                mainGrid.classList.toggle('lg:grid-cols-2');
+                toggleCodeBtn.textContent = isHidden ? '顯示程式碼' : '隱藏程式碼';
+            });
+
+            // Initial render
+            renderPage('intro');
+
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+        });
+    </script>
+</body>
+</html>

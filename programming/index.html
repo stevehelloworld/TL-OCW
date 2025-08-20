@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APCS 雙語言互動式教學網頁</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page application with a two-column layout. The left column is a sticky navigation sidebar for quick access to different sections, promoting a clear, linear learning path. The right column contains the main content, transforming static text into interactive modules. Key interactions include tabbed code blocks for Python/C++ comparison, simulated code execution "playgrounds" for hands-on experimentation (especially for I/O and operators), interactive tooltips for key terms, and a visual chart to compare C++ I/O performance. This structure was chosen to turn passive reading into an active learning experience, allowing users to discover concepts like static vs. dynamic typing or integer division differences through direct interaction, which is more effective for programming education. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: APCS grading criteria (AC, WA, TLE). Goal: Inform. Method: Interactive list with tooltips. Interaction: Hover/click to see detailed explanations. Justification: Makes abstract terms tangible without cluttering the UI.
+        - Report Info: Python vs. C++ comparison. Goal: Compare. Method: Tabbed content and comparison tables. Interaction: User toggles between languages. Justification: Facilitates direct side-by-side analysis, crucial for dual-language learning.
+        - Report Info: "Hello World", User Input, Numeric Operators. Goal: Experimentation. Method: Simulated code playgrounds with tabbed views. Interaction: Users can "run" pre-written or slightly modified code and see immediate simulated output. Justification: This is the core of active learning, allowing users to see cause and effect instantly (e.g., `10 / 3` in C++ vs. Python).
+        - Report Info: C++ I/O performance. Goal: Illustrate a concept. Method: Bar chart using Chart.js. Interaction: Static chart with clear labels. Justification: A visual chart is far more impactful than text for demonstrating performance differences.
+        - Report Info: Environment setup commands. Goal: Practical application. Method: Code blocks with a "copy" button. Interaction: One-click copy. Justification: Improves usability and reduces errors for learners.
+        Library/Method: Chart.js for the bar chart. All other visuals and interactions are built with HTML/CSS/Tailwind and Vanilla JavaScript. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        .nav-link.active {
+            color: #D97706;
+            background-color: #FEF3C7;
+            border-left-color: #D97706;
+        }
+        .nav-link:hover {
+            background-color: #FEF3C7;
+            color: #B45309;
+        }
+        .code-tab.active {
+            border-color: #D97706;
+            background-color: #FFFBEB;
+            color: #B45309;
+        }
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .quiz-option.selected {
+            background-color: #FEF3C7;
+            border-color: #FBBF24;
+        }
+        .quiz-option.correct {
+            background-color: #D1FAE5;
+            border-color: #34D399;
+        }
+        .quiz-option.incorrect {
+            background-color: #FEE2E2;
+            border-color: #F87171;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-1/4 lg:w-1/5 xl:w-1/6 hidden md:block sticky top-0 h-screen overflow-y-auto bg-amber-50/50 border-r border-amber-200/50 p-4">
+            <h2 class="text-lg font-bold text-amber-800 mb-4">課程大綱</h2>
+            <nav id="sidebar-nav" class="space-y-2">
+                <!-- Navigation links will be dynamically inserted here -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="w-full md:w-3/4 lg:w-4/5 xl:w-5/6 p-6 md:p-10">
+            <header class="mb-10">
+                <h1 class="text-4xl font-bold text-amber-900">APCS 程式設計雙語言入門</h1>
+                <p class="mt-2 text-lg text-gray-600">從零開始，同時掌握 Python 與 C++ 的核心技巧</p>
+            </header>
+
+            <div id="content-container">
+                <!-- Content sections will be dynamically inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const contentData = [
+            {
+                id: '0',
+                title: '基本知識與環境設定',
+                subsections: [
+                    {
+                        id: '0.1',
+                        title: '什麼是程式設計？',
+                        content: `
+                            <p class="mb-4">程式設計，簡單來說，就是學習如何與電腦溝通。電腦透過執行我們撰寫的「程式」來完成特定任務。一支程式由許多「指令」組成，就像一篇文章由許多句子構成。這些指令不外乎是告訴電腦如何對資料進行運算，以及如何控制執行的流程。</p>
+                            <p class="mb-4">為了能順利寫出能被電腦理解的程式，我們需要遵守特定程式語言的「語法」。語法非常嚴謹，差一個符號或空格都可能導致錯誤。這也是培養細心與紀律的好機會。</p>
+                            <div class="bg-amber-50 border-l-4 border-amber-500 text-amber-700 p-4 rounded-r-lg">
+                                <h4 class="font-bold mb-2">APCS 檢測評分標準</h4>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li class="relative has-tooltip">正確性 (Accepted, <span class="font-mono font-bold text-green-600">AC</span>)<span class="absolute left-0 -bottom-10 w-64 p-2 text-sm bg-gray-800 text-white rounded-lg tooltip z-10">程式能對所有測試資料輸出正確答案，完美通過！</span></li>
+                                    <li class="relative has-tooltip">語法/執行錯誤 (CE/RE)<span class="absolute left-0 -bottom-10 w-64 p-2 text-sm bg-gray-800 text-white rounded-lg tooltip z-10">程式碼存在語法問題 (CE) 或在執行中因非法操作 (如除以零) 而崩潰 (RE)。</span></li>
+                                    <li class="relative has-tooltip">答案錯誤 (Wrong Answer, <span class="font-mono font-bold text-red-600">WA</span>)<span class="absolute left-0 -bottom-10 w-64 p-2 text-sm bg-gray-800 text-white rounded-lg tooltip z-10">程式可以執行，但輸出結果不符合預期。</span></li>
+                                    <li class="relative has-tooltip">時間限制 (Time Limit Exceed, <span class="font-mono font-bold text-yellow-600">TLE</span>)<span class="absolute left-0 -bottom-10 w-64 p-2 text-sm bg-gray-800 text-white rounded-lg tooltip z-10">程式執行時間過長，超過題目限制，通常代表演算法效率不佳。</span></li>
+                                </ul>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '0.2',
+                        title: 'Python 與 C++：雙語言的優勢',
+                        content: `
+                            <p class="mb-6">為了在 APCS 檢測中取得佳績，同時掌握 Python 和 C++ 兩種主流語言將會是絕佳的策略。本講義將採用雙核心教學，讓您同時認識兩者的特色：</p>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                                    <h4 class="text-2xl font-bold text-blue-600 mb-3">Python 🐍</h4>
+                                    <p class="font-semibold">優點:</p>
+                                    <p class="mb-3">語法簡潔、可讀性高，接近人類語言，非常適合初學者快速上手。能用更少的程式碼完成複雜的任務。</p>
+                                    <p class="font-semibold">應用:</p>
+                                    <p>在資料科學、網站後端、自動化腳本等領域應用廣泛。</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                                    <h4 class="text-2xl font-bold text-indigo-600 mb-3">C++ ⚙️</h4>
+                                    <p class="font-semibold">優點:</p>
+                                    <p class="mb-3">執行效率極高，是演算法競賽的主流語言。能讓學習者更深入了解記憶體管理、資料型態等底層運作原理。</p>
+                                    <p class="font-semibold">應用:</p>
+                                    <p>在遊戲開發、系統軟體、高效能運算等領域佔有重要地位。</p>
+                                </div>
+                            </div>
+                             <p class="mt-6 text-center text-gray-700 bg-gray-100 p-4 rounded-lg">透過學習兩種語言，您不僅能根據題目的特性選擇最適合的工具應戰，更能建立對程式設計更全面且深刻的理解。</p>
+                        `
+                    },
+                    {
+                        id: '0.3',
+                        title: '雙語言開發環境設定',
+                        content: `
+                            <p class="mb-4">要開始寫程式，我們需要在電腦上建立好對應的「開發環境」。</p>
+                            <div class="space-y-4" id="accordion-setup">
+                                <div class="border border-gray-200 rounded-lg">
+                                    <button class="accordion-header w-full text-left p-4 bg-gray-100 hover:bg-gray-200 font-bold flex justify-between items-center">
+                                        <span>🐍 Python 環境設定</span>
+                                        <span class="transform transition-transform duration-300">▼</span>
+                                    </button>
+                                    <div class="accordion-content p-4 hidden">
+                                        <p class="mb-2"><strong>安裝:</strong> 前往 <a href="https://www.python.org/downloads/" target="_blank" class="text-blue-600 hover:underline">Python 官方網站</a> 下載並安裝最新版的 Python 3。安裝程式會自動包含 IDLE，這是 APCS 考場指定的官方編輯器，也是我們初期的練習工具。</p>
+                                        <p><strong>驗證:</strong> 打開終端機或命令提示字元，輸入以下指令，若顯示版本號即表示安裝成功。</p>
+                                        <div class="mt-2 p-3 bg-gray-800 text-white rounded-md flex justify-between items-center font-mono">
+                                            <span>python3 --version</span>
+                                            <button class="copy-btn bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">複製</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-200 rounded-lg">
+                                    <button class="accordion-header w-full text-left p-4 bg-gray-100 hover:bg-gray-200 font-bold flex justify-between items-center">
+                                        <span>⚙️ C++ 環境設定</span>
+                                        <span class="transform transition-transform duration-300">▼</span>
+                                    </button>
+                                    <div class="accordion-content p-4 hidden">
+                                        <p class="mb-4">C++ 需要「編譯器」(Compiler) 將我們寫的程式碼轉為電腦可執行的檔案。我們介紹兩種常見的組合：</p>
+                                        <h5 class="font-bold text-lg mb-2">選擇一：VS Code + 編譯器 (推薦)</h5>
+                                        <p class="mb-2"><strong>編輯器:</strong> 我們推薦使用 <a href="https://code.visualstudio.com/" target="_blank" class="text-blue-600 hover:underline">Visual Studio Code (VS Code)</a>，它是一款功能強大且免費的「程式碼編輯器」。請安裝 C/C++ Extension Pack 擴充功能。</p>
+                                        <p class="mb-2"><strong>編譯器:</strong></p>
+                                        <ul class="list-disc list-inside mb-2 space-y-1">
+                                            <li><strong>Windows:</strong> 可以安裝 MinGW-w64 來取得 g++ 編譯器。</li>
+                                            <li><strong>macOS:</strong> 在終端機執行 <code class="bg-gray-200 p-1 rounded font-mono text-sm">xcode-select --install</code> 來安裝 Command Line Tools。</li>
+                                            <li><strong>Linux:</strong> 在終端機執行 <code class="bg-gray-200 p-1 rounded font-mono text-sm">sudo apt install build-essential</code>。</li>
+                                        </ul>
+                                        <p><strong>驗證:</strong> 打開終端機，輸入以下指令，若顯示版本號即表示安裝成功。</p>
+                                        <div class="mt-2 p-3 bg-gray-800 text-white rounded-md flex justify-between items-center font-mono">
+                                            <span>g++ --version</span>
+                                            <button class="copy-btn bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">複製</button>
+                                        </div>
+                                        <hr class="my-6">
+                                        <h5 class="font-bold text-lg mb-2">選擇二：Code::Blocks IDE (APCS考場環境之一)</h5>
+                                        <p class="mb-2"><strong>介紹:</strong> Code::Blocks 是一款免費、開源的 C++ 「整合開發環境 (IDE)」。熟悉其操作對考試非常有幫助。</p>
+                                        <p><strong>安裝:</strong> 前往 <a href="http://www.codeblocks.org/downloads/binaries" target="_blank" class="text-blue-600 hover:underline">Code::Blocks 官網下載頁面</a>。務必找到包含 <strong>mingw-setup</strong> 的版本下載，才會一併安裝好 C++ 編譯器。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '0.4',
+                        title: '線上練習平臺: ZeroJudge',
+                        content: `
+                            <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex items-center space-x-6">
+                                <div class="text-5xl">👨‍💻</div>
+                                <div>
+                                    <h4 class="text-2xl font-bold mb-2">ZeroJudge (ZJ)</h4>
+                                    <p class="mb-3">ZeroJudge 是一個支援多種語言的線上練習平臺，我們之後所有的練習都會在上面進行。它同時支援 Python 和 C++，是我們實踐雙語言學習的最佳場所。</p>
+                                    <a href="https://zerojudge.tw/" target="_blank" class="inline-block bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors">前往 ZeroJudge</a>
+                                </div>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                id: '1',
+                title: '輸出、輸入與變數',
+                subsections: [
+                    {
+                        id: '1.1',
+                        title: '程式的第一步：輸出 Hello, World',
+                        content: `
+                            <p class="mb-4">在螢幕上印出 "Hello, World!" 是每個程式設計師的傳統儀式，它代表你已經成功建立了開發環境，並完成了第一支可以執行的程式。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="hello-world">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>print("Hello, World!")</code></pre>
+                                        <div class="text-sm mt-2 text-gray-600">在 Python 中，這非常直觀，只需要使用內建的 <code>print()</code> 函式。</div>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello, World!" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                        <ul class="text-sm mt-2 text-gray-600 list-disc list-inside space-y-1">
+                                            <li><code>#include &lt;iostream&gt;</code>: 引入處理輸入輸出的函式庫。</li>
+                                            <li><code>using namespace std;</code>: 讓我們可以直接使用 <code>cout</code> 而非 <code>std::cout</code>。</li>
+                                            <li><code>int main() { ... }</code>: 程式的進入點。</li>
+                                            <li><code>cout</code>: 將資料輸出到螢幕。</li>
+                                            <li><code>endl</code>: 換行。</li>
+                                            <li><code>;</code>: C++ 中大部分語句的結尾。</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '1.2',
+                        title: '變數：儲存資料的容器',
+                        content: `
+                            <p class="mb-4">變數 (Variable) 是程式中用來儲存資料的具名容器。你可以把變數想像成一個有名字的箱子，裡面可以放數字、文字等不同類型的資料。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="variables">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python: 動態型別</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++: 靜態型別</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <p class="mb-2">Python 的變數不需要事先宣告型別，直譯器會自動根據你存入的資料決定型別。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code># 變數賦值
+age = 18
+name = "Alice"
+height = 165.5
+is_student = True
+
+# 你可以隨時改變變數的型別
+age = "eighteen" # age 現在變成了字串
+print(type(age))</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <p class="mb-2">C++ 要求在使用變數前，必須明確宣告它的「型別」，且型別一旦宣告就不能改變。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    // 變數宣告與初始化
+    int age = 18;
+    string name = "Alice";
+    double height = 165.5;
+    bool is_student = true;
+
+    // age = "eighteen"; // 這行會導致編譯錯誤！
+    
+    cout &lt;&lt; "age 變數永遠是整數" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                 <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '1.3',
+                        title: '從使用者取得輸入',
+                        content: `
+                            <p class="mb-4">程式的互動性來自於能接收使用者的輸入。點擊「互動式執行」並在下方輸入框中輸入資料來試試看。</p>
+                             <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="input">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <p class="mb-2">使用 <code>input()</code> 函式來讀取一行文字。注意：<code>input()</code> 永遠回傳字串，需要手動轉型。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code># 由於瀏覽器限制，此處為模擬互動
+# 請點擊下方按鈕開始
+name = "使用者"
+age = 18
+print("你好, " + name)
+print("你明年就", age + 1, "歲了")</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                         <p class="mb-2">使用 <code>cin</code> 物件。它會根據變數型別自動解析輸入。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string name;
+    int age;
+    cout &lt;&lt; "請輸入你的名字: ";
+    cin &gt;&gt; name;
+    cout &lt;&lt; "請輸入你的年齡: ";
+    cin &gt;&gt; age;
+    cout &lt;&lt; "你好, " &lt;&lt; name &lt;&lt; endl;
+    cout &lt;&lt; "你明年就" &lt;&lt; age + 1 &lt;&lt; "歲了" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-interactive-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 互動式執行</button>
+                                    <div class="interactive-console mt-4 hidden">
+                                        <h5 class="font-bold">互動控制台:</h5>
+                                        <div class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></div>
+                                        <div class="input-area mt-2 flex">
+                                            <input type="text" class="input-field flex-grow border border-gray-300 rounded-l-md p-2" placeholder="在此輸入...">
+                                            <button class="input-submit bg-gray-600 text-white px-4 rounded-r-md hover:bg-gray-700">送出</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '1.4',
+                        title: '解題技巧與實戰注意',
+                        content: `
+                            <div class="space-y-6">
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">C++ I/O 效能優化</h5>
+                                    <p class="mb-2">在處理大量輸入輸出時，C++ 的 <code>cin</code> / <code>cout</code> 可能會變慢。在 <code>main</code> 函式開頭加入以下兩行「魔法指令」，可以大幅加速 I/O。</p>
+                                    <div class="p-3 bg-gray-800 text-white rounded-md flex justify-between items-center font-mono">
+                                        <pre><code>ios_base::sync_with_stdio(false);
+cin.tie(NULL);</code></pre>
+                                        <button class="copy-btn bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded self-start">複製</button>
+                                    </div>
+                                    <div class="mt-4">
+                                        <p class="font-semibold mb-2">效能比較示意圖：</p>
+                                        <div class="chart-container bg-gray-50 p-2 rounded-lg">
+                                            <canvas id="ioPerfChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">Python 一次讀取多個數字</h5>
+                                    <p class="mb-2">APCS 題目經常在一行內給定多個以空白隔開的數字。在 Python 中，可以使用 <code>map</code> 和 <code>split</code> 寫成一行來讀取，非常方便。</p>
+                                     <div class="p-3 bg-gray-800 text-white rounded-md flex justify-between items-center font-mono">
+                                        <span>a, b = map(int, input().split())</span>
+                                        <button class="copy-btn bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">複製</button>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">C++ 讀取含空白的整行字串</h5>
+                                    <p class="mb-2">標準的 <code>cin >> my_string;</code> 只會讀到第一個空白字元前。若要讀取一整行，你需要使用 <code>getline</code> 函式。</p>
+                                    <div class="p-3 bg-gray-800 text-white rounded-md flex justify-between items-center font-mono">
+                                        <pre><code>#include &lt;string&gt;
+string line;
+getline(cin, line);</code></pre>
+                                        <button class="copy-btn bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded self-start">複製</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '1.5',
+                        title: '語言比較與重點整理',
+                        content: `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">特性</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">Python</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">C++</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">變數型別</td><td class="p-3 border border-gray-200">動態型別 (執行時決定)</td><td class="p-3 border border-gray-200">靜態型別 (編譯時決定，需宣告)</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">語法風格</td><td class="p-3 border border-gray-200">靠縮排區分程式碼區塊</td><td class="p-3 border border-gray-200">靠大括號 {} 區分，語句以 ; 結尾</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本結構</td><td class="p-3 border border-gray-200">程式碼可直接寫在檔案中</td><td class="p-3 border border-gray-200">需要 int main() { ... } 作為進入點</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本輸出</td><td class="p-3 border border-gray-200"><code>print()</code> 函式</td><td class="p-3 border border-gray-200"><code>cout <<</code> 物件</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本輸入</td><td class="p-3 border border-gray-200"><code>input()</code> 函式 (永遠回傳字串)</td><td class="p-3 border border-gray-200"><code>cin >></code> 物件 (會自動轉型)</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-r-lg">
+                                <h4 class="font-bold">學習重點</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1">
+                                    <li>養成習慣：C++ 開發者必須時刻注意變數型別與結尾的分號。</li>
+                                    <li>理解差異：Python 的 <code>input()</code> 和 C++ 的 <code>cin</code> 在處理輸入的機制上有很大不同。</li>
+                                    <li>識讀能力：看到 <code>#include</code> 和 <code>main()</code> 就知道是 C++；看到縮排為主的結構，就知道是 Python。</li>
+                                </ul>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                id: '2',
+                title: '數值運算',
+                subsections: [
+                    {
+                        id: '2.1',
+                        title: '基本算術運算子',
+                        content: `
+                            <p class="mb-4">這五種運算子是所有程式語言的基礎，用於加、減、乘、除、以及取餘數。在下方的「運算子遊樂場」中，親手試試看 <code>10 / 3</code> 在兩種語言中的不同結果！</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="operators">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python 遊樂場</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++ 遊樂場</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>a = 10
+b = 3
+print(a / b)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int a = 10;
+    int b = 3;
+    cout &lt;&lt; a / b &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                 <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '2.2',
+                        title: '除法、次方與進階數學運算',
+                        content: `
+                            <p class="mb-4">除了基本運算，Python 和 C++ 也提供了處理特殊運算的工具。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="advanced-math">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <p class="mb-2">Python 提供了專門的運算子來處理整數除法 (<code>//</code>) 和次方 (<code>**</code>)。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>a = 10
+b = 3
+# 整數除法 (Floor Division)，結果向下取整
+print(a // b)
+# 次方 (Power)
+print(a ** b)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <p class="mb-2">C++ 沒有內建的次方運算子，需要引入 <code>&lt;cmath&gt;</code> 函式庫來使用 <code>pow()</code> 等數學函式。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+#include &lt;cmath&gt; // 引入數學函式庫
+using namespace std;
+
+int main() {
+    // 次方: pow(基底, 指數)
+    cout &lt;&lt; "10 的 3 次方: " &lt;&lt; pow(10.0, 3.0) &lt;&lt; endl;
+    // 開根號: sqrt(數字)
+    cout &lt;&lt; "16 的平方根: " &lt;&lt; sqrt(16.0) &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                 <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '2.3',
+                        title: '運算後賦值與遞增/遞減',
+                        content: `
+                            <p class="mb-4">這些是簡化程式碼的便捷寫法。<code>x += 5</code> 就等價於 <code>x = x + 5</code>。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="assignment-ops">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <p class="mb-2">Python 支援各種運算後賦值，但沒有 <code>++</code> 或 <code>--</code> 語法。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>x = 5
+x += 5 # x 現在是 10
+print(x)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <p class="mb-2">C++ 除了支援運算後賦值，還提供了對變數進行加一或減一的專用運算子。</p>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int x = 5;
+    x++; // x 變成 6
+    cout &lt;&lt; "x++ 之後: " &lt;&lt; x &lt;&lt; endl;
+    
+    int y = 5;
+    y *= 2; // y 變成 10
+    cout &lt;&lt; "y *= 2 之後: " &lt;&lt; y &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                 <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '2.4',
+                        title: '運算子優先順序',
+                        content: `
+                            <p class="mb-4">運算子執行的順序與國小數學類似。</p>
+                            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                                <h4 class="text-xl font-bold mb-3">優先順序規則</h4>
+                                <ol class="list-decimal list-inside space-y-2">
+                                    <li><span class="font-bold text-lg">最高:</span> 括號 <code>()</code></li>
+                                    <li><span class="font-bold text-lg">次之:</span> 乘 <code>*</code>、除 <code>/</code>、模 <code>%</code></li>
+                                    <li><span class="font-bold text-lg">最低:</span> 加 <code>+</code>、減 <code>-</code></li>
+                                </ol>
+                                <div class="mt-4 bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded-r-lg">
+                                    <h5 class="font-bold">💡 最佳實踐</h5>
+                                    <p>與其死記硬背完整的優先順序表，不如善用括號 <code>()</code> 來明確表達你想要的運算順序，這能大幅提高程式的可讀性並避免錯誤。</p>
+                                    <p class="mt-2 font-mono bg-gray-200 p-2 rounded">例如：<code>(a + b) * c</code> 就比 <code>a + b * c</code> 更清晰易懂。</p>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '2.5',
+                        title: '解題技巧與實戰注意',
+                        content: `
+                            <div class="space-y-6">
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">C++ 處理大數字：溢位 (Overflow)</h5>
+                                    <p class="mb-2">標準的 <code>int</code> 型別有其範圍限制。若數值會超過這個範圍，會導致「溢位」而產生錯誤答案。在競賽中，只要看到數字範圍可能很大，保險起見請使用 <code>long long</code> 型別。Python 則無此問題。</p>
+                                    <p class="mb-2">點擊下方按鈕，觀察 <code>int</code> 溢位與 <code>long long</code> 的差別。</p>
+                                    <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="overflow">
+                                        <div class="flex border-b">
+                                            <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="int">int (會溢位)</button>
+                                            <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="longlong">long long (正常)</button>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="code-content" data-lang="int">
+                                                <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+int main() {
+    int max_val = 2147483647;
+    std::cout &lt;&lt; max_val + 1;
+    return 0;
+}</code></pre>
+                                            </div>
+                                            <div class="code-content hidden" data-lang="longlong">
+                                                <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+int main() {
+    long long max_val = 2147483647;
+    std::cout &lt;&lt; max_val + 1;
+    return 0;
+}</code></pre>
+                                            </div>
+                                        </div>
+                                        <div class="p-4 border-t">
+                                            <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                            <div class="mt-4">
+                                                <h5 class="font-bold">輸出結果:</h5>
+                                                <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">餘數運算 % 的妙用</h5>
+                                    <p class="mb-2">模運算 % 非常強大，常見應用有：</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><strong>判斷奇偶:</strong> <code>x % 2</code> 的結果若為 0 則是偶數，為 1 則是奇數。</li>
+                                        <li><strong>取得個位數:</strong> <code>x % 10</code> 可以取得任意正整數 x 的個位數。</li>
+                                        <li><strong>處理週期性問題:</strong> 例如「今天是星期三，100 天後是星期幾？」，就可以用 <code>(3 + 100) % 7</code> 來快速求解。</li>
+                                    </ul>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">C++ 整數除法的陷阱</h5>
+                                    <p class="mb-2">在 C++ 中，<code>5 / 2</code> 結果是 <code>2</code>。若你需要得到 <code>2.5</code>，必須進行浮點數除法。方法是將其中一個運算元轉為浮點數型別。</p>
+                                    <pre class="code-block p-4 rounded-md"><code>double result1 = 5 / 2.0;       // 方法一：將其中一個數字寫成浮點數
+double result2 = (double)5 / 2; // 方法二：強制型別轉換</code></pre>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '2.6',
+                        title: '語言比較與重點整理',
+                        content: `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">特性</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">Python</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">C++</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">除法 /</td><td class="p-3 border border-gray-200">永遠是浮點數除法</td><td class="p-3 border border-gray-200">若運算元皆為整數，則為整數除法</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">整數除法</td><td class="p-3 border border-gray-200"><code>//</code> 運算子</td><td class="p-3 border border-gray-200">使用 <code>/</code> 搭配整數型別</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">次方</td><td class="p-3 border border-gray-200"><code>**</code> 運算子</td><td class="p-3 border border-gray-200"><code>pow()</code> 函式 (需 <code>#include &lt;cmath&gt;</code>)</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">遞增/遞減</td><td class="p-3 border border-gray-200">不支援 <code>++</code> 或 <code>--</code></td><td class="p-3 border border-gray-200">支援 <code>++</code> 與 <code>--</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">大數處理</td><td class="p-3 border border-gray-200">原生支援</td><td class="p-3 border border-gray-200">需使用 <code>long long</code></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                             <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-r-lg">
+                                <h4 class="font-bold">學習重點</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1">
+                                    <li>除法行為是兩種語言最容易搞混的坑，務必釐清。在 C++ 中，<code>3 / 2</code> 的結果是 <code>1</code> 而不是 <code>1.5</code>。</li>
+                                    <li>在 C++ 中需要進階數學運算時，記得要 <code>#include &lt;cmath&gt;</code>。</li>
+                                    <li><code>++x</code> 和 <code>x++</code> 的細微差別在「程式識讀」中是常見的考點。</li>
+                                </ul>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                id: '3',
+                title: '資料型態：浮點數與字串',
+                subsections: [
+                    {
+                        id: '3.1',
+                        title: '處理小數：浮點數 (Floating-Point)',
+                        content: `
+                            <p class="mb-4">浮點數用來表示有小數點的數值。在 APCS 或任何演算法競賽中，建議一律使用 C++ 的 <code>double</code>，以避免不必要的精確度誤差。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="float-double">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>pi = 3.14
+temperature = -2.5
+print(type(pi))</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+#include &lt;iomanip&gt; // for std::setprecision
+using namespace std;
+int main() {
+    float pi_f = 3.1415926535f; // f 字尾表示 float，會損失精度
+    double pi_d = 3.1415926535;
+    cout &lt;&lt; "float: " &lt;&lt; setprecision(10) &lt;&lt; pi_f &lt;&lt; endl;
+    cout &lt;&lt; "double: " &lt;&lt; setprecision(10) &lt;&lt; pi_d &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '3.2',
+                        title: '處理文字：字串 (String)',
+                        content: `
+                            <p class="mb-4">字串是由一連串字元組成的序列，用來表示姓名、訊息等文字資料。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="string-ops">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>name = "Alice"
+greeting = 'Hello'
+# 字串串接 (+)
+message = greeting + ", " + name + "!"
+print(message)
+# 字串重複 (*)
+separator = "-" * 10
+print(separator)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    string name = "Alice";
+    string greeting = "Hello";
+    // 字串串接 (+)
+    string message = greeting + ", " + name + "!";
+    cout &lt;&lt; message &lt;&lt; endl;
+    // C++ 沒有內建的字串重複運算子
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '3.3',
+                        title: '型別轉換 (Type Casting)',
+                        content: `
+                            <p class="mb-4">有時我們需要在不同資料型態間轉換，例如將使用者輸入的字串轉成數字。</p>
+                             <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="type-casting">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>num_str = "123"
+num_int = int(num_str)
+print(num_int + 100)
+
+pi_float = 3.14
+pi_str = str(pi_float)
+print("Pi is " + pi_str)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    // 將字串轉為數字 (C++11 以後)
+    string num_str = "456.78";
+    int val_int = stoi(num_str);
+    double val_double = stod(num_str);
+    cout &lt;&lt; val_int &lt;&lt; ", " &lt;&lt; val_double &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '3.4',
+                        title: '解題技巧與實戰注意',
+                        content: `
+                            <div class="space-y-6">
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">浮點數比大小的陷阱</h5>
+                                    <p class="mb-2">由於二進位表示法的限制，絕對不要用 <code>==</code> 直接比較兩個浮點數。正確作法是檢查兩者差的絕對值是否小於一個極小的數 (epsilon, ε)。</p>
+                                    <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="float-compare">
+                                        <div class="flex border-b">
+                                            <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                            <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="code-content" data-lang="python">
+                                                <pre class="code-block p-4 rounded-md" contenteditable="true"><code>a = 0.1 + 0.2
+b = 0.3
+print(f"a == b is {a == b}")
+# 正確作法
+if abs(a - b) < 1e-9:
+    print("a and b are almost equal.")</code></pre>
+                                            </div>
+                                            <div class="code-content hidden" data-lang="cpp">
+                                                <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+int main() {
+    double a = 0.1 + 0.2;
+    double b = 0.3;
+    cout &lt;&lt; "a == b is " &lt;&lt; (a == b) &lt;&lt; endl; // 輸出 0 代表 false
+    // 正確作法
+    if (abs(a - b) < 1e-9) {
+        cout &lt;&lt; "a and b are almost equal." &lt;&lt; endl;
+    }
+    return 0;
+}</code></pre>
+                                            </div>
+                                        </div>
+                                        <div class="p-4 border-t">
+                                            <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                            <div class="mt-4">
+                                                <h5 class="font-bold">輸出結果:</h5>
+                                                <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">字元與 ASCII 碼</h5>
+                                    <p class="mb-2">電腦是以數字（ASCII 碼）儲存字元的。'A' 對應 65，'a' 對應 97。這個特性在解字元題目時很有用。</p>
+                                    <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="ascii-code">
+                                        <div class="flex border-b">
+                                            <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                            <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="code-content" data-lang="python">
+                                                <pre class="code-block p-4 rounded-md" contenteditable="true"><code># 取得字元的 ASCII 碼
+print(ord('A'))
+# 從 ASCII 碼轉回字元
+print(chr(65))
+# 大寫轉小寫
+char_A = 'A'
+char_a = chr(ord(char_A) + 32)
+print(char_a)</code></pre>
+                                            </div>
+                                            <div class="code-content hidden" data-lang="cpp">
+                                                <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    // 取得字元的 ASCII 碼
+    cout &lt;&lt; (int)'A' &lt;&lt; endl;
+    // 從 ASCII 碼轉回字元
+    cout &lt;&lt; (char)65 &lt;&lt; endl;
+    // 大寫轉小寫
+    char char_A = 'A';
+    char char_a = char_A + 32;
+    cout &lt;&lt; char_a &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                            </div>
+                                        </div>
+                                        <div class="p-4 border-t">
+                                            <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                            <div class="mt-4">
+                                                <h5 class="font-bold">輸出結果:</h5>
+                                                <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '3.5',
+                        title: '語言比較與重點整理',
+                        content: `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">特性</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">Python</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">C++</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">浮點數</td><td class="p-3 border border-gray-200"><code>float</code></td><td class="p-3 border border-gray-200"><code>double</code> (建議使用)</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">字串</td><td class="p-3 border border-gray-200"><code>str</code></td><td class="p-3 border border-gray-200"><code>string</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">字串重複</td><td class="p-3 border border-gray-200"><code>*</code> 運算子</td><td class="p-3 border border-gray-200">無內建運算子</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">型別轉換</td><td class="p-3 border border-gray-200"><code>int()</code>, <code>float()</code>, <code>str()</code></td><td class="p-3 border border-gray-200"><code>static_cast</code>, <code>stoi</code>, <code>stod</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">輸出精度</td><td class="p-3 border border-gray-200">f-string 或 <code>format()</code></td><td class="p-3 border border-gray-200"><code>setprecision()</code> (需 <code>#include &lt;iomanip&gt;</code>)</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-r-lg">
+                                <h4 class="font-bold">學習重點</h4>
+                                <ul class="list-disc list-inside mt-2 space-y-1">
+                                    <li><b>永遠用 double</b>: 在 C++ 中，除非有特殊理由，否則使用 <code>double</code> 來避免精度問題。</li>
+                                    <li><b>浮點數比較是陷阱</b>: 牢記 epsilon 比較法。</li>
+                                    <li><b>字串轉數字</b>: Python 的 <code>int()</code> 和 C++ 的 <code>stoi()</code> 是處理輸入後非常常用的函式。</li>
+                                </ul>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                id: '4',
+                title: '邏輯運算與流程控制：if-else',
+                subsections: [
+                     {
+                        id: '4.1',
+                        title: '真與假：布林值與比較運算子',
+                        content: `
+                            <p class="mb-4">程式中的「條件」是一個最終會得出「真」或「假」結果的敘述。這種只有真假兩種值的型別，稱為「布林 (Boolean)」型別。</p>
+                            <ul class="list-disc list-inside mb-4">
+                                <li><b>Python</b>: 布林值為 <code>True</code> 和 <code>False</code> (首字母大寫)。</li>
+                                <li><b>C++</b>: 布林值為 <code>true</code> 和 <code>false</code> (全小寫)。</li>
+                            </ul>
+                            <p class="mb-4">要建立條件，我們使用「比較運算子」。試著在下方的遊樂場中輸入 <code>5 > 3</code> 或 <code>10 == 20</code> 看看結果！</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="comparison-ops">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>print(5 >= 5)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+int main() {
+    // C++ 中 true 輸出為 1, false 輸出為 0
+    std::cout &lt;&lt; (5 != 3) &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '4.2',
+                        title: '組合條件：邏輯運算子',
+                        content: `
+                             <p class="mb-4">當我們需要同時考慮多個條件時，就需要使用「邏輯運算子」。</p>
+                             <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="logical-ops">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>score = 85
+# 判斷分數是否在 80~89 之間
+if score >= 80 and score < 90:
+    print("Grade: B")</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int score = 85;
+    // 判斷分數是否在 80~89 之間
+    if (score >= 80 && score < 90) {
+        cout &lt;&lt; "Grade: B" &lt;&lt; endl;
+    }
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '4.3',
+                        title: '做出選擇：if-else 結構',
+                        content: `
+                            <p class="mb-4"><code>if-else</code> 結構是實現流程控制最核心的工具。程式會從上到下檢查，一旦找到第一個為真的條件並執行其區塊後，整個結構就會結束。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="if-else">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>score = 75
+if score >= 90:
+    print("Grade: A")
+elif score >= 80:
+    print("Grade: B")
+elif score >= 70:
+    print("Grade: C")
+else:
+    print("Grade: F")</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int score = 75;
+    if (score >= 90) {
+        cout &lt;&lt; "Grade: A" &lt;&lt; endl;
+    } else if (score >= 80) {
+        cout &lt;&lt; "Grade: B" &lt;&lt; endl;
+    } else if (score >= 70) {
+        cout &lt;&lt; "Grade: C" &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Grade: F" &lt;&lt; endl;
+    }
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                     {
+                        id: '4.4',
+                        title: '解題技巧與實戰注意',
+                        content: `
+                            <div class="space-y-6">
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">巢狀 If (Nested Ifs)</h5>
+                                    <p>if 區塊內可以再放一個 if 結構，用來處理更複雜的判斷。但注意，過多層的巢狀會讓程式碼難以閱讀，應適度使用。</p>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">Python 的鏈式比較</h5>
+                                    <p class="mb-2">Python 允許像寫數學一樣串連比較，非常方便。C++ 不支援這種寫法。</p>
+                                    <pre class="code-block p-4 rounded-md"><code># 判斷 x 是否在 [0, 10) 區間
+x = 5
+if 0 <= x < 10: # 合法且直觀
+    print("x is in the range.")</code></pre>
+                                </div>
+                                <div class="p-4 bg-white rounded-lg shadow-md border">
+                                    <h5 class="font-bold text-lg mb-2">短路求值 (Short-circuit Evaluation)</h5>
+                                    <p>這是邏輯運算的一個重要特性。對於 <code>A and B</code>，如果 A 為假，則程式不會去檢查 B。對於 <code>A or B</code>，如果 A 為真，程式也不會去檢查 B。這個特性是常見的考點。</p>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '4.5',
+                        title: '語言比較與重點整理',
+                        content: `
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">特性</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">Python</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">C++</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">布林值</td><td class="p-3 border border-gray-200"><code>True</code>, <code>False</code></td><td class="p-3 border border-gray-200"><code>true</code>, <code>false</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 AND</td><td class="p-3 border border-gray-200"><code>and</code></td><td class="p-3 border border-gray-200"><code>&&</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 OR</td><td class="p-3 border border-gray-200"><code>or</code></td><td class="p-3 border border-gray-200"><code>||</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 NOT</td><td class="p-3 border border-gray-200"><code>not</code></td><td class="p-3 border border-gray-200"><code>!</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">多重條件</td><td class="p-3 border border-gray-200"><code>elif</code></td><td class="p-3 border border-gray-200"><code>else if</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">鏈式比較</td><td class="p-3 border border-gray-200">支援 (<code>0 <= x < 10</code>)</td><td class="p-3 border border-gray-200">不支援</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '4.6',
+                        title: '章節練習',
+                        content: `
+                            <div class="space-y-8">
+                                <div class="quiz-container bg-white p-6 rounded-lg shadow-md border" data-correct="B">
+                                    <p class="font-bold mb-4">題目一：成績等級判斷 (輸入分數為 85)</p>
+                                    <div class="space-y-2">
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(A) A</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(B) B</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(C) C</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(D) D</button>
+                                    </div>
+                                    <div class="quiz-feedback mt-3 text-sm"></div>
+                                </div>
+                                <div class="quiz-container bg-white p-6 rounded-lg shadow-md border" data-correct="B">
+                                    <p class="font-bold mb-4">題目二：電影票價計算 (一位 17 歲的青少年)</p>
+                                    <div class="space-y-2">
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(A) 免費</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(B) 學生票</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(C) 全票</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(D) 敬老票</button>
+                                    </div>
+                                    <div class="quiz-feedback mt-3 text-sm"></div>
+                                </div>
+                                <div class="quiz-container bg-white p-6 rounded-lg shadow-md border" data-correct="D">
+                                    <p class="font-bold mb-4">題目三：季節判斷 (輸入月份是 12)</p>
+                                    <div class="space-y-2">
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(A) 春天</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(B) 夏天</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(C) 秋天</button>
+                                        <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(D) 冬天</button>
+                                    </div>
+                                    <div class="quiz-feedback mt-3 text-sm"></div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '4.7',
+                        title: '相關練習題目',
+                        content: `
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=c294" target="_blank" class="text-blue-600 hover:underline">c294. APCS-2016-1029-1三角形辨別</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=c461" target="_blank" class="text-blue-600 hover:underline">c461. apcs 邏輯運算子(Logic Operators)</a></li>
+                                </ul>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            {
+                id: '5',
+                title: '基礎迴圈：for-loop',
+                subsections: [
+                    {
+                        id: '5.1',
+                        title: '為何需要迴圈？',
+                        content: `
+                            <p class="mb-4">想像一下，如果我們要印出 5 次 "Hello"，不用迴圈會是這樣。如果需要印 100 次呢？顯然，重複貼上程式碼是沒有效率且不切實際的。迴圈正是為了解決這個問題而生。</p>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg shadow-md border">
+                                    <h5 class="font-bold mb-2">Python</h5>
+                                    <pre class="code-block p-4 rounded-md"><code>print("Hello")
+print("Hello")
+print("Hello")
+print("Hello")
+print("Hello")</code></pre>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-md border">
+                                    <h5 class="font-bold mb-2">C++</h5>
+                                    <pre class="code-block p-4 rounded-md"><code>#include &lt;iostream&gt;
+int main() {
+    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '5.2',
+                        title: 'Python 的 for 迴圈：遍歷序列',
+                        content: `
+                             <p class="mb-4">Python 的 for 迴圈在設計上是一種「for-each」迴圈，其核心精神是「對一個序列 (sequence) 中的每一個元素，依序執行某個動作」。<code>range()</code> 是它最常見的夥伴。</p>
+                             <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="python-for">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code># range(start, stop, step)
+# 從 10 到 3 (不包含 2)，每次 -2
+for i in range(10, 2, -2):
+    print(i)</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '5.3',
+                        title: 'C++ 的 for 迴圈：計數器模式',
+                        content: `
+                            <p class="mb-4">C++ 的傳統 for 迴圈結構包含三個部分：<code>for (初始化; 條件; 更新)</code>。C++11 也引入了更簡潔的範圍 for 迴圈。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="cpp-for">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    // 印出 0, 1, 2, 3, 4
+    for (int i = 0; i < 5; i++) {
+        cout &lt;&lt; i &lt;&lt; " ";
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '5.4',
+                        title: '迴圈控制：break 與 continue',
+                        content: `
+                            <p class="mb-4">有時我們需要在迴圈執行到一半時改變它的行為。<code>break</code> 會完全跳出迴圈，而 <code>continue</code> 則是跳過這一輪，直接進入下一輪。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="loop-control">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code># 印出 1~10 中，除了偶數以外的數字，且遇到大於 7 的數字就停止
+for i in range(1, 11):
+    if i % 2 == 0:
+        continue
+    if i > 7:
+        break
+    print(i)</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    for (int i = 1; i <= 10; i++) {
+        if (i % 2 == 0) {
+            continue;
+        }
+        if (i > 7) {
+            break;
+        }
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '5.5',
+                        title: '解題技巧與實戰注意',
+                        content: `
+                            <p class="mb-4">一個迴圈內可以再包含另一個迴圈，常用於處理二維的資料結構，例如打印九九乘法表、處理棋盤或矩陣問題。</p>
+                            <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="nested-loop">
+                                <div class="flex border-b">
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
+                                    <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="cpp">C++</button>
+                                </div>
+                                <div class="p-4">
+                                    <div class="code-content" data-lang="python">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code># 印出 3x3 的星號方陣
+for i in range(3):
+    for j in range(3):
+        print("*", end="")
+    print() # 換行</code></pre>
+                                    </div>
+                                    <div class="code-content hidden" data-lang="cpp">
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    // 印出 3x3 的星號方陣
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            cout &lt;&lt; "*";
+        }
+        cout &lt;&lt; endl;
+    }
+    return 0;
+}</code></pre>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t">
+                                    <button class="run-btn bg-amber-600 text-white font-bold py-2 px-4 rounded hover:bg-amber-700 transition-colors">▶ 執行</button>
+                                    <div class="mt-4">
+                                        <h5 class="font-bold">輸出結果:</h5>
+                                        <pre class="output-console bg-gray-100 p-3 rounded-md mt-1 min-h-[6rem]"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '5.6',
+                        title: '語言比較與重點整理',
+                        content: `
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">特性</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">Python</th>
+                                            <th class="p-3 font-bold uppercase text-amber-800 border border-amber-200">C++</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">計數迴圈</td><td class="p-3 border border-gray-200"><code>for i in range(n):</code></td><td class="p-3 border border-gray-200"><code>for (int i = 0; i < n; i++)</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">遍歷迴圈</td><td class="p-3 border border-gray-200"><code>for item in sequence:</code></td><td class="p-3 border border-gray-200"><code>for (auto item : container)</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">迴圈控制</td><td class="p-3 border border-gray-200"><code>break</code>, <code>continue</code></td><td class="p-3 border border-gray-200"><code>break</code>, <code>continue</code></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '5.7',
+                        title: '相關練習題目',
+                        content: `
+                             <div class="bg-gray-100 p-4 rounded-lg">
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=f312" target="_blank" class="text-blue-600 hover:underline">f312. 1. 人力分配</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=f605" target="_blank" class="text-blue-600 hover:underline">f605. 1. 購買力</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=h081" target="_blank" class="text-blue-600 hover:underline">h081. 1. 程式交易</a></li>
+                                </ul>
+                            </div>
+                        `
+                    }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const contentContainer = document.getElementById('content-container');
+            let pyodide = null;
+
+            // --- Pyodide Initialization ---
+            async function initPyodide() {
+                const runButtons = document.querySelectorAll('.run-btn');
+                runButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.textContent = 'Python 初始化中...';
+                });
+                pyodide = await loadPyodide();
+                runButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = '▶ 執行';
+                });
+            }
+            initPyodide();
+            
+            function updateActiveNavLink() {
+                const navLinks = sidebarNav.querySelectorAll('.nav-link');
+                navLinks.forEach(link => link.classList.remove('active'));
+                
+                let currentSectionId = null;
+                const sections = contentContainer.querySelectorAll('section');
+                
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= 150 && rect.bottom >= 150) {
+                        currentSectionId = section.id;
+                    }
+                });
+
+                if (currentSectionId) {
+                    const activeLink = sidebarNav.querySelector(`a[href="#${currentSectionId}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add('active');
+                    }
+                } else if (window.scrollY === 0) {
+                     const firstLink = sidebarNav.querySelector('a.nav-link');
+                     if(firstLink) firstLink.classList.add('active');
+                }
+            }
+
+            contentData.forEach(chapter => {
+                const chapterTitle = document.createElement('h3');
+                chapterTitle.className = 'text-sm font-bold text-gray-500 uppercase mt-4 mb-1';
+                chapterTitle.textContent = chapter.title;
+                sidebarNav.appendChild(chapterTitle);
+
+                chapter.subsections.forEach(section => {
+                    const sectionEl = document.createElement('section');
+                    sectionEl.id = `section-${section.id}`;
+                    sectionEl.className = 'mb-16';
+                    sectionEl.innerHTML = `
+                        <h3 class="text-2xl font-bold text-amber-800 mb-2 pb-2 border-b-2 border-amber-200">${section.id} ${section.title}</h3>
+                        <div class="prose max-w-none mt-4">${section.content}</div>
+                    `;
+                    contentContainer.appendChild(sectionEl);
+
+                    const link = document.createElement('a');
+                    link.href = `#${sectionEl.id}`;
+                    link.className = 'nav-link block p-2 rounded-md text-gray-700';
+                    link.textContent = `${section.id} ${section.title}`;
+                    sidebarNav.appendChild(link);
+                });
+            });
+            
+            updateActiveNavLink();
+            window.addEventListener('scroll', updateActiveNavLink);
+
+            sidebarNav.addEventListener('click', (event) => {
+                if (event.target.tagName === 'A') {
+                    event.preventDefault();
+                    const href = event.target.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        const targetElement = document.getElementById(href.substring(1));
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                }
+            });
+
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.parentElement.querySelector('span, pre');
+                    const codeToCopy = codeBlock.innerText;
+                    navigator.clipboard.writeText(codeToCopy).then(() => {
+                        const originalText = button.textContent;
+                        button.textContent = '已複製!';
+                        setTimeout(() => {
+                            button.textContent = originalText;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('無法複製文字: ', err);
+                    });
+                });
+            });
+            
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('span:last-child');
+                    content.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+
+            document.querySelectorAll('.interactive-code-container').forEach(container => {
+                const tabs = container.querySelectorAll('.code-tab');
+                const contents = container.querySelectorAll('.code-content');
+                let activeLang = tabs[0].dataset.lang;
+                tabs[0].classList.add('active');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        activeLang = tab.dataset.lang;
+                        contents.forEach(content => {
+                            if (content.dataset.lang === activeLang) {
+                                content.classList.remove('hidden');
+                            } else {
+                                content.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+
+                const runBtn = container.querySelector('.run-btn');
+                const runInteractiveBtn = container.querySelector('.run-interactive-btn');
+                
+                if (runBtn) {
+                    runBtn.addEventListener('click', async () => {
+                        const codeContentEl = container.querySelector(`.code-content[data-lang=${activeLang}] pre`);
+                        const code = codeContentEl.textContent;
+                        const outputConsole = container.querySelector('.output-console');
+                        outputConsole.textContent = '執行中...';
+
+                        if (activeLang === 'python') {
+                            if (!pyodide) {
+                                outputConsole.textContent = 'Python 環境仍在初始化中，請稍候...';
+                                return;
+                            }
+                            try {
+                                let capturedOutput = '';
+                                pyodide.setStdout({ batched: (str) => { capturedOutput += str + '\n'; } });
+                                pyodide.setStderr({ batched: (str) => { capturedOutput += str + '\n'; } });
+                                await pyodide.runPythonAsync(code);
+                                outputConsole.textContent = capturedOutput.trim() || '(程式碼已執行，但沒有任何輸出)';
+                            } catch (e) {
+                                outputConsole.textContent = `執行錯誤:\n${e.message}`;
+                            }
+                        } else { // For C++ and its variants
+                            let simulationOutput = '';
+                            const containerId = container.dataset.id;
+                            if (containerId === 'hello-world') simulationOutput = 'Hello, World!';
+                            else if (containerId === 'variables') simulationOutput = "age 變數永遠是整數";
+                            else if (containerId === 'operators') simulationOutput = Math.floor(10 / 3);
+                            else if (containerId === 'advanced-math') simulationOutput = '10 的 3 次方: 1000\n16 的平方根: 4';
+                            else if (containerId === 'assignment-ops') simulationOutput = 'x++ 之後: 6\ny *= 2 之後: 10';
+                            else if (containerId === 'overflow') simulationOutput = (activeLang === 'int') ? '-2147483648' : '2147483648';
+                            else if (containerId === 'float-double') simulationOutput = 'float: 3.141592741\ndouble: 3.141592654';
+                            else if (containerId === 'string-ops') simulationOutput = 'Hello, Alice!';
+                            else if (containerId === 'type-casting') simulationOutput = '456, 456.78';
+                            else if (containerId === 'float-compare') simulationOutput = 'a == b is 0\na and b are almost equal.';
+                            else if (containerId === 'ascii-code') simulationOutput = '65\nA\na';
+                            else if (containerId === 'comparison-ops') simulationOutput = '1';
+                            else if (containerId === 'logical-ops') simulationOutput = 'Grade: B';
+                            else if (containerId === 'if-else') simulationOutput = 'Grade: C';
+                            else if (containerId === 'cpp-for') simulationOutput = '0 1 2 3 4 ';
+                            else if (containerId === 'loop-control') simulationOutput = '1\n3\n5\n7';
+                            else if (containerId === 'nested-loop') simulationOutput = '*\*\*\n***\n***';
+                            
+                            outputConsole.textContent = `[模擬輸出]\n${simulationOutput}\n\n---\n💡 C++ 無法在瀏覽器中直接編譯。\n此為模擬執行結果，您編輯的內容不會影響此輸出。`;
+                        }
+                    });
+                }
+                
+                if (runInteractiveBtn) {
+                    const interactiveConsole = container.querySelector('.interactive-console');
+                    const outputConsole = container.querySelector('.output-console');
+                    const inputField = container.querySelector('.input-field');
+                    const inputSubmit = container.querySelector('.input-submit');
+                    let step = 0;
+                    let name = '';
+                    
+                    runInteractiveBtn.addEventListener('click', () => {
+                        interactiveConsole.classList.remove('hidden');
+                        outputConsole.textContent = '請輸入你的名字: ';
+                        step = 1;
+                        name = '';
+                        inputField.value = '';
+                        inputField.focus();
+                    });
+
+                    const handleInput = () => {
+                        const userInput = inputField.value;
+                        if (step === 1 && userInput) {
+                            name = userInput;
+                            outputConsole.textContent += `${userInput}\n請輸入你的年齡: `;
+                            step = 2;
+                            inputField.value = '';
+                        } else if (step === 2 && userInput && !isNaN(parseInt(userInput))) {
+                            const age = parseInt(userInput);
+                            outputConsole.textContent += `${userInput}\n你好, ${name}\n你明年就 ${age + 1} 歲了`;
+                            step = 0;
+                            inputField.value = '';
+                        }
+                    };
+
+                    inputSubmit.addEventListener('click', handleInput);
+                    inputField.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            handleInput();
+                        }
+                    });
+                }
+            });
+
+            document.querySelectorAll('.quiz-container').forEach(quiz => {
+                const options = quiz.querySelectorAll('.quiz-option');
+                const feedback = quiz.querySelector('.quiz-feedback');
+                const correctAnswer = quiz.dataset.correct;
+
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        options.forEach(o => {
+                            o.classList.remove('selected', 'correct', 'incorrect');
+                            o.disabled = true;
+                        });
+                        
+                        option.classList.add('selected');
+                        const selectedAnswer = option.textContent.match(/\((.*?)\)/)[1];
+
+                        if (selectedAnswer === correctAnswer) {
+                            option.classList.add('correct');
+                            feedback.textContent = '答對了！';
+                            feedback.className = 'quiz-feedback mt-3 text-sm font-bold text-green-600';
+                        } else {
+                            option.classList.add('incorrect');
+                            const correctButton = Array.from(options).find(o => o.textContent.includes(`(${correctAnswer})`));
+                            if (correctButton) correctButton.classList.add('correct');
+                            feedback.textContent = `答錯了，正確答案是 (${correctAnswer})。`;
+                            feedback.className = 'quiz-feedback mt-3 text-sm font-bold text-red-600';
+                        }
+                    });
+                });
+            });
+
+            const ioChartCtx = document.getElementById('ioPerfChart');
+            if(ioChartCtx) {
+                new Chart(ioChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['標準 cin/cout', '加速後 cin/cout'],
+                        datasets: [{
+                            label: '執行時間 (毫秒)',
+                            data: [1250, 80],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(75, 192, 192, 0.5)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(75, 192, 192, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: '時間 (ms)' }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'C++ I/O 效能優化前後比較'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` ${context.dataset.label}: ${context.raw} ms`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
