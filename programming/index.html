@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APCS 雙語言互動式教學網頁</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -439,8 +439,8 @@ getline(cin, line);</code></pre>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">變數型別</td><td class="p-3 border border-gray-200">動態型別 (執行時決定)</td><td class="p-3 border border-gray-200">靜態型別 (編譯時決定，需宣告)</td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">語法風格</td><td class="p-3 border border-gray-200">靠縮排區分程式碼區塊</td><td class="p-3 border border-gray-200">靠大括號 {} 區分，語句以 ; 結尾</td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">基本結構</td><td class="p-3 border border-gray-200">程式碼可直接寫在檔案中</td><td class="p-3 border border-gray-200">需要 int main() { ... } 作為進入點</td></tr>
-                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本輸出</td><td class="p-3 border border-gray-200"><code>print()</code> 函式</td><td class="p-3 border border-gray-200"><code>cout <<</code> 物件</td></tr>
-                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本輸入</td><td class="p-3 border border-gray-200"><code>input()</code> 函式 (永遠回傳字串)</td><td class="p-3 border border-gray-200"><code>cin >></code> 物件 (會自動轉型)</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本輸出</td><td class="p-3 border border-gray-200"><code>print()</code> 函式</td><td class="p-3 border border-gray-200"><code>cout &lt;&lt;</code> 物件</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">基本輸入</td><td class="p-3 border border-gray-200"><code>input()</code> 函式 (永遠回傳字串)</td><td class="p-3 border border-gray-200"><code>cin &gt;&gt;</code> 物件 (會自動轉型)</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -450,6 +450,23 @@ getline(cin, line);</code></pre>
                                     <li>養成習慣：C++ 開發者必須時刻注意變數型別與結尾的分號。</li>
                                     <li>理解差異：Python 的 <code>input()</code> 和 C++ 的 <code>cin</code> 在處理輸入的機制上有很大不同。</li>
                                     <li>識讀能力：看到 <code>#include</code> 和 <code>main()</code> 就知道是 C++；看到縮排為主的結構，就知道是 Python。</li>
+                                </ul>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '1.6',
+                        title: '相關練習題目',
+                        content: `
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=a001" target="_blank" class="text-blue-600 hover:underline">a001. 哈囉</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=a002" target="_blank" class="text-blue-600 hover:underline">a002. 簡易加法</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=a003" target="_blank" class="text-blue-600 hover:underline">a003. 兩光法師占卜術</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=c185" target="_blank" class="text-blue-600 hover:underline">c185. Hey Jude</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=i722" target="_blank" class="text-blue-600 hover:underline">i722. 蝸牛好蟀</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=j909" target="_blank" class="text-blue-600 hover:underline">j909. APCS-201810-2 矩陣轉換</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=d049" target="_blank" class="text-blue-600 hover:underline">d049. 中華民國萬歲！</a></li>
                                 </ul>
                             </div>
                         `
@@ -624,7 +641,7 @@ int main() {
                                                 <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
 int main() {
     int max_val = 2147483647;
-    std::cout &lt;&lt; max_val + 1;
+    cout &lt;&lt; max_val + 1;;
     return 0;
 }</code></pre>
                                             </div>
@@ -632,7 +649,7 @@ int main() {
                                                 <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
 int main() {
     long long max_val = 2147483647;
-    std::cout &lt;&lt; max_val + 1;
+    cout &lt;&lt; max_val + 1;;
     return 0;
 }</code></pre>
                                             </div>
@@ -692,6 +709,22 @@ double result2 = (double)5 / 2; // 方法二：強制型別轉換</code></pre>
                                     <li>除法行為是兩種語言最容易搞混的坑，務必釐清。在 C++ 中，<code>3 / 2</code> 的結果是 <code>1</code> 而不是 <code>1.5</code>。</li>
                                     <li>在 C++ 中需要進階數學運算時，記得要 <code>#include &lt;cmath&gt;</code>。</li>
                                     <li><code>++x</code> 和 <code>x++</code> 的細微差別在「程式識讀」中是常見的考點。</li>
+                                </ul>
+                            </div>
+                        `
+                    },
+                    {
+                        id: '2.7',
+                        title: '相關練習題目',
+                        content: `
+                             <div class="bg-gray-100 p-4 rounded-lg">
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=d050" target="_blank" class="text-blue-600 hover:underline">d050. 班級名單</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=d827" target="_blank" class="text-blue-600 hover:underline">d827. 買鉛筆</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=a009" target="_blank" class="text-blue-600 hover:underline">a009. 解碼器</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=b146" target="_blank" class="text-blue-600 hover:underline">b146. 猜數字</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=d073" target="_blank" class="text-blue-600 hover:underline">d073. 分組報告</a></li>
+                                    <li><a href="https://zerojudge.tw/ShowProblem?problemid=b558" target="_blank" class="text-blue-600 hover:underline">b558. 判斷質數</a></li>
                                 </ul>
                             </div>
                         `
@@ -850,7 +883,7 @@ int main() {
 b = 0.3
 print(f"a == b is {a == b}")
 # 正確作法
-if abs(a - b) < 1e-9:
+if abs(a - b) &lt; 1e-9:
     print("a and b are almost equal.")</code></pre>
                                             </div>
                                             <div class="code-content hidden" data-lang="cpp">
@@ -862,7 +895,7 @@ int main() {
     double b = 0.3;
     cout &lt;&lt; "a == b is " &lt;&lt; (a == b) &lt;&lt; endl; // 輸出 0 代表 false
     // 正確作法
-    if (abs(a - b) < 1e-9) {
+    if (abs(a - b) &lt; 1e-9) {
         cout &lt;&lt; "a and b are almost equal." &lt;&lt; endl;
     }
     return 0;
@@ -972,7 +1005,7 @@ int main() {
                                 <li><b>Python</b>: 布林值為 <code>True</code> 和 <code>False</code> (首字母大寫)。</li>
                                 <li><b>C++</b>: 布林值為 <code>true</code> 和 <code>false</code> (全小寫)。</li>
                             </ul>
-                            <p class="mb-4">要建立條件，我們使用「比較運算子」。試著在下方的遊樂場中輸入 <code>5 > 3</code> 或 <code>10 == 20</code> 看看結果！</p>
+                            <p class="mb-4">要建立條件，我們使用「比較運算子」。試著在下方的遊樂場中輸入 <code>5 &gt; 3</code> 或 <code>10 == 20</code> 看看結果！</p>
                             <div class="interactive-code-container border rounded-lg overflow-hidden" data-id="comparison-ops">
                                 <div class="flex border-b">
                                     <button class="code-tab p-3 font-semibold text-gray-600 border-b-2 border-transparent" data-lang="python">Python</button>
@@ -980,7 +1013,7 @@ int main() {
                                 </div>
                                 <div class="p-4">
                                     <div class="code-content" data-lang="python">
-                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>print(5 >= 5)</code></pre>
+                                        <pre class="code-block p-4 rounded-md" contenteditable="true"><code>print(5 &gt;= 5)</code></pre>
                                     </div>
                                     <div class="code-content hidden" data-lang="cpp">
                                         <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
@@ -1015,7 +1048,7 @@ int main() {
                                     <div class="code-content" data-lang="python">
                                         <pre class="code-block p-4 rounded-md" contenteditable="true"><code>score = 85
 # 判斷分數是否在 80~89 之間
-if score >= 80 and score < 90:
+if score &gt;= 80 and score &lt; 90:
     print("Grade: B")</code></pre>
                                     </div>
                                     <div class="code-content hidden" data-lang="cpp">
@@ -1024,7 +1057,7 @@ using namespace std;
 int main() {
     int score = 85;
     // 判斷分數是否在 80~89 之間
-    if (score >= 80 && score < 90) {
+    if (score &gt;= 80 &amp;&amp; score &lt; 90) {
         cout &lt;&lt; "Grade: B" &lt;&lt; endl;
     }
     return 0;
@@ -1054,11 +1087,11 @@ int main() {
                                 <div class="p-4">
                                     <div class="code-content" data-lang="python">
                                         <pre class="code-block p-4 rounded-md" contenteditable="true"><code>score = 75
-if score >= 90:
+if score &gt;= 90:
     print("Grade: A")
-elif score >= 80:
+elif score &gt;= 80:
     print("Grade: B")
-elif score >= 70:
+elif score &gt;= 70:
     print("Grade: C")
 else:
     print("Grade: F")</code></pre>
@@ -1068,11 +1101,11 @@ else:
 using namespace std;
 int main() {
     int score = 75;
-    if (score >= 90) {
+    if (score &gt;= 90) {
         cout &lt;&lt; "Grade: A" &lt;&lt; endl;
-    } else if (score >= 80) {
+    } else if (score &gt;= 80) {
         cout &lt;&lt; "Grade: B" &lt;&lt; endl;
-    } else if (score >= 70) {
+    } else if (score &gt;= 70) {
         cout &lt;&lt; "Grade: C" &lt;&lt; endl;
     } else {
         cout &lt;&lt; "Grade: F" &lt;&lt; endl;
@@ -1105,7 +1138,7 @@ int main() {
                                     <p class="mb-2">Python 允許像寫數學一樣串連比較，非常方便。C++ 不支援這種寫法。</p>
                                     <pre class="code-block p-4 rounded-md"><code># 判斷 x 是否在 [0, 10) 區間
 x = 5
-if 0 <= x < 10: # 合法且直觀
+if 0 &lt;= x &lt; 10: # 合法且直觀
     print("x is in the range.")</code></pre>
                                 </div>
                                 <div class="p-4 bg-white rounded-lg shadow-md border">
@@ -1130,11 +1163,11 @@ if 0 <= x < 10: # 合法且直觀
                                     </thead>
                                     <tbody class="bg-white">
                                         <tr><td class="p-3 border border-gray-200 font-semibold">布林值</td><td class="p-3 border border-gray-200"><code>True</code>, <code>False</code></td><td class="p-3 border border-gray-200"><code>true</code>, <code>false</code></td></tr>
-                                        <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 AND</td><td class="p-3 border border-gray-200"><code>and</code></td><td class="p-3 border border-gray-200"><code>&&</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 AND</td><td class="p-3 border border-gray-200"><code>and</code></td><td class="p-3 border border-gray-200"><code>&amp;&amp;</code></td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 OR</td><td class="p-3 border border-gray-200"><code>or</code></td><td class="p-3 border border-gray-200"><code>||</code></td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">邏輯 NOT</td><td class="p-3 border border-gray-200"><code>not</code></td><td class="p-3 border border-gray-200"><code>!</code></td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">多重條件</td><td class="p-3 border border-gray-200"><code>elif</code></td><td class="p-3 border border-gray-200"><code>else if</code></td></tr>
-                                        <tr><td class="p-3 border border-gray-200 font-semibold">鏈式比較</td><td class="p-3 border border-gray-200">支援 (<code>0 <= x < 10</code>)</td><td class="p-3 border border-gray-200">不支援</td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">鏈式比較</td><td class="p-3 border border-gray-200">支援 (<code>0 &lt;= x &lt; 10</code>)</td><td class="p-3 border border-gray-200">不支援</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1152,13 +1185,13 @@ if 0 <= x < 10: # 合法且直觀
                                         <div>
                                             <h6 class="font-semibold text-sm mb-1">Python</h6>
                                             <pre class="code-block p-2 rounded-md text-sm"><code>def print_grade(score):
-    if score >= 90:
+    if score &gt;= 90:
         print("A")
-    elif score >= 80:
+    elif score &gt;= 80:
         print("B")
-    elif score >= 70:
+    elif score &gt;= 70:
         print("C")
-    elif score >= 60:
+    elif score &gt;= 60:
         print("D")
     else:
         print("F")</code></pre>
@@ -1166,13 +1199,13 @@ if 0 <= x < 10: # 合法且直觀
                                         <div>
                                             <h6 class="font-semibold text-sm mb-1">C++</h6>
                                             <pre class="code-block p-2 rounded-md text-sm"><code>void printGrade(int score) {
-    if (score >= 90) {
+    if (score &gt;= 90) {
         cout &lt;&lt; "A";
-    } else if (score >= 80) {
+    } else if (score &gt;= 80) {
         cout &lt;&lt; "B";
-    } else if (score >= 70) {
+    } else if (score &gt;= 70) {
         cout &lt;&lt; "C";
-    } else if (score >= 60) {
+    } else if (score &gt;= 60) {
         cout &lt;&lt; "D";
     } else {
         cout &lt;&lt; "F";
@@ -1195,11 +1228,11 @@ if 0 <= x < 10: # 合法且直觀
                                         <div>
                                             <h6 class="font-semibold text-sm mb-1">Python</h6>
                                             <pre class="code-block p-2 rounded-md text-sm"><code>def get_ticket_type(age):
-    if age < 6:
+    if age &lt; 6:
         return "免費"
-    elif age <= 17:
+    elif age &lt;= 17:
         return "學生票"
-    elif age <= 64:
+    elif age &lt;= 64:
         return "全票"
     else:
         return "敬老票"</code></pre>
@@ -1207,11 +1240,11 @@ if 0 <= x < 10: # 合法且直觀
                                         <div>
                                             <h6 class="font-semibold text-sm mb-1">C++</h6>
                                             <pre class="code-block p-2 rounded-md text-sm"><code>string getTicketType(int age) {
-    if (age < 6) {
+    if (age &lt; 6) {
         return "免費";
-    } else if (age <= 17) {
+    } else if (age &lt;= 17) {
         return "學生票";
-    } else if (age <= 64) {
+    } else if (age &lt;= 64) {
         return "全票";
     } else {
         return "敬老票";
@@ -1248,9 +1281,9 @@ if 0 <= x < 10: # 合法且直觀
                                             <pre class="code-block p-2 rounded-md text-sm"><code>string getSeason(int month) {
     if (month == 3 || month == 4 || month == 5) {
         return "春天";
-    } else if (month >= 6 && month <= 8) {
+    } else if (month &gt;= 6 &amp;&amp; month &lt;= 8) {
         return "夏天";
-    } else if (month >= 9 && month <= 11) {
+    } else if (month &gt;= 9 &amp;&amp; month &lt;= 11) {
         return "秋天";
     } else {
         return "冬天";
@@ -1304,12 +1337,13 @@ print("Hello")</code></pre>
                                 <div class="bg-white p-4 rounded-lg shadow-md border">
                                     <h5 class="font-bold mb-2">C++</h5>
                                     <pre class="code-block p-4 rounded-md"><code>#include &lt;iostream&gt;
+using namespace std;
 int main() {
-    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
-    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
-    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
-    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
-    std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;
+    cout &lt;&lt; "Hello" &lt;&lt; endl;
+    cout &lt;&lt; "Hello" &lt;&lt; endl;
+    cout &lt;&lt; "Hello" &lt;&lt; endl;
+    cout &lt;&lt; "Hello" &lt;&lt; endl;
+    cout &lt;&lt; "Hello" &lt;&lt; endl;
     return 0;
 }</code></pre>
                                 </div>
@@ -1358,7 +1392,7 @@ for i in range(10, 2, -2):
 using namespace std;
 int main() {
     // 印出 0, 1, 2, 3, 4
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i &lt; 5; i++) {
         cout &lt;&lt; i &lt;&lt; " ";
     }
     cout &lt;&lt; endl;
@@ -1392,7 +1426,7 @@ int main() {
 for i in range(1, 11):
     if i % 2 == 0:
         continue
-    if i > 7:
+    if i &gt; 7:
         break
     print(i)</code></pre>
                                     </div>
@@ -1400,11 +1434,11 @@ for i in range(1, 11):
                                         <pre class="code-block p-4 rounded-md" contenteditable="true"><code>#include &lt;iostream&gt;
 using namespace std;
 int main() {
-    for (int i = 1; i <= 10; i++) {
+    for (int i = 1; i &lt;= 10; i++) {
         if (i % 2 == 0) {
             continue;
         }
-        if (i > 7) {
+        if (i &gt; 7) {
             break;
         }
         cout &lt;&lt; i &lt;&lt; endl;
@@ -1446,8 +1480,8 @@ for i in range(3):
 using namespace std;
 int main() {
     // 印出 3x3 的星號方陣
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i &lt; 3; i++) {
+        for (int j = 0; j &lt; 3; j++) {
             cout &lt;&lt; "*";
         }
         cout &lt;&lt; endl;
@@ -1480,7 +1514,7 @@ int main() {
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white">
-                                        <tr><td class="p-3 border border-gray-200 font-semibold">計數迴圈</td><td class="p-3 border border-gray-200"><code>for i in range(n):</code></td><td class="p-3 border border-gray-200"><code>for (int i = 0; i < n; i++)</code></td></tr>
+                                        <tr><td class="p-3 border border-gray-200 font-semibold">計數迴圈</td><td class="p-3 border border-gray-200"><code>for i in range(n):</code></td><td class="p-3 border border-gray-200"><code>for (int i = 0; i &lt; n; i++)</code></td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">遍歷迴圈</td><td class="p-3 border border-gray-200"><code>for item in sequence:</code></td><td class="p-3 border border-gray-200"><code>for (auto item : container)</code></td></tr>
                                         <tr><td class="p-3 border border-gray-200 font-semibold">迴圈控制</td><td class="p-3 border border-gray-200"><code>break</code>, <code>continue</code></td><td class="p-3 border border-gray-200"><code>break</code>, <code>continue</code></td></tr>
                                     </tbody>
@@ -1517,11 +1551,27 @@ int main() {
                     btn.disabled = true;
                     btn.textContent = 'Python 初始化中...';
                 });
-                pyodide = await loadPyodide();
-                runButtons.forEach(btn => {
-                    btn.disabled = false;
-                    btn.textContent = '▶ 執行';
-                });
+                try {
+                    pyodide = await loadPyodide();
+                    runButtons.forEach(btn => {
+                        const container = btn.closest('.interactive-code-container');
+                        const pythonTab = container.querySelector('.code-tab[data-lang="python"]');
+                        if (pythonTab) {
+                            btn.disabled = false;
+                            btn.textContent = '▶ 執行';
+                        }
+                    });
+                } catch (error) {
+                    console.error('Pyodide initialization failed:', error);
+                    runButtons.forEach(btn => {
+                        const container = btn.closest('.interactive-code-container');
+                        const pythonTab = container.querySelector('.code-tab[data-lang="python"]');
+                        if (pythonTab) {
+                            btn.textContent = 'Python 載入失敗';
+                            btn.disabled = true;
+                        }
+                    });
+                }
             }
             initPyodide();
             
@@ -1682,7 +1732,7 @@ int main() {
                             else if (containerId === 'if-else') simulationOutput = 'Grade: C';
                             else if (containerId === 'cpp-for') simulationOutput = '0 1 2 3 4 ';
                             else if (containerId === 'loop-control') simulationOutput = '1\n3\n5\n7';
-                            else if (containerId === 'nested-loop') simulationOutput = '*\*\*\n***\n***';
+                            else if (containerId === 'nested-loop') simulationOutput = '***\n***\n***';
                             
                             outputConsole.textContent = `[模擬輸出]\n${simulationOutput}\n\n---\n💡 C++ 無法在瀏覽器中直接編譯。\n此為模擬執行結果，您編輯的內容不會影響此輸出。`;
                         }
