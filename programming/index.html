@@ -1146,7 +1146,40 @@ if 0 <= x < 10: # 合法且直觀
                         content: `
                             <div class="space-y-8">
                                 <div class="quiz-container bg-white p-6 rounded-lg shadow-md border" data-correct="B">
-                                    <p class="font-bold mb-4">題目一：成績等級判斷 (輸入分數為 85)</p>
+                                    <p class="font-bold mb-2">題目一：成績等級判斷</p>
+                                    <p class="text-sm mb-4">根據以下程式碼，若輸入分數為 85，請問程式會輸出什麼？</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <h6 class="font-semibold text-sm mb-1">Python</h6>
+                                            <pre class="code-block p-2 rounded-md text-sm"><code>def print_grade(score):
+    if score >= 90:
+        print("A")
+    elif score >= 80:
+        print("B")
+    elif score >= 70:
+        print("C")
+    elif score >= 60:
+        print("D")
+    else:
+        print("F")</code></pre>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold text-sm mb-1">C++</h6>
+                                            <pre class="code-block p-2 rounded-md text-sm"><code>void printGrade(int score) {
+    if (score >= 90) {
+        cout &lt;&lt; "A";
+    } else if (score >= 80) {
+        cout &lt;&lt; "B";
+    } else if (score >= 70) {
+        cout &lt;&lt; "C";
+    } else if (score >= 60) {
+        cout &lt;&lt; "D";
+    } else {
+        cout &lt;&lt; "F";
+    }
+}</code></pre>
+                                        </div>
+                                    </div>
                                     <div class="space-y-2">
                                         <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(A) A</button>
                                         <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(B) B</button>
@@ -1156,7 +1189,36 @@ if 0 <= x < 10: # 合法且直觀
                                     <div class="quiz-feedback mt-3 text-sm"></div>
                                 </div>
                                 <div class="quiz-container bg-white p-6 rounded-lg shadow-md border" data-correct="B">
-                                    <p class="font-bold mb-4">題目二：電影票價計算 (一位 17 歲的青少年)</p>
+                                    <p class="font-bold mb-2">題目二：電影票價計算</p>
+                                    <p class="text-sm mb-4">根據以下程式碼，若一位 17 歲的青少年去看電影，他應該購買哪種票？</p>
+                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <h6 class="font-semibold text-sm mb-1">Python</h6>
+                                            <pre class="code-block p-2 rounded-md text-sm"><code>def get_ticket_type(age):
+    if age < 6:
+        return "免費"
+    elif age <= 17:
+        return "學生票"
+    elif age <= 64:
+        return "全票"
+    else:
+        return "敬老票"</code></pre>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold text-sm mb-1">C++</h6>
+                                            <pre class="code-block p-2 rounded-md text-sm"><code>string getTicketType(int age) {
+    if (age < 6) {
+        return "免費";
+    } else if (age <= 17) {
+        return "學生票";
+    } else if (age <= 64) {
+        return "全票";
+    } else {
+        return "敬老票";
+    }
+}</code></pre>
+                                        </div>
+                                    </div>
                                     <div class="space-y-2">
                                         <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(A) 免費</button>
                                         <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(B) 學生票</button>
@@ -1166,7 +1228,36 @@ if 0 <= x < 10: # 合法且直觀
                                     <div class="quiz-feedback mt-3 text-sm"></div>
                                 </div>
                                 <div class="quiz-container bg-white p-6 rounded-lg shadow-md border" data-correct="D">
-                                    <p class="font-bold mb-4">題目三：季節判斷 (輸入月份是 12)</p>
+                                    <p class="font-bold mb-2">題目三：季節判斷</p>
+                                    <p class="text-sm mb-4">根據以下程式碼，如果輸入的月份是 12，程式會回傳什麼？</p>
+                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <h6 class="font-semibold text-sm mb-1">Python</h6>
+                                            <pre class="code-block p-2 rounded-md text-sm"><code>def get_season(month):
+    if month in [3, 4, 5]:
+        return "春天"
+    elif month in [6, 7, 8]:
+        return "夏天"
+    elif month in [9, 10, 11]:
+        return "秋天"
+    else:
+        return "冬天"</code></pre>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold text-sm mb-1">C++</h6>
+                                            <pre class="code-block p-2 rounded-md text-sm"><code>string getSeason(int month) {
+    if (month == 3 || month == 4 || month == 5) {
+        return "春天";
+    } else if (month >= 6 && month <= 8) {
+        return "夏天";
+    } else if (month >= 9 && month <= 11) {
+        return "秋天";
+    } else {
+        return "冬天";
+    }
+}</code></pre>
+                                        </div>
+                                    </div>
                                     <div class="space-y-2">
                                         <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(A) 春天</button>
                                         <button class="quiz-option block w-full text-left p-3 border-2 rounded-lg transition-colors">(B) 夏天</button>
