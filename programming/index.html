@@ -24,7 +24,7 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #FDFBF8;
-            color: #4A4A4A;
+            color: #000000;
         }
         .content-section {
             display: none;
@@ -1553,22 +1553,23 @@ int main() {
                 });
                 try {
                     pyodide = await loadPyodide();
+                    // If Pyodide loads successfully, re-enable all run buttons
                     runButtons.forEach(btn => {
-                        const container = btn.closest('.interactive-code-container');
-                        const pythonTab = container.querySelector('.code-tab[data-lang="python"]');
-                        if (pythonTab) {
-                            btn.disabled = false;
-                            btn.textContent = '▶ 執行';
-                        }
+                        btn.disabled = false;
+                        btn.textContent = '▶ 執行';
                     });
                 } catch (error) {
                     console.error('Pyodide initialization failed:', error);
+                    // If Pyodide fails, only Python-related buttons should show failure
                     runButtons.forEach(btn => {
                         const container = btn.closest('.interactive-code-container');
                         const pythonTab = container.querySelector('.code-tab[data-lang="python"]');
-                        if (pythonTab) {
+                        if (pythonTab) { // This button is for a Python example
                             btn.textContent = 'Python 載入失敗';
                             btn.disabled = true;
+                        } else { // This button is for a C++ example, revert to normal
+                            btn.disabled = false;
+                            btn.textContent = '▶ 執行'; // Or whatever the default is
                         }
                     });
                 }
