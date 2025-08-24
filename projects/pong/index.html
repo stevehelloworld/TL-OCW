@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pygame Pong 遊戲製作教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Prism JS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .nav-active {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #f59e0b; /* amber-500 */
+            border-left-color: #f59e0b; /* amber-500 */
+        }
+        .step-content {
+            display: none;
+        }
+        .step-content.active {
+            display: block;
+        }
+        .content-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .content-section h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-section p, .content-section li {
+            line-height: 1.75;
+            color: #334155; /* slate-700 */
+        }
+        .content-section code:not(pre > code) {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #475569; /* slate-600 */
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        .content-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .content-section th, .content-section td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+        .content-section th {
+            background-color: #f1f5f9;
+        }
+        .content-section tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        pre[class*="language-"] {
+            background: #1e293b; /* slate-800 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 fixed top-0 left-0 h-full overflow-y-auto transition-transform -translate-x-full md:translate-x-0 z-20">
+            <div class="p-4">
+                <h2 class="text-xl font-bold text-slate-700">Pygame Pong</h2>
+                <p class="text-sm text-slate-500">遊戲製作教學</p>
+            </div>
+            <nav id="table-of-contents" class="mt-4">
+                <ul>
+                    <!-- Navigation items will be injected by JS -->
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Menu Button -->
+        <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-30 p-2 bg-white rounded-md shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+
+        <!-- Main Content -->
+        <main class="w-full md:ml-64 p-4 md:p-8 lg:p-12">
+            <div id="main-grid" class="max-w-7xl mx-auto grid grid-cols-1 gap-8">
+                <!-- Tutorial Text Column -->
+                <div>
+                    <div class="flex justify-end mb-4">
+                        <button id="toggle-code-btn" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-medium py-2 px-4 rounded-lg shadow-sm">
+                            顯示程式碼
+                        </button>
+                    </div>
+                    <div id="tutorial-content" class="prose max-w-none">
+                        <!-- Content sections will be injected and managed by JS -->
+                    </div>
+                </div>
+
+                <!-- Code Viewer Column -->
+                <div id="code-viewer-container" class="sticky top-0 h-screen overflow-hidden hidden">
+                    <div class="h-full flex flex-col bg-slate-900 rounded-lg shadow-lg">
+                        <div class="flex-shrink-0 p-4 flex justify-between items-center bg-slate-800/50 rounded-t-lg">
+                            <h3 id="code-viewer-title" class="text-lg font-semibold text-white">當前步驟程式碼</h3>
+                            <button id="copy-button" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-1 px-3 rounded-md transition-colors">
+                                複製
+                            </button>
+                        </div>
+                        <div class="flex-grow overflow-y-auto">
+                            <pre class="h-full m-0 rounded-b-lg"><code id="code-display" class="language-python text-sm"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialData = {
+                'intro': {
+                    title: '👋 歡迎',
+                    steps: [
+                        {
+                            title: '貪食蛇之後的下一步',
+                            content: `
+                                <p>恭喜你完成了貪食蛇專案！這表示你已經掌握了遊戲開發的基礎：遊戲迴圈、處理輸入和在螢幕上繪製物件。現在，是時候迎接下一個挑戰了。</p>
+                                <p>Pong 不僅僅是另一款經典遊戲，它是你學習路上一個關鍵的進化。本教學將引導你從貪食蛇的「網格世界」過渡到 Pong 的「連續物理世界」。</p>
+                                <img src="https://placehold.co/600x400/008000/FF8C00?text=Pong+Game" alt="完成的 Pong 遊戲" class="rounded-lg shadow-md my-4">
+                                <p>貪食蛇的移動是離散的，一格一格跳。但 Pong 的球是平滑移動的，這需要我們用一種全新的方式來思考運動和碰撞。準備好了嗎？讓我們開始吧！</p>`,
+                            code: `# 歡迎來到 Pygame Pong 教學！\n# 點擊「下一步」開始。`
+                        },
+                        {
+                            title: '概念轉變：從網格到向量',
+                            content: `<p>為了理解這次的學習重點，讓我們直接比較一下貪食蛇和 Pong 在核心概念上的不同。</p>
+                                      <table>
+                                          <thead>
+                                              <tr>
+                                                  <th>概念</th>
+                                                  <th>在貪食蛇中的實作 (基於網格)</th>
+                                                  <th>在 Pong 中的實作 (基於向量)</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody>
+                                              <tr>
+                                                  <td><strong>遊戲世界</strong></td>
+                                                  <td>一個由儲存格組成的離散網格。</td>
+                                                  <td>一個連續的座標空間。</td>
+                                              </tr>
+                                              <tr>
+                                                  <td><strong>物件表示</strong></td>
+                                                  <td>一個 <code>(x, y)</code> 座標元組的列表。</td>
+                                                  <td><code>pygame.Rect</code> 物件 (包含位置和大小)。</td>
+                                              </tr>
+                                              <tr>
+                                                  <td><strong>運動邏輯</strong></td>
+                                                  <td>從列表中新增/移除元素以在網格單元格之間「跳躍」。</td>
+                                                  <td>每一幀都用速度變數更新 <code>x</code> 和 <code>y</code> 的位置。</td>
+                                              </tr>
+                                              <tr>
+                                                  <td><strong>碰撞偵測</strong></td>
+                                                  <td>檢查座標是否相等。</td>
+                                                  <td>使用 <code>Rect.colliderect()</code> 檢查重疊區域。</td>
+                                              </tr>
+                                              <tr>
+                                                  <td><strong>碰撞反應</strong></td>
+                                                  <td>遊戲狀態改變 (例如，遊戲結束)。</td>
+                                                  <td>基於物理的反彈 (反轉速度向量)。</td>
+                                              </tr>
+                                          </tbody>
+                                      </table>
+                                      <p>理解這個表格是掌握本教學的關鍵。點擊「下一步」或左側的「Part 1」開始建立我們的基礎框架。</p>`,
+                            code: `# 這張表格總結了我們將要學習的核心概念轉變。\n# 我們將從座標轉向 Rect，從離散跳躍轉向連續運動。`
+                        }
+                    ]
+                },
+                'part1': {
+                    title: 'Part 1: 建立基礎',
+                    steps: [
+                        {
+                            title: '1.1: 匯入、初始化與常數',
+                            content: `<p>任何 Pygame 專案都始於相同的基本結構。我們首先匯入函式庫，初始化它，並定義一些常數，如螢幕尺寸和顏色。這次我們將使用一個經典的桌球配色方案。</p>
+                                       <ul>
+                                           <li><code>import pygame, sys, random</code>: 匯入我們專案會用到的所有函式庫。</li>
+                                           <li><code>pygame.init()</code>: 啟動 Pygame 引擎。</li>
+                                           <li>常數：我們將背景設為綠色，球設為橘色，而球拍和線條則設為白色，以達到經典的視覺效果。</li>
+                                       </ul>`,
+                            code: `import pygame
+import sys
+import random
+
+# 1. 初始化 Pygame
+pygame.init()
+
+# 2. 設定螢幕尺寸和顏色
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+BG_COLOR = pygame.Color('#008000')      # 桌球綠
+PADDLE_COLOR = pygame.Color('#FFFFFF')  # 白色
+BALL_COLOR = pygame.Color('#FF8C00')    # 暗橘色
+LINE_COLOR = pygame.Color('#FFFFFF')    # 白色
+TEXT_COLOR = pygame.Color('#FFFFFF')    # 白色`
+                        },
+                        {
+                            title: '1.2: 建立字體、時脈與顯示器',
+                            content: `<p>接下來，我們創建遊戲視窗和時脈物件。最關鍵的是，我們要建立字體物件。與其指定一個可能會在不同作業系統上導致問題的系統字體，我們將使用 <code>pygame.font.Font(None, size)</code>。這會使用 Pygame 的預設字體，它在任何作業系統上都能完美地顯示英文文字。</p>`,
+                            code: `# 3. 建立字體物件
+title_font = pygame.font.Font(None, 64)
+game_font = pygame.font.Font(None, 48)
+prompt_font = pygame.font.Font(None, 32)
+
+# 4. 建立遊戲視窗和時脈
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Pong by Pygame")
+clock = pygame.time.Clock()`
+                        },
+                        {
+                            title: '1.3: 核心遊戲迴圈',
+                            content: `<p>遊戲迴圈是每個遊戲的心臟。它是一個持續運行的 <code>while</code> 迴圈，負責處理輸入、更新狀態和繪製畫面。我們現在將用新的綠色背景來填充螢幕。</p>
+                                       <p class="mt-4 font-bold">恭喜！Part 1 已完成。點擊「下一步」進入 Part 2。</p>`,
+                            code: `# 5. 主遊戲迴圈
+running = True
+while running:
+    # --- 事件處理 ---
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # --- 遊戲邏輯將會放在這裡 ---
+
+    # --- 繪圖程式碼將會放在這裡 ---
+    screen.fill(BG_COLOR)
+
+    # --- 更新螢幕 ---
+    pygame.display.flip()
+
+    # --- 將幀率限制在 60 FPS ---
+    clock.tick(60)
+
+# 6. 退出 Pygame
+pygame.quit()
+sys.exit()`
+                        }
+                    ]
+                },
+                'part2': {
+                    title: 'Part 2: 定義競技場',
+                    steps: [
+                        {
+                            title: '2.1: 介紹 pygame.Rect',
+                            content: `<p>在貪食蛇中，我們用座標元組 <code>(x, y)</code> 來表示物件。但在 Pong 中，物件有寬度和高度。為此，我們使用 <code>pygame.Rect</code> 物件。</p>
+                                       <p><code>pygame.Rect</code> 是一個強大的工具，它不僅儲存了位置 (left, top)，還儲存了尺寸 (width, height)，並提供了許多方便的功能，例如碰撞偵測。</p>`,
+                            code: `# 我們將用 pygame.Rect 來定義我們的遊戲物件。
+# 語法: pygame.Rect(left, top, width, height)`
+                        },
+                        {
+                            title: '2.2: 創建遊戲物件',
+                            content: `<p>我們將為遊戲中的三個主要物件創建 <code>Rect</code> 物件：兩個球拍和一個球。我們會在主遊戲迴圈之前定義它們。</p>
+                                       <p>我們使用螢幕尺寸常數來計算它們的初始位置，確保它們被精確地放置在螢幕的中央和兩側。</p>`,
+                            code: `# 在創建時脈物件之後，主迴圈之前加入：
+
+# 球拍尺寸
+PADDLE_WIDTH = 10
+PADDLE_HEIGHT = 100
+
+# 球尺寸
+BALL_SIZE = 15
+
+# 為遊戲物件建立 Rect
+paddle_1 = pygame.Rect(20, SCREEN_HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+paddle_2 = pygame.Rect(SCREEN_WIDTH - 20 - PADDLE_WIDTH, SCREEN_HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+ball = pygame.Rect(SCREEN_WIDTH // 2 - BALL_SIZE // 2, SCREEN_HEIGHT // 2 - BALL_SIZE // 2, BALL_SIZE, BALL_SIZE)`
+                        },
+                        {
+                            title: '2.3: 繪製物件',
+                            content: `<p>使用 <code>Rect</code> 的一個直接好處是，Pygame 的繪圖函數可以直接接受它作為參數。在我們遊戲迴圈的繪圖區塊，我們將使用 <code>pygame.draw.rect()</code> 和 <code>pygame.draw.ellipse()</code> 來繪製我們的物件，並套用新的顏色。</p>
+                                       <p class="mt-4 font-bold">太棒了！Part 2 已完成。點擊「下一步」來讓它們動起來！</p>`,
+                            code: `# 在主迴圈的「繪圖程式碼」區塊，screen.fill(BG_COLOR) 之後加入：
+
+# 繪製球拍和球
+pygame.draw.rect(screen, PADDLE_COLOR, paddle_1)
+pygame.draw.rect(screen, PADDLE_COLOR, paddle_2)
+pygame.draw.ellipse(screen, BALL_COLOR, ball)
+
+# 繪製中線 (可選)
+pygame.draw.aaline(screen, LINE_COLOR, (SCREEN_WIDTH // 2, 0), (SCREEN_WIDTH // 2, SCREEN_HEIGHT))`
+                        }
+                    ]
+                },
+                 'part3': {
+                    title: 'Part 3: 運動的物理',
+                    steps: [
+                        {
+                            title: '3.1: 引入速度向量',
+                            content: `<p>為了實現平滑運動，我們引入「速度」的概念。我們為球創建兩個變數：<code>ball_speed_x</code> 和 <code>ball_speed_y</code>。這兩個變數共同構成了一個速度向量，決定了球在每一幀中移動的方向和距離。</p>`,
+                            code: `# 在創建 Rect 物件之後加入：
+
+# 球的速度
+ball_speed_x = 7 * random.choice((1, -1))
+ball_speed_y = 7 * random.choice((1, -1))`
+                        },
+                        {
+                            title: '3.2: 實作條件式運動',
+                            content: `<p>為了實作發球機制，我們需要一個新的狀態旗標 <code>ball_moving</code>。球的位置只應該在 <code>ball_moving</code> 為 <code>True</code> 時才更新。我們在遊戲開始時將其初始化為 <code>False</code>。</p>`,
+                            code: `# 在遊戲狀態變數區新增
+ball_moving = False
+
+# 在主迴圈的「遊戲邏輯」區塊加入：
+if ball_moving:
+    ball.x += ball_speed_x
+    ball.y += ball_speed_y`
+                        },
+                        {
+                            title: '3.3: 連續玩家輸入',
+                            content: `<p>在 Pong 中，玩家需要能夠<strong>按住</strong>一個鍵來持續移動球拍。為此，我們使用 <code>pygame.key.get_pressed()</code>，它在每一幀中檢查是否有鍵被按住，而不是只在按下瞬間觸發一次。</p>`,
+                            code: `# 在主迴圈的「遊戲邏輯」區塊加入：
+keys = pygame.key.get_pressed()
+# 玩家 1 移動 (W/S)
+if keys[pygame.K_w]:
+    paddle_1.y -= 7
+if keys[pygame.K_s]:
+    paddle_1.y += 7
+
+# 玩家 2 移動 (上/下方向鍵)
+if keys[pygame.K_UP]:
+    paddle_2.y -= 7
+if keys[pygame.K_DOWN]:
+    paddle_2.y += 7`
+                        },
+                        {
+                            title: '3.4: 邊界檢查',
+                            content: `<p>如果現在運行遊戲，你會發現球拍可以移出螢幕。我們需要添加一些邏輯來將它們限制在遊戲區域內。我們在更新它們的位置後，立即檢查它們的 <code>.top</code> 和 <code>.bottom</code> 屬性。</p>`,
+                            code: `# 在玩家移動程式碼之後加入：
+
+# 將玩家 1 的球拍限制在螢幕內
+if paddle_1.top <= 0:
+    paddle_1.top = 0
+if paddle_1.bottom >= SCREEN_HEIGHT:
+    paddle_1.bottom = SCREEN_HEIGHT
+
+# 將玩家 2 的球拍限制在螢幕內
+if paddle_2.top <= 0:
+    paddle_2.top = 0
+if paddle_2.bottom >= SCREEN_HEIGHT:
+    paddle_2.bottom = SCREEN_HEIGHT`
+                        },
+                        {
+                            title: '3.5: 發球機制',
+                            content: `<p>現在是讓玩家控制發球的時候了。在我們的事件處理迴圈中，我們檢查玩家是否按下了空白鍵。如果球是靜止的 (<code>not ball_moving</code>)，我們就將旗標設為 <code>True</code>，並賦予球一個新的隨機速度，讓比賽開始！</p>
+                                       <p class="mt-4 font-bold">核心運動機制完成！點擊「下一步」來處理碰撞。</p>`,
+                            code: `# 在事件處理迴圈中新增：
+if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+    if not ball_moving and game_active and not game_over:
+        ball_moving = True
+        ball_speed_x = 7 * random.choice((1, -1))
+        ball_speed_y = 7 * random.choice((1, -1))`
+                        }
+                    ]
+                },
+                'part4': {
+                    title: 'Part 4: 互動的邏輯',
+                     steps: [
+                        {
+                            title: '4.1: 牆壁碰撞',
+                            content: `<p>我們的物件正在移動，但它們會直接穿過邊界。首先，我們來處理球與頂部和底部牆壁的碰撞。當碰撞發生時，我們只需要反轉它的垂直速度 (<code>ball_speed_y</code>) 就可以模擬反彈。</p>`,
+                            code: `# 在球的移動邏輯 (if ball_moving:) 內部加入：
+
+# 球與頂部/底部牆壁的碰撞
+if ball.top <= 0 or ball.bottom >= SCREEN_HEIGHT:
+    ball_speed_y *= -1`
+                        },
+                        {
+                            title: '4.2: 球拍碰撞',
+                            content: `<p>現在是關鍵時刻：讓球從球拍上反彈。這就是 <code>Rect</code> 物件的威力所在。我們使用 <code>.colliderect()</code> 方法來檢查球的矩形是否與球拍的重疊。如果重疊，我們就反轉球的水平速度 (<code>ball_speed_x</code>)。</p>`,
+                            code: `# 在牆壁碰撞邏輯之後加入：
+
+# 球與球拍的碰撞
+if ball.colliderect(paddle_1) or ball.colliderect(paddle_2):
+    ball_speed_x *= -1`
+                        },
+                         {
+                            title: '4.3: 計分與準備發球',
+                            content: `<p>當球移出螢幕的左邊緣或右邊緣時，對手得分。現在，除了增加分數和重置球的位置，我們還需要將 <code>ball_moving</code> 旗標設回 <code>False</code>，讓遊戲暫停，等待下一次發球。</p>
+                                       <p class="mt-4 font-bold">互動邏輯完成！點擊「下一步」來加上計分系統。</p>`,
+                            code: `# 在碰撞邏輯之後加入：
+
+# 偵測球是否出界 (計分)
+if ball.left <= 0:
+    player_2_score += 1
+    ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    ball_moving = False
+
+if ball.right >= SCREEN_WIDTH:
+    player_1_score += 1
+    ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    ball_moving = False`
+                        }
+                    ]
+                },
+                'part5': {
+                    title: 'Part 5: 記錄分數',
+                    steps: [
+                        {
+                            title: '5.1: 建立分數變數',
+                            content: `<p>沒有計分的遊戲就不好玩了。在遊戲迴圈開始之前，我們將定義兩個變數來儲存分數。</p>`,
+                            code: `# 在速度變數之後加入：
+
+# 分數
+player_1_score = 0
+player_2_score = 0`
+                        },
+                        {
+                            title: '5.2: 顯示分數與提示',
+                            content: `<p>最後，我們在迴圈的繪圖部分顯示分數。此外，如果球是靜止的，我們需要顯示「按下空白鍵發球」的提示來引導玩家。我們將使用在 Part 1 建立好的 <code>game_font</code> 和 <code>prompt_font</code> 物件。</p>
+                                       <p class="mt-4 font-bold">計分系統完成！點擊「下一步」來加上最終的勝利條件。</p>`,
+                            code: `# 在繪圖區塊 (if game_active and not game_over:) 加入：
+
+# 繪製分數
+player_1_text = game_font.render(f"{player_1_score}", True, TEXT_COLOR)
+screen.blit(player_1_text, (SCREEN_WIDTH // 2 - 60, 20))
+
+player_2_text = game_font.render(f"{player_2_score}", True, TEXT_COLOR)
+screen.blit(player_2_text, (SCREEN_WIDTH // 2 + 40, 20))
+
+# 如果等待發球，顯示提示
+if not ball_moving:
+    prompt_surface = prompt_font.render("Press Space to Serve", True, TEXT_COLOR)
+    prompt_rect = prompt_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50))
+    screen.blit(prompt_surface, prompt_rect)`
+                        }
+                    ]
+                },
+                'part6': {
+                    title: 'Part 6: 勝利條件與重新開始',
+                    steps: [
+                        {
+                            title: '6.1: 遊戲結束旗標',
+                            content: `<p>為了處理遊戲結束的狀態，我們需要一個變數來追蹤遊戲是否結束。這通常被稱為「旗標」。我們將在分數變數下方新增一個 <code>game_over</code> 旗標，並在初始時將其設為 <code>False</code>。</p>`,
+                            code: `# 在分數變數下方新增：
+game_over = False
+winner_text = ""`
+                        },
+                        {
+                            title: '6.2: 檢查勝利者',
+                            content: `<p>現在，每當有玩家得分時，我們就檢查他的分數是否達到了勝利條件（10分）。如果達到了，我們就設定勝利訊息並將 <code>game_over</code> 旗標設為 <code>True</code>，這將會暫停遊戲。</p>`,
+                            code: `# 修改計分邏輯：
+if ball.left <= 0:
+    player_2_score += 1
+    if player_2_score >= 10:
+        winner_text = "Player 2 Wins!"
+        game_over = True
+    ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    ball_moving = False
+
+if ball.right >= SCREEN_WIDTH:
+    player_1_score += 1
+    if player_1_score >= 10:
+        winner_text = "Player 1 Wins!"
+        game_over = True
+    ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    ball_moving = False`
+                        },
+                        {
+                            title: '6.3: 處理遊戲結束與重新開始',
+                            content: `<p>我們在事件迴圈中加入邏輯：當遊戲結束時 (<code>game_over</code> 為 <code>True</code>)，如果玩家按下空白鍵，我們就重置所有狀態（分數、旗標），讓新的一局可以開始。</p>
+                                       <p class="mt-4 font-bold">遊戲現在有了明確的結束條件。點擊「下一步」來加入最後一個專業的功能：開始畫面。</p>`,
+                            code: `# 在事件處理迴圈中:
+if game_over and event.type == pygame.KEYDOWN:
+    if event.key == pygame.K_SPACE:
+        game_over = False
+        winner_text = ""
+        player_1_score = 0
+        player_2_score = 0
+        ball_moving = False
+        ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)`
+                        }
+                    ]
+                },
+                'part7': {
+                    title: 'Part 7: 建立開始畫面',
+                    steps: [
+                        {
+                            title: '7.1: 引入遊戲狀態旗標',
+                            content: `<p>一個完整的遊戲通常擁有多個狀態，例如「開始畫面」、「遊戲進行中」和「遊戲結束」。我們將使用布林值旗標來管理這些狀態。我們新增一個 <code>game_active</code> 旗標，並在遊戲開始時將其設為 <code>False</code>。</p>`,
+                            code: `# 在分數變數下方新增：
+game_active = False
+game_over = False
+winner_text = ""`
+                        },
+                        {
+                            title: '7.2: 繪製開始畫面',
+                            content: `<p>我們需要修改主迴圈的結構。如果 <code>game_active</code> 是 <code>False</code>，我們就顯示歡迎訊息和開始提示。這與我們之前繪製「遊戲結束」畫面的方式非常相似。</p>`,
+                            code: `# 在主迴圈的繪圖區塊：
+# ...
+if not game_active:
+    title_surface = title_font.render("Pong Game", True, TEXT_COLOR)
+    title_rect = title_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
+    
+    prompt_surface = prompt_font.render("Press Space to Start", True, TEXT_COLOR)
+    prompt_rect = prompt_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    
+    screen.blit(title_surface, title_rect)
+    screen.blit(prompt_surface, prompt_rect)
+# ...`
+                        },
+                        {
+                            title: '7.3: 啟動遊戲',
+                            content: `<p>在事件處理迴圈中，我們需要檢查玩家是否按下了空白鍵。如果遊戲尚未開始 (<code>not game_active</code>)，按下空白鍵就會將 <code>game_active</code> 設為 <code>True</code>，從而啟動遊戲。</p>
+                                       <p class="mt-4 font-bold">恭喜你，完成了整個教學！你已經從零打造了一個完整的 Pong 遊戲！</p>`,
+                            code: `# 在事件處理迴圈中：
+for event in pygame.event.get():
+    # ... (QUIT 事件)
+    if not game_active and event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_SPACE:
+            game_active = True
+    # ... (遊戲結束時的重新開始邏輯)`
+                        }
+                    ]
+                },
+                'final': {
+                    title: '最終程式碼',
+                    steps: [
+                        {
+                            title: '完整 main.py',
+                            content: `<p>這是整個專案的最終完整程式碼。你可以複製這段程式碼到你的 <code>main.py</code> 檔案中直接執行。</p>`,
+                            code: `import pygame
+import sys
+import random
+
+# 1. 初始化 Pygame
+pygame.init()
+
+# 2. 設定螢幕尺寸和顏色
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+BG_COLOR = pygame.Color('#008000')      # 桌球綠
+PADDLE_COLOR = pygame.Color('#FFFFFF')  # 白色
+BALL_COLOR = pygame.Color('#FF8C00')    # 暗橘色
+LINE_COLOR = pygame.Color('#FFFFFF')    # 白色
+TEXT_COLOR = pygame.Color('#FFFFFF')    # 白色
+
+# 3. 建立字體物件
+title_font = pygame.font.Font(None, 64)
+game_font = pygame.font.Font(None, 48)
+prompt_font = pygame.font.Font(None, 32)
+
+# 4. 建立遊戲視窗和時脈
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Pong by Pygame")
+clock = pygame.time.Clock()
+
+# 球拍尺寸
+PADDLE_WIDTH = 10
+PADDLE_HEIGHT = 100
+
+# 球尺寸
+BALL_SIZE = 15
+
+# 為遊戲物件建立 Rect
+paddle_1 = pygame.Rect(20, SCREEN_HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+paddle_2 = pygame.Rect(SCREEN_WIDTH - 20 - PADDLE_WIDTH, SCREEN_HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+ball = pygame.Rect(SCREEN_WIDTH // 2 - BALL_SIZE // 2, SCREEN_HEIGHT // 2 - BALL_SIZE // 2, BALL_SIZE, BALL_SIZE)
+
+# 球的速度
+ball_speed_x = 0
+ball_speed_y = 0
+
+# 分數
+player_1_score = 0
+player_2_score = 0
+
+# 遊戲狀態
+game_active = False
+ball_moving = False
+game_over = False
+winner_text = ""
+
+# 5. 主遊戲迴圈
+running = True
+while running:
+    # --- 事件處理 ---
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if not game_active:
+                game_active = True
+            
+            if not ball_moving and game_active and not game_over:
+                ball_moving = True
+                ball_speed_x = 7 * random.choice((1, -1))
+                ball_speed_y = 7 * random.choice((1, -1))
+
+            if game_over:
+                game_over = False
+                winner_text = ""
+                player_1_score = 0
+                player_2_score = 0
+                ball_moving = False
+                ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+    # --- 繪圖與邏輯 ---
+    screen.fill(BG_COLOR)
+
+    if game_active and not game_over:
+        # --- 遊戲邏輯 (只有球在動的時候才更新) ---
+        if ball_moving:
+            ball.x += ball_speed_x
+            ball.y += ball_speed_y
+
+            if ball.top <= 0 or ball.bottom >= SCREEN_HEIGHT:
+                ball_speed_y *= -1
+            if ball.colliderect(paddle_1) or ball.colliderect(paddle_2):
+                ball_speed_x *= -1
+
+            if ball.left <= 0:
+                player_2_score += 1
+                if player_2_score >= 10:
+                    winner_text = "Player 2 Wins!"
+                    game_over = True
+                ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                ball_moving = False
+
+            if ball.right >= SCREEN_WIDTH:
+                player_1_score += 1
+                if player_1_score >= 10:
+                    winner_text = "Player 1 Wins!"
+                    game_over = True
+                ball.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                ball_moving = False
+        
+        # --- 玩家移動 (隨時都可以) ---
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]: paddle_1.y -= 7
+        if keys[pygame.K_s]: paddle_1.y += 7
+        if keys[pygame.K_UP]: paddle_2.y -= 7
+        if keys[pygame.K_DOWN]: paddle_2.y += 7
+
+        if paddle_1.top <= 0: paddle_1.top = 0
+        if paddle_1.bottom >= SCREEN_HEIGHT: paddle_1.bottom = SCREEN_HEIGHT
+        if paddle_2.top <= 0: paddle_2.top = 0
+        if paddle_2.bottom >= SCREEN_HEIGHT: paddle_2.bottom = SCREEN_HEIGHT
+        
+        # --- 遊戲中繪圖 ---
+        pygame.draw.rect(screen, PADDLE_COLOR, paddle_1)
+        pygame.draw.rect(screen, PADDLE_COLOR, paddle_2)
+        pygame.draw.ellipse(screen, BALL_COLOR, ball)
+        pygame.draw.aaline(screen, LINE_COLOR, (SCREEN_WIDTH // 2, 0), (SCREEN_WIDTH // 2, SCREEN_HEIGHT))
+        
+        player_1_text = game_font.render(f"{player_1_score}", True, TEXT_COLOR)
+        screen.blit(player_1_text, (SCREEN_WIDTH // 2 - 60, 20))
+        player_2_text = game_font.render(f"{player_2_score}", True, TEXT_COLOR)
+        screen.blit(player_2_text, (SCREEN_WIDTH // 2 + 40, 20))
+
+        if not ball_moving:
+            prompt_surface = prompt_font.render("Press Space to Serve", True, TEXT_COLOR)
+            prompt_rect = prompt_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50))
+            screen.blit(prompt_surface, prompt_rect)
+
+    elif game_over:
+        win_text_surface = game_font.render(winner_text, True, TEXT_COLOR)
+        win_text_rect = win_text_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+        screen.blit(win_text_surface, win_text_rect)
+        
+        restart_text_surface = prompt_font.render("Press Space to Restart", True, TEXT_COLOR)
+        restart_text_rect = restart_text_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        screen.blit(restart_text_surface, restart_text_rect)
+    
+    else: # 如果遊戲未啟動且未結束 -> 開始畫面
+        title_surface = title_font.render("Pong Game", True, TEXT_COLOR)
+        title_rect = title_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
+        
+        prompt_surface = prompt_font.render("Press Space to Start", True, TEXT_COLOR)
+        prompt_rect = prompt_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        
+        screen.blit(title_surface, title_rect)
+        screen.blit(prompt_surface, prompt_rect)
+
+
+    # --- 更新螢幕 ---
+    pygame.display.flip()
+
+    # --- 將幀率限制在 60 FPS ---
+    clock.tick(60)
+
+# 6. 退出 Pygame
+pygame.quit()
+sys.exit()`
+                        }
+                    ]
+                }
+            };
+
+            const toc = document.getElementById('table-of-contents').getElementsByTagName('ul')[0];
+            const tutorialContent = document.getElementById('tutorial-content');
+            const codeDisplay = document.getElementById('code-display');
+            const copyButton = document.getElementById('copy-button');
+            const codeTitle = document.getElementById('code-viewer-title');
+            const toggleCodeBtn = document.getElementById('toggle-code-btn');
+            const codeViewerContainer = document.getElementById('code-viewer-container');
+            const mainGrid = document.getElementById('main-grid');
+            
+            let currentPage = 'intro';
+            let currentStep = 0;
+            let currentCode = '';
+
+            function renderPage(pageId, startStep = 0) {
+                currentPage = pageId;
+                currentStep = startStep;
+                
+                const pageData = tutorialData[pageId];
+                if (!pageData) return;
+
+                tutorialContent.innerHTML = ''; // Clear previous content
+
+                const pageContainer = document.createElement('div');
+                pageContainer.id = `page-${pageId}`;
+                pageContainer.classList.add('content-section');
+                
+                let stepsHtml = `<h3>${pageData.title}</h3>`;
+                pageData.steps.forEach((step, index) => {
+                    stepsHtml += `<div class="step-content ${index === startStep ? 'active' : ''}" data-step="${index}">
+                                    <h4>${step.title}</h4>
+                                    ${step.content}
+                                  </div>`;
+                });
+                
+                pageContainer.innerHTML = stepsHtml;
+
+                const navigationButtons = document.createElement('div');
+                navigationButtons.classList.add('mt-8', 'flex', 'justify-between');
+                navigationButtons.innerHTML = `
+                    <button class="prev-step-btn bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        &larr; 上一步
+                    </button>
+                    <button class="next-step-btn bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded">
+                        下一步 &rarr;
+                    </button>
+                `;
+                pageContainer.appendChild(navigationButtons);
+                tutorialContent.appendChild(pageContainer);
+
+                updateStep();
+                updateNavButtons();
+
+                document.querySelector('.prev-step-btn').addEventListener('click', () => {
+                    const pageKeys = Object.keys(tutorialData);
+                    const currentPageIndex = pageKeys.indexOf(currentPage);
+
+                    if (currentStep > 0) {
+                        currentStep--;
+                        updateStep();
+                    } else if (currentPageIndex > 0) {
+                        const prevPageId = pageKeys[currentPageIndex - 1];
+                        const prevPageData = tutorialData[prevPageId];
+                        renderPage(prevPageId, prevPageData.steps.length - 1);
+                    }
+                    updateNavButtons();
+                });
+
+                document.querySelector('.next-step-btn').addEventListener('click', () => {
+                     const pageKeys = Object.keys(tutorialData);
+                     const currentPageIndex = pageKeys.indexOf(currentPage);
+
+                    if (currentStep < pageData.steps.length - 1) {
+                        currentStep++;
+                        updateStep();
+                    } else if (currentPageIndex < pageKeys.length - 1) {
+                        renderPage(pageKeys[currentPageIndex + 1]);
+                    }
+                    updateNavButtons();
+                });
+
+                // Update sidebar active state
+                toc.querySelectorAll('a').forEach(link => {
+                    if (link.getAttribute('data-page') === pageId) {
+                        link.classList.add('nav-active');
+                    } else {
+                        link.classList.remove('nav-active');
+                    }
+                });
+            }
+
+            function updateStep() {
+                const pageData = tutorialData[currentPage];
+                const stepData = pageData.steps[currentStep];
+
+                document.querySelectorAll('.step-content').forEach(el => {
+                    el.classList.remove('active');
+                });
+                const activeStepEl = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+                if (activeStepEl) {
+                    activeStepEl.classList.add('active');
+                }
+                
+                currentCode = stepData.code.trim();
+                codeTitle.textContent = stepData.title;
+                codeDisplay.innerHTML = Prism.highlight(currentCode, Prism.languages.python, 'python');
+            }
+
+            function updateNavButtons() {
+                const prevBtn = document.querySelector('.prev-step-btn');
+                const nextBtn = document.querySelector('.next-step-btn');
+                if (!prevBtn || !nextBtn) return;
+
+                const pageData = tutorialData[currentPage];
+                const pageKeys = Object.keys(tutorialData);
+                const currentPageIndex = pageKeys.indexOf(currentPage);
+
+                prevBtn.disabled = (currentPageIndex === 0 && currentStep === 0);
+                nextBtn.disabled = (currentPageIndex === pageKeys.length - 1 && currentStep === pageData.steps.length - 1);
+            }
+
+            // Build sidebar
+            Object.keys(tutorialData).forEach(pageId => {
+                const pageData = tutorialData[pageId];
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" data-page="${pageId}" class="block border-l-4 border-transparent px-4 py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors">${pageData.title}</a>`;
+                toc.appendChild(li);
+            });
+
+            // Sidebar click listeners
+            toc.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = e.target.getAttribute('data-page');
+                    renderPage(pageId);
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                });
+            });
+
+            copyButton.addEventListener('click', () => {
+                // Use the deprecated execCommand for broader compatibility in sandboxed environments
+                const textArea = document.createElement("textarea");
+                textArea.value = currentCode;
+                textArea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyButton.textContent = '已複製!';
+                    setTimeout(() => {
+                        copyButton.textContent = '複製';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                }
+                document.body.removeChild(textArea);
+            });
+
+            // Toggle Code Viewer
+            toggleCodeBtn.addEventListener('click', () => {
+                const isHidden = codeViewerContainer.classList.toggle('hidden');
+                mainGrid.classList.toggle('lg:grid-cols-2');
+                toggleCodeBtn.textContent = isHidden ? '顯示程式碼' : '隱藏程式碼';
+            });
+
+            // Initial render
+            renderPage('intro');
+
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+        });
+    </script>
+</body>
+</ht
